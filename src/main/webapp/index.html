@@ -1,0 +1,74 @@
+<!doctype html xmlns="http://www.w3.org/1999/xhtml" xmlns:lift='http://liftweb.net'>
+<html class="no-js" lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <!-- Place favicon.ico in the root directory -->
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/main.css" data-lift="with-resource-id">
+    <link rel="stylesheet" href="/css/animate.css">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <script src="/js/vendor/modernizr-2.8.3.min.js"></script>
+  </head>
+  <body>
+    <!--[if lt IE 8]>
+    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+    <!-- Logo -->
+    <div class="container-fluid" id="banner">
+      <div class="container">
+        <div class="row">
+          <a href="/index.html" class="navbar-left"><img src="/img/logo.gif"></a>
+        </div>
+      </div>
+    </div>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          </button>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="/index.html">Account</a></li>
+          </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+      <div class="container-fluid subnavbar">
+        <div class="container">
+          <ul class="breadcrumb">
+            <div data-lift="breadcrumb.bootstrap"></div>
+          </ul>
+        </div>
+      </div>
+      <!-- Begin page content -->
+      <div class="container">
+        <h2 class="text-brand">Create or reset account</h2>
+        <form data-lift="form.ajax">
+          <div data-lift="step">
+            <input type="text" name="name" placeholder="What's your name?">
+            <div data-lift="step.route"></div>
+          </div>
+        </form>
+      </div>
+      <footer class="footer">
+        <div data-lift="embed?what=/ajax-templates-hidden/footer"></div>
+      </footer>
+      <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+      <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.12.0.min.js"><\/script>')</script>
+      <script src="/js/plugins.js"></script>
+      <script src="/js/main.js"></script>
+      <script src="/js/bootstrap.min.js"></script>
+    </body>
+  </html>
