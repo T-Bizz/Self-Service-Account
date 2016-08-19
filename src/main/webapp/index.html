@@ -38,7 +38,12 @@
                   <h4 class="text-brand text-center">Sign up to create or reset your account</h4>
                 </div>
               </div>
-              <div id="main" data-lift="step.route"></div>
+                <form data-lift="form.ajax" action="/index" method="post">
+                  <div data-lift="step">
+                    <div id="step-form"></div>
+                    <input type="submit" class="btn btn-primary btn-lg btn-block">
+                  </div>
+                </form>
             </div>
           </div>
         </div>
