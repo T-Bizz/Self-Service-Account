@@ -277,6 +277,14 @@ body {
     min-width: 70%;
 }
 
+IMG.logo-center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto; 
+    min-width: 50%;
+    max-width: 100%;
+}
+
 .navbar {
     margin-bottom: 0px;
     min-height: 53px;
@@ -338,6 +346,17 @@ html {
 
 /* Bootstrap customizations
 -------------------------------------------------- */
+.panel {
+    -webkit-box-shadow: 0 0px 1px rgba(0,0,0,0.3);
+    box-shadow: 0 0px 1px rgba(0,0,0,0.3);
+}
+
+.btn {
+  text-transform: none;
+  -webkit-box-shadow: 0px 0px 1px rgba(0,0,0,0.4);
+  box-shadow: 0px 0px 1px rgba(0,0,0,0.4);
+}
+
 .navbar {
     border-radius: 0px !important;
 }

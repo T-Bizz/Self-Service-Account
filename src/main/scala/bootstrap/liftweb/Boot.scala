@@ -13,7 +13,7 @@ class Boot {
       case resp => resp
     }
 
-    LiftRules.setSiteMap(SiteMap(Menu.i("Account Management") / "index"))
+    LiftRules.setSiteMap(SiteMap(Menu.i("Account Management") / "index", Menu.i("Account Management") / "alt"))
 
     // Use HTML5 for rendering
     LiftRules.htmlProperties.default.set( (r: Req) =>

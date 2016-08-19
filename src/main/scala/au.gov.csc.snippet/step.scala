@@ -7,28 +7,32 @@ import net.liftweb.http.js.JsCmds
 import net.liftweb.json.DefaultFormats
 import net.liftweb.util.Helpers._
 import scala.xml.{NodeSeq}
+import net.liftweb.util.Helpers._
+import net.liftweb.http.SHtml.{text,ajaxSubmit}
+import net.liftweb.http.js.JsCmd
+import net.liftweb.http.js.JsCmds.SetHtml
+import xml.Text
+import net.liftweb.common.Full
+import net.liftweb.http.S
+import net.liftweb.util.PassThru
 
 object step extends Loggable {
   var number: Int = 0
   var numberOfQuestions = 4
 
   def render = {
+    def process() : JsCmd = JqJE.JqHtml(<div data-lift="embed?what=/ajax-templates-hidden/step-1"></div>)
 
-    var name = ""
-
-    def process() : JsCmd = SetHtml("result", Text(name))
-
-    "@name" #> text(name, s => name = s) &
-      "type=submit" #> ajaxSubmit("Click Me", process)
+    "@serviceNumber" #> text(serviceNumber, s => serviceNumber = s) &
+      "type=submit" #> ajaxSubmit("Submit", process)
   }
 
   // TODO - make this route to the page we want based on state
   def route(xhtml:NodeSeq): NodeSeq = {
     number match {
-      case 1 => deincrementStep
-        <div data-lift="embed?what=/ajax-templates-hidden/step-1"></div>
-      case _ => incrementStep
-        <div data-lift="embed?what=/ajax-templates-hidden/step-0"></div>
+      case 2 => <div data-lift="embed?what=/ajax-templates-hidden/step-2"></div>
+      case 1 => <div data-lift="embed?what=/ajax-templates-hidden/step-1"></div>
+      case _ => <div data-lift="embed?what=/ajax-templates-hidden/step-0"></div>
     }
   }
 
@@ -52,5 +56,9 @@ object step extends Loggable {
 
   def deincrementStep = {
     number -= 1
+  }
+
+  def resetStep = {
+    number = 0
   }
 }

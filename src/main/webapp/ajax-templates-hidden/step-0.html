@@ -1,19 +1,31 @@
 <div data-lift="surround?with=default&at=content">
-  <p class="lead">
-    Provide your Australian Government Service (AGS) or Service Number and email address to create or reset an account.
-  </p>
-  <p>
-    <div class="input-group">
-      <span class="input-group-addon" id="number"><i class="fa fa-hashtag"></i></span>
-      <input type="text" class="form-control" placeholder="Service Number" aria-describedby="number">
+  <form data-lift="form.ajax" action="/index" method="post">
+    <div data-lift="step">
+      <div class="input-group input-group-lg">
+        <span class="input-group-addon" id="number"><i class="fa fa-hashtag"></i></span>
+        <input type="text" class="form-control" placeholder="AGS or Service Number" aria-describedby="number" name="serviceNumber" id="serviceNumber">
+        <span class="input-group-addon hidden-xs">
+          <button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="top" data-content="Australian Government Service Number (AGS) or Military Service Number.">
+          <span class="fa fa-question"></span>
+          </button>
+        </span>
+      </div>
+      <br/>
+      <div class="input-group input-group-lg">
+        <span class="input-group-addon" id="email"><i class="fa fa-envelope"></i></span>
+        <input type="text" class="form-control" placeholder="Email address" aria-describedby="email" name="email" id="email">
+        <span class="input-group-addon hidden-xs">
+          <button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="top" data-content="Your personal email account.">
+          <span class="fa fa-question"></span>
+          </button>
+        </span>
+      </div>
+      <input type="submit" class="btn btn-primary btn-lg btn-block">
     </div>
-    <br/>
-    <div class="input-group">
-      <span class="input-group-addon" id="email"><i class="fa fa-envelope"></i></span>
-      <input type="text" class="form-control" placeholder="Email address" aria-describedby="email">
-    </div>
-  </p>
-  <p>
-    <button type="button" class="btn btn-primary pull-right">Next</button>
-  </p>
+  </form>
+  <script type="text/javascript">
+    $(function () {
+      $('[data-toggle="popover"]').popover()
+    })
+  </script>
 </div>
