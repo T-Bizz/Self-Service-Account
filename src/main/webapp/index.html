@@ -24,7 +24,7 @@
     <div class="container-fluid" style="margin-top:60px;">
       <div class="container">
         <div class="row">
-          <div class="panel panel-default">
+          <div class="panel panel-default animated fadeIn">
             <div class="panel-heading background-csc">
               <div class="row">
                 <div class="col-md-6 col-md-offset-3">
@@ -35,15 +35,16 @@
             <div class="panel-body">
               <div class="row">
                 <div class="col-md-6 col-md-offset-3">
-                  <h4 class="text-brand text-center">Sign up to create or reset your account</h4>
+                  <h4 class="text-brand text-center">Create or reset account</h4>
                 </div>
               </div>
-                <form data-lift="form.ajax" action="/index" method="post">
-                  <div data-lift="step">
-                    <div id="step-form"></div>
-                    <input type="submit" class="btn btn-primary btn-lg btn-block">
-                  </div>
-                </form>
+              <form data-lift="form.ajax" action="/index" method="post">
+                <div data-lift="step">
+                  <div id="step-form"></div>
+                  <input type="submit" class="btn btn-primary btn-lg btn-block animated fadeIn">
+                  <div data-lift="embed?what=/ajax-templates-hidden/spinner"></div>
+                </div>
+              </form>
             </div>
           </div>
         </div>

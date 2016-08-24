@@ -1,26 +1,53 @@
-<div id="step-form">
+<div id="step-form" class="animated fadeIn">
+  <div data-lift="Msgs?showAll=false">
+  <lift:notice_class>noticeBox</lift:notice_class>
+</div>
+<p class="lead text-center">
+  Provide a membership number in addition to an email address or phone number to provision an account.
+</p>
+<div id="form-group-serviceNumber" class="form-group" data-lift="ValidateServiceNumber">
   <div class="input-group input-group-lg">
-    <span class="input-group-addon" id="number"><i class="fa fa-hashtag"></i></span>
+    <span class="input-group-addon" id="number"><i class="fa fa-hashtag fa-fw"></i></span>
     <input type="text" class="form-control" placeholder="AGS or Service Number" aria-describedby="number" name="serviceNumber" id="serviceNumber">
     <span class="input-group-addon hidden-xs">
-      <button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="top" data-content="Australian Government Service Number (AGS) or Military Service Number.">
+      <button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="top" data-content="Australian Government Service Number (AGS) or Military Service Number." tabindex="-1">
       <span class="fa fa-question"></span>
       </button>
     </span>
   </div>
-  <br/>
-  <div class="input-group input-group-lg">
-    <span class="input-group-addon" id="email"><i class="fa fa-envelope"></i></span>
-    <input type="text" class="form-control" placeholder="Email address" aria-describedby="email" name="email" id="email">
-    <span class="input-group-addon hidden-xs">
-      <button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="top" data-content="Your personal email account.">
-      <span class="fa fa-question"></span>
-      </button>
-    </span>
+</div>
+<div class="row">
+  <div class="col-md-5">
+    <div class="form-group">
+      <div class="input-group input-group-lg">
+        <span class="input-group-addon" id="email"><i class="fa fa-envelope fa-fw"></i></span>
+        <input type="text" class="form-control" placeholder="Email address" aria-describedby="email" name="email" id="email">
+        <span class="input-group-addon hidden-xs">
+          <button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="top" data-content="Your personal email account." tabindex="-1">
+          <span class="fa fa-question"></span>
+          </button>
+        </span>
+      </div>
+    </div>
   </div>
-  <script type="text/javascript">
-    $(function () {
-      $('[data-toggle="popover"]').popover()
-    })
-  </script>
+  <div class="col-md-2 hidden-xs hidden-sm text-center"><h4>or</h4></div>
+  <div class="col-md-5">
+    <div class="form-group">
+      <div class="input-group input-group-lg">
+        <span class="input-group-addon" id="phoneNumber"><i class="fa fa-mobile fa-fw"></i></span>
+        <input type="text" class="form-control" placeholder="Phone number" aria-describedby="phoneNumber" name="phoneNumber" id="phoneNumber">
+        <span class="input-group-addon hidden-xs">
+          <button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="top" data-content="Your personal phone number." tabindex="-1">
+          <span class="fa fa-question"></span>
+          </button>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+$(function () {
+$('[data-toggle="popover"]').popover()
+})
+</script>
 </div>

@@ -1,5 +1,14 @@
 <div data-lift="surround?with=default&at=content">
-  <p class="lead">
-    Question
-  </p>
+  <div class="form-group" data-lift="question">
+    <label for="question" id="question-label">Question #</label>
+    <div class="input-group input-group-lg">
+      <span class="input-group-addon" id="question-icon"><i class="fa fa-question fa-fw"></i></span>
+      <input type="text" class="form-control" placeholder="Question" aria-describedby="question-label" name="question" id="question">
+      <span class="input-group-addon hidden-xs">
+        <button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="top" data-content="todo" tabindex="-1">
+        <span class="fa fa-question fa-fw"></span>
+        </button>
+      </span>
+    </div>
+  </div>
 </div>
