@@ -1,12 +1,13 @@
 package au.gov.csc.snippet
 
 import net.liftweb.common.Loggable
+
 import scala.xml.NodeSeq
 import net.liftweb.util.Helpers._
 import net.liftweb.http.SHtml.ajaxSubmit
-import net.liftweb.http.js.{JsCmd}
-import net.liftweb.http.js.JsCmds.{SetHtml}
-import xml.Text
+import net.liftweb.http.js.JE.JsRaw
+import net.liftweb.http.js.JsCmd
+import net.liftweb.http.js.JsCmds.SetHtml
 
 import scala.util.Random
 
@@ -19,10 +20,6 @@ object step extends Loggable {
     def process() : JsCmd = {
       Thread.sleep(500 + Random.nextInt(3000))
       incrementStep
-
-      if (step == numberOfSteps) {
-        SetHtml("#submit", Text("Member Login"))
-      }
 
       SetHtml("step-form", route)
     }
@@ -38,18 +35,30 @@ object step extends Loggable {
         case 4 => <div data-lift="embed?what=/ajax-templates-hidden/step-3"></div>
         case 3 => <div data-lift="embed?what=/ajax-templates-hidden/step-2"></div>
         case 1 | 2 => <div data-lift="embed?what=/ajax-templates-hidden/step-1"></div>
+        case 0 => if (ValidateServiceNumber.serviceNumber == "0")
+                    <div data-lift="embed?what=/ajax-templates-hidden/step-0-alt"></div>
+                  else
+                    <div data-lift="embed?what=/ajax-templates-hidden/step-0"></div>
         case _ => <div data-lift="embed?what=/ajax-templates-hidden/step-0"></div>
       }
       case 6 => step match {
         case 3 => <div data-lift="embed?what=/ajax-templates-hidden/step-3"></div>
         case 2 => <div data-lift="embed?what=/ajax-templates-hidden/step-2"></div>
         case 1 => <div data-lift="embed?what=/ajax-templates-hidden/step-1"></div>
+        case 0 => if (ValidateServiceNumber.serviceNumber == "0")
+          <div data-lift="embed?what=/ajax-templates-hidden/step-0-alt"></div>
+        else
+          <div data-lift="embed?what=/ajax-templates-hidden/step-0"></div>
         case _ => <div data-lift="embed?what=/ajax-templates-hidden/step-0"></div>
       }
       case _ => step match {
         case 8 => <div data-lift="embed?what=/ajax-templates-hidden/step-3"></div>
         case 7 => <div data-lift="embed?what=/ajax-templates-hidden/step-2"></div>
         case 1 | 2 | 3 | 4 | 5 | 6 => <div data-lift="embed?what=/ajax-templates-hidden/step-1"></div>
+        case 0 => if (ValidateServiceNumber.serviceNumber == "0")
+          <div data-lift="embed?what=/ajax-templates-hidden/step-0-alt"></div>
+        else
+          <div data-lift="embed?what=/ajax-templates-hidden/step-0"></div>
         case _ => <div data-lift="embed?what=/ajax-templates-hidden/step-0"></div>
       }
     }
@@ -78,6 +87,15 @@ object step extends Loggable {
 
     if (ValidateServiceNumber.serviceNumber == "1" && (step == 1 | step == 2) ) {
       step = 3
+    }
+
+    if (ValidateServiceNumber.serviceNumber == "0" && (step == 3) ) {
+      step = 4
+    }
+
+    if (ValidateServiceNumber.serviceNumber == "0") {
+      numberOfQuestionsPerPage = 3
+      numberOfSteps = 4
     }
 
     if (ValidateServiceNumber.serviceNumber == "2") {

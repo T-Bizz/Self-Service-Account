@@ -8,7 +8,7 @@
 				<h6>Account ID</h6>
 			</div>
 			<div class="col-xs-6">
-				<input type="text" class="form-control text-left" placeholder="AGS or Service Number" name="serviceNumber" id="serviceNumber" disabled />
+				<input type="text" autocomplete="off" class="form-control text-left" placeholder="AGS or Service Number" name="serviceNumber" id="serviceNumber" disabled />
 			</div>
 		</div>
 		<div class="col-xs-12">
@@ -16,8 +16,14 @@
 				<h6>PIN</h6>
 			</div>
 			<div class="col-xs-6">
-				<input type="text" class="form-control text-left" placeholder="Access Number" name="accessNumber" id="accessNumber" disabled value="12345" />
+				<input type="text" autocomplete="off" class="form-control text-left" placeholder="Access Number" name="accessNumber" id="accessNumber" disabled value="12345" />
 			</div>
 		</div>
 	</div>
+	<br/>
+	<script type="text/javascript">
+		$(function () {
+			$("input[type=submit]").val("Member login");
+		})
+	</script>
 </div>

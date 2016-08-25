@@ -9,7 +9,7 @@
   <label for="serviceNumber" id="serviceNumber-label"><strong>Membership Number</strong></label>
   <div class="input-group input-group-lg">
     <span class="input-group-addon" id="number"><i class="fa fa-hashtag fa-fw"></i></span>
-    <input type="text" class="form-control" placeholder="AGS or Service Number" aria-describedby="number" name="serviceNumber" id="serviceNumber">
+    <input type="text" autocomplete="off" class="form-control" placeholder="AGS or Service Number" aria-describedby="number" name="serviceNumber" id="serviceNumber">
     <span class="input-group-addon hidden-xs">
       <button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="top" data-content="Australian Government Service Number (AGS) or Military Service Number." tabindex="-1">
       <span class="fa fa-question"></span>
@@ -23,7 +23,7 @@
       <label for="email-address" id="email-address-label"><strong>Email address</strong></label>
       <div class="input-group input-group-lg">
         <span class="input-group-addon" id="email"><i class="fa fa-envelope fa-fw"></i></span>
-        <input type="text" class="form-control" placeholder="me@example.com" aria-describedby="email-address-label" name="email-address" id="email-address">
+        <input type="text" autocomplete="off" class="form-control" placeholder="me@example.com" aria-describedby="email-address-label" name="email-address" id="email-address">
         <span class="input-group-addon hidden-xs">
           <button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="top" data-content="Your personal email account." tabindex="-1">
           <span class="fa fa-question"></span>
@@ -38,7 +38,7 @@
       <label for="phone-number" id="phone-number-label"><strong>Phone Number</strong></label>
       <div class="input-group input-group-lg">
         <span class="input-group-addon" id="phoneNumber"><i class="fa fa-mobile fa-fw"></i></span>
-        <input type="text" class="form-control" placeholder="0412345678" aria-describedby="phone-number-label" name="phone-number" id="phone-number">
+        <input type="text" autocomplete="off" class="form-control" placeholder="0412345678" aria-describedby="phone-number-label" name="phone-number" id="phone-number">
         <span class="input-group-addon hidden-xs">
           <button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="top" data-content="Your personal mobile phone number." tabindex="-1">
           <span class="fa fa-question"></span>
@@ -50,7 +50,8 @@
 </div>
 <script type="text/javascript">
 $(function () {
-$('[data-toggle="popover"]').popover()
+  $("input[type=submit]").val("Next");
+  $('[data-toggle="popover"]').popover()
 })
 </script>
 </div>
