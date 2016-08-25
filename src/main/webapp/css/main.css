@@ -338,14 +338,6 @@ body {
     min-width: 70%;
 }
 
-IMG.logo-center {
-    display: block;
-    margin-left: auto;
-    margin-right: auto; 
-    min-width: 50%;
-    max-width: 100%;
-}
-
 .navbar {
     margin-bottom: 0px;
     min-height: 53px;
