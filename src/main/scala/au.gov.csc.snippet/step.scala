@@ -3,9 +3,11 @@ package au.gov.csc.snippet
 import net.liftweb.common.Loggable
 import scala.xml.NodeSeq
 import net.liftweb.util.Helpers._
-import net.liftweb.http.SHtml.{ajaxSubmit}
-import net.liftweb.http.js.JsCmd
-import net.liftweb.http.js.JsCmds.{Alert, SetHtml}
+import net.liftweb.http.SHtml.ajaxSubmit
+import net.liftweb.http.js.{JsCmd}
+import net.liftweb.http.js.JsCmds.{SetHtml}
+import xml.Text
+
 import scala.util.Random
 
 object step extends Loggable {
@@ -17,6 +19,11 @@ object step extends Loggable {
     def process() : JsCmd = {
       Thread.sleep(500 + Random.nextInt(3000))
       incrementStep
+
+      if (step == numberOfSteps) {
+        SetHtml("#submit", Text("Member Login"))
+      }
+
       SetHtml("step-form", route)
     }
 
@@ -86,6 +93,11 @@ object step extends Loggable {
     if (ValidateServiceNumber.serviceNumber == "3") {
       numberOfQuestionsPerPage = 6
       numberOfSteps = 3
+    }
+
+    if (!(ValidateServiceNumber.serviceNumber == "1" | ValidateServiceNumber.serviceNumber == "2" | ValidateServiceNumber.serviceNumber == "3")) {
+      numberOfQuestionsPerPage = 3
+      numberOfSteps = 4
     }
   }
 }
