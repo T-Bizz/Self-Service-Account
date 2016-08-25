@@ -3,12 +3,14 @@ package au.gov.csc.snippet
 import scala.util.Random
 import net.liftweb.util.Helpers._
 import net.liftweb.http.SHtml
+import net.liftweb.http.SHtml._
 import net.liftweb.http.js.{JsCmd, JsCmds}
 
 object ValidateServiceNumber {
 
+  var serviceNumber: String = ""
+
   def render = {
-    var serviceNumber: String = ""
 
     def addValidationMarkup(isTrue: Boolean): JsCmd = {
       if (isTrue) {
@@ -18,10 +20,11 @@ object ValidateServiceNumber {
       }
     }
 
-    "input [onchange]" #> SHtml.onEvent( answer =>
-      answer match {
-        case _ => addValidationMarkup(Random.nextBoolean())
-      }
+    "@serviceNumber" #> text(serviceNumber, s => serviceNumber = s) &
+      "input [onchange]" #> SHtml.onEvent( answer =>
+        answer match {
+          case _ => addValidationMarkup(Random.nextBoolean())
+        }
     )
   }
 }
