@@ -1,13 +1,15 @@
-<div id="step-form" class="animated fadeIn">
-  <p class="lead text-center">
-    Some additional details are required to verify your identity.
-  </p>
-  <p>
-    <div data-lift="step.questions"></div>
-  </p>
-  <script type="text/javascript">
+<div id="step-form" class="panel panel-default animated fadeIn">
+  <div class="panel-body">
+    <p class="lead text-center" id="heading-title">
+      Some additional details are required to verify your identity.
+    </p>
+    <p>
+      <div data-lift="step.questions"></div>
+    </p>
+    <script type="text/javascript">
     $(function () {
-      $('[data-toggle="popover"]').popover()
+    $('[data-toggle="popover"]').popover()
     })
-  </script>
+    </script>
+  </div>
 </div>
