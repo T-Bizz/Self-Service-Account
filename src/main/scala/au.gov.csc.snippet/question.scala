@@ -8,7 +8,7 @@ object question extends Loggable {
 
   def render = {
     incrementQuestion
-    val questionTitle: String = f"Question #$currentQuestion"
+    val questionTitle: String = title(currentQuestion)
     "#question-label *" #> questionTitle
   }
 
@@ -18,4 +18,14 @@ object question extends Loggable {
       currentQuestion = 1
     }
   }
+
+  def title(questionNumber: Int): String = questionNumber match {
+    case 1 => "Question 1"
+    case 2 => "Question 2"
+    case 3 => "Question 3"
+    case 4 => "Question 4"
+    case 5 => "Question 5"
+    case 6 => "Question 6"
+  }
+
 }
