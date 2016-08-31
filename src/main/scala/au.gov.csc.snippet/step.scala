@@ -5,7 +5,6 @@ import net.liftweb.common.Loggable
 import scala.xml.NodeSeq
 import net.liftweb.util.Helpers._
 import net.liftweb.http.SHtml.ajaxSubmit
-import net.liftweb.http.js.JE.JsRaw
 import net.liftweb.http.js.{JsCmd, JsCmds}
 import net.liftweb.http.js.JsCmds.SetHtml
 import xml.Text
@@ -78,7 +77,7 @@ object step extends Loggable {
 
     if (numberOfSteps == 3) {
       if (step == 0) {
-        title = "Provide a membership number in addition to an email address or phone number to provision an account."
+        title = "To gain secure access to the complete range of online services, please enter your AGS or Service Number and your email address or mobile phone number below."
       }
       if (step == 1) {
         title = "Some additional details are required to verify your identity. You must provide 5/6 correct answers in order to be issued a PIN."
@@ -93,7 +92,7 @@ object step extends Loggable {
 
     if (numberOfSteps == 4) {
       if (step == 0) {
-        title = "Provide a membership number in addition to an email address or phone number to provision an account."
+        title = "To gain secure access to the complete range of online services, please enter your AGS or Service Number and your email address or mobile phone number below."
       }
       if (step == 1) {
         title = "Some additional details are required to verify your identity. Please provide answers to the following set of questions about yourself. Set 1 of 2."
@@ -111,7 +110,7 @@ object step extends Loggable {
 
     if (numberOfSteps == 8) {
       if (step == 0) {
-        title = "Provide a membership number in addition to an email address or phone number to provision an account."
+        title = "To gain secure access to the complete range of online services, please enter your AGS or Service Number and your email address or mobile phone number below."
       }
       if (step == 1) {
         title = "Some additional details are required to verify your identity. You must provide 5/6 correct answers in order to be issued a PIN. Click next to skip a question. Question 1 of 6."
