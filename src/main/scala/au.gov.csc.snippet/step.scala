@@ -1,20 +1,17 @@
 package au.gov.csc.snippet
 
 import net.liftweb.common.Loggable
-
 import scala.xml.NodeSeq
 import net.liftweb.util.Helpers._
 import net.liftweb.http.SHtml._
 import net.liftweb.http.js.{JsCmd, JsCmds}
 import net.liftweb.http.js.JsCmds.SetHtml
-
 import xml.Text
 import scala.util.Random
 
 object step extends Loggable {
   var (step: Int, numberOfSteps: Int, numberOfQuestionsPerPage: Int, routeNumber: Int) = (0, 5, 3, 0)
   var skipTwoFactorStep: Boolean = true
-  var serviceNumber: String = ""
   var title: String = ""
 
   def render = {
@@ -33,6 +30,7 @@ object step extends Loggable {
     numberOfQuestionsPerPage = 3
     routeNumber = 0
     skipTwoFactorStep = true
+    ValidateServiceNumber.serviceNumber = ""
 
     SetHtml("step-form", route) &
       JsCmds.Run("jQuery('#li-step-1').removeClass('disabled').removeClass('active').addClass('" + step1state + "')") &
@@ -42,7 +40,7 @@ object step extends Loggable {
   }
 
   def process(): JsCmd = {
-    Thread.sleep(500 + Random.nextInt(3000))
+    Thread.sleep(500 + Random.nextInt(2000))
     incrementStep
 
     if (step == 0) {

@@ -21,7 +21,7 @@ object ValidateServiceNumber {
     }
 
     "@serviceNumber" #> text(serviceNumber, s => serviceNumber = s) &
-      "input [onchange]" #> SHtml.onEvent( answer =>
+      "@serviceNumber [onchange]" #> SHtml.onEvent( answer =>
         answer match {
           case _ => addValidationMarkup(Random.nextBoolean())
         }

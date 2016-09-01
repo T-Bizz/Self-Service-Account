@@ -3,7 +3,6 @@ package au.gov.csc.snippet
 import net.liftweb.common.Loggable
 import net.liftweb.http.SHtml._
 import net.liftweb.http.js.JsCmd
-
 import scala.xml.NodeSeq
 import net.liftweb.util.Helpers._
 
@@ -14,12 +13,18 @@ object stepBody extends Loggable {
     def twoFactorSelected(): JsCmd = {
       step.step = 3
       step.skipTwoFactorStep = false
-      step.process()
+      Thread.sleep(500)
+    }
+
+    def notTwoFactorSelected(): JsCmd = {
+      step.step = 1
+      step.skipTwoFactorStep = true
+      Thread.sleep(500)
     }
 
     "#header-title" #> header &
       "#footer-title" #> footer &
-        "#btn-other" #> ajaxOnSubmit(step.process) &
+        "#btn-other" #> ajaxOnSubmit(notTwoFactorSelected) &
           "#btn-phone" #> ajaxOnSubmit(twoFactorSelected) &
             "#btn-email" #> ajaxOnSubmit(twoFactorSelected)
   }

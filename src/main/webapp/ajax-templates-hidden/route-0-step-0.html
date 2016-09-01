@@ -46,8 +46,12 @@
       <div id="footer-title"></div>
       <script type="text/javascript">
       $(function () {
-      $("#submit").html('Next <span class="fa fa-chevron-right fa-fw"></span>');
-      $('[data-toggle="popover"]').popover()
+        $('.popover').hide();
+        $("#submit").html('Get Started <span class="fa fa-chevron-right fa-fw"></span>');
+        $("#reset").prop('disabled', true);
+        $("#reset").parent().hide();
+        $("#submit").parent().removeClass('col-xs-6').addClass('col-xs-12');
+        $('[data-toggle="popover"]').popover()
       })
       </script>
     </div>

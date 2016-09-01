@@ -10,7 +10,27 @@
 	</div>
 	<script type="text/javascript">
 		$(function () {
-      		$("#submit").html('Skip <span class="fa fa-chevron-right fa-fw"></span>');
+	        $('.popover').hide();
+	        $("#reset").prop('disabled', false);
+	        $("#reset").parent().show();
+	        $("#submit").parent().removeClass('col-xs-12').addClass('col-xs-6');
+	  		$("#submit").html('Next <span class="fa fa-chevron-right fa-fw"></span>');
+			$("#btn-phone").click(function () {
+			    $(this).addClass('active');
+			    $("#btn-email").removeClass('active');
+			    $("#btn-other").removeClass('active');
+			});
+			$("#btn-email").click(function () {
+			    $(this).addClass('active');
+			    $("#btn-phone").removeClass('active');
+			    $("#btn-other").removeClass('active');
+			});
+			$("#btn-other").click(function () {
+			    $(this).addClass('active');
+			    $("#btn-email").removeClass('active');
+			    $("#btn-phone").removeClass('active');
+			});
 		})
+
 	</script>
 </div>
