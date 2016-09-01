@@ -4,11 +4,11 @@ import net.liftweb.common.Loggable
 
 import scala.xml.NodeSeq
 import net.liftweb.util.Helpers._
-import net.liftweb.http.SHtml.ajaxSubmit
+import net.liftweb.http.SHtml._
 import net.liftweb.http.js.{JsCmd, JsCmds}
 import net.liftweb.http.js.JsCmds.SetHtml
-import xml.Text
 
+import xml.Text
 import scala.util.Random
 
 object step extends Loggable {
@@ -22,7 +22,7 @@ object step extends Loggable {
       "#li-step-1 [class]" #> step1state &
         "#li-step-2 [class]" #> step2state &
           "#li-step-3 [class]" #> step3state &
-            "#submit" #> ajaxSubmit("Next", process)
+            "#submit" #> ajaxOnSubmit(process)
   }
 
   def process(): JsCmd = {

@@ -18,9 +18,9 @@ object stepBody extends Loggable {
 
     "#header-title" #> header &
       "#footer-title" #> footer &
-        "#btn-other" #> ajaxSubmit("Other", step.process) &
-          "#btn-phone" #> ajaxSubmit("Phone", twoFactorSelected) &
-            "#btn-email" #> ajaxSubmit("Email", twoFactorSelected)
+        "#btn-other" #> ajaxOnSubmit(step.process) &
+          "#btn-phone" #> ajaxOnSubmit(twoFactorSelected) &
+            "#btn-email" #> ajaxOnSubmit(twoFactorSelected)
   }
 
   def header: NodeSeq = step.routeNumber match {
