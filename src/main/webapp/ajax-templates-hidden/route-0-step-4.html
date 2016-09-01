@@ -1,39 +1,43 @@
-<div id="step-form" class="panel panel-default animated fadeIn" data-lift="stepBody">
-  <div class="panel-body">
-    <div id="header-title"></div>
-    <div class="form-inline text-center">
-      <div class="form-group padding-left-sm padding-right-sm">
-        <label class="sr-only" for="codeValue0">Code value 0</label>
-        <input type="text" autocomplete="off" class="form-control text-center codeValue" id="codeValue0" maxlength="1" placeholder="X">
+<div id="step-form" class="animated fadeIn" data-lift="stepBody">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div id="header-title"></div>
+      <div class="form-inline text-center">
+        <div class="form-group padding-left-sm padding-right-sm">
+          <label class="sr-only" for="codeValue0">Code value 0</label>
+          <input type="text" autocomplete="off" class="form-control text-center codeValue" id="codeValue0" maxlength="1" placeholder="X">
+        </div>
+        <div class="form-group padding-left-sm padding-right-sm">
+          <label class="sr-only" for="codeValue1">Code value 1</label>
+          <input type="text" autocomplete="off" class="form-control text-center codeValue" id="codeValue1" maxlength="1" placeholder="X">
+        </div>
+        <div class="form-group padding-left-sm padding-right-sm">
+          <label class="sr-only" for="codeValue2">Code value 2</label>
+          <input type="text" autocomplete="off" class="form-control text-center codeValue" id="codeValue2" maxlength="1" placeholder="X">
+        </div>
+        <div class="form-group padding-left-sm padding-right-sm">
+          <label class="sr-only" for="codeValue3">Code value 3</label>
+          <input type="text" autocomplete="off" class="form-control text-center codeValue" id="codeValue3" maxlength="1" placeholder="X">
+        </div>
       </div>
-      <div class="form-group padding-left-sm padding-right-sm">
-        <label class="sr-only" for="codeValue1">Code value 1</label>
-        <input type="text" autocomplete="off" class="form-control text-center codeValue" id="codeValue1" maxlength="1" placeholder="X">
-      </div>
-      <div class="form-group padding-left-sm padding-right-sm">
-        <label class="sr-only" for="codeValue2">Code value 2</label>
-        <input type="text" autocomplete="off" class="form-control text-center codeValue" id="codeValue2" maxlength="1" placeholder="X">
-      </div>
-      <div class="form-group padding-left-sm padding-right-sm">
-        <label class="sr-only" for="codeValue3">Code value 3</label>
-        <input type="text" autocomplete="off" class="form-control text-center codeValue" id="codeValue3" maxlength="1" placeholder="X">
-      </div>
+      <br/>
+      <div id="footer-title"></div>
+      <script type="text/javascript">
+      $(function () {
+      // move to next input on maxlength
+      $('#codeValue0').on('keyup', function(){
+      $('#codeValue1').focus();
+      })
+      $('#codeValue1').on('keyup', function(){
+      $('#codeValue2').focus();
+      })
+      $('#codeValue2').on('keyup', function(){
+      $('#codeValue3').focus();
+      })
+      $("#submit").html('Next <span class="fa fa-chevron-right fa-fw"></span>');
+      })
+      </script>
+      </script>
     </div>
-    <br/>
-    <div id="footer-title"></div>
-    <script type="text/javascript">
-    $(function () {
-    // move to next input on maxlength
-    $('#codeValue0').on('keyup', function(){
-    $('#codeValue1').focus();
-    })
-    $('#codeValue1').on('keyup', function(){
-    $('#codeValue2').focus();
-    })
-    $('#codeValue2').on('keyup', function(){
-    $('#codeValue3').focus();
-    })
-    })
-    </script>
   </div>
 </div>
