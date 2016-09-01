@@ -18,22 +18,22 @@ object step extends Loggable {
 
   def render = {
 
-    def process(): JsCmd = {
-      Thread.sleep(500 + Random.nextInt(3000))
-      incrementStep
-
-      SetHtml("step-form", route) &
-        JsCmds.Run("jQuery('#li-step-1').removeClass('disabled').removeClass('active').addClass('" + step1state + "')") &
-          JsCmds.Run("jQuery('#li-step-2').removeClass('disabled').removeClass('active').addClass('" + step2state + "')") &
-            JsCmds.Run("jQuery('#li-step-3').removeClass('disabled').removeClass('active').addClass('" + step3state + "')") &
-              SetHtml("verify-step-number", Text(verifyStepTitle))
-    }
-
     "#step-form" #> route &
       "#li-step-1 [class]" #> step1state &
         "#li-step-2 [class]" #> step2state &
           "#li-step-3 [class]" #> step3state &
-            "type=submit" #> ajaxSubmit("Next", process)
+            "#submit" #> ajaxSubmit("Next", process)
+  }
+
+  def process(): JsCmd = {
+    Thread.sleep(500 + Random.nextInt(3000))
+    incrementStep
+
+    SetHtml("step-form", route) &
+      JsCmds.Run("jQuery('#li-step-1').removeClass('disabled').removeClass('active').addClass('" + step1state + "')") &
+      JsCmds.Run("jQuery('#li-step-2').removeClass('disabled').removeClass('active').addClass('" + step2state + "')") &
+      JsCmds.Run("jQuery('#li-step-3').removeClass('disabled').removeClass('active').addClass('" + step3state + "')") &
+      SetHtml("verify-step-number", Text(verifyStepTitle))
   }
 
   def verifyStepTitle: String = {

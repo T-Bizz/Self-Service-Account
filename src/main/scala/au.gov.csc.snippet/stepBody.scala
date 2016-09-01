@@ -1,6 +1,9 @@
 package au.gov.csc.snippet
 
 import net.liftweb.common.Loggable
+import net.liftweb.http.SHtml._
+import net.liftweb.http.js.JsCmd
+
 import scala.xml.NodeSeq
 import net.liftweb.util.Helpers._
 
@@ -8,8 +11,16 @@ object stepBody extends Loggable {
 
   def render = {
 
+    def twoFactorSelected(): JsCmd = {
+      step.step = 3
+      step.process()
+    }
+
     "#header-title" #> header &
-      "#footer-title" #> footer
+      "#footer-title" #> footer &
+        "#btn-other" #> ajaxSubmit("Other", step.process) &
+          "#btn-phone" #> ajaxSubmit("Phone", twoFactorSelected) &
+            "#btn-email" #> ajaxSubmit("Email", twoFactorSelected)
   }
 
   def header: NodeSeq = step.routeNumber match {
