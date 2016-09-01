@@ -13,6 +13,7 @@ object stepBody extends Loggable {
 
     def twoFactorSelected(): JsCmd = {
       step.step = 3
+      step.skipTwoFactorStep = false
       step.process()
     }
 
@@ -24,7 +25,7 @@ object stepBody extends Loggable {
   }
 
   def header: NodeSeq = step.routeNumber match {
-    case _ => step.step match {
+    case 0 => step.step match {
       case 0 => <div data-lift="embed?what=/ajax-text-snippets-hidden/route-0-step-0-header"></div>
       case 1 => <div data-lift="embed?what=/ajax-text-snippets-hidden/route-0-step-1-header"></div>
       case 2 => <div data-lift="embed?what=/ajax-text-snippets-hidden/route-0-step-2-header"></div>
@@ -36,7 +37,7 @@ object stepBody extends Loggable {
   }
 
   def footer: NodeSeq = step.routeNumber match {
-    case _ => step.step match {
+    case 0 => step.step match {
       case 0 => <div data-lift="embed?what=/ajax-text-snippets-hidden/route-0-step-0-footer"></div>
       case 1 => <div data-lift="embed?what=/ajax-text-snippets-hidden/route-0-step-1-footer"></div>
       case 2 => <div data-lift="embed?what=/ajax-text-snippets-hidden/route-0-step-2-footer"></div>
