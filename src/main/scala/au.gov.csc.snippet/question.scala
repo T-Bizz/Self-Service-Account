@@ -11,7 +11,10 @@ object question extends Loggable {
   def render = {
     incrementQuestion
     val questionTitle: NodeSeq = title(currentQuestion)
-    "#question-label *" #> questionTitle
+    val questionPlaceholder: NodeSeq = placeholder(currentQuestion)
+
+    "#question-label *" #> questionTitle &
+      "#question-placeholder" #> questionPlaceholder
   }
 
   def incrementQuestion = {
@@ -28,6 +31,15 @@ object question extends Loggable {
     case 4 => <div data-lift="embed?what=/ajax-text-snippets-hidden/question-3"></div>
     case 5 => <div data-lift="embed?what=/ajax-text-snippets-hidden/question-4"></div>
     case 6 => <div data-lift="embed?what=/ajax-text-snippets-hidden/question-5"></div>
+  }
+
+  def placeholder(questionNumber: Int): NodeSeq = questionNumber match {
+    case 1 => <div data-lift="embed?what=/ajax-text-snippets-hidden/question-0-placeholder"></div>
+    case 2 => <div data-lift="embed?what=/ajax-text-snippets-hidden/question-1-placeholder"></div>
+    case 3 => <div data-lift="embed?what=/ajax-text-snippets-hidden/question-2-placeholder"></div>
+    case 4 => <div data-lift="embed?what=/ajax-text-snippets-hidden/question-3-placeholder"></div>
+    case 5 => <div data-lift="embed?what=/ajax-text-snippets-hidden/question-4-placeholder"></div>
+    case 6 => <div data-lift="embed?what=/ajax-text-snippets-hidden/question-5-placeholder"></div>
   }
 
 }
