@@ -26,6 +26,10 @@ function parse_git_origin() {
   git fetch origin
 }
 
+function get_git_changes() {
+  git merge origin/$(parse_git_changes)
+}
+
 # Get details of any git commits
 parse_git_origin
 
@@ -34,7 +38,10 @@ if [ -z "$(parse_git_changes)" ] ; then
   echo "No changes to git branch detected"
 else
   echo "Change to git branch detected, publishing the changes"
+  
   # complete the pull
-  git merge origin/$currentBranch
+  get_git_changes
+
+  #publish the changes
   ./publish.sh $(parse_git_hash)
 fi
