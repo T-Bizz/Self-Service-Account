@@ -39,5 +39,4 @@ kubectl get deployment $DEPLOYMENT -o yaml > deployment.yaml
 sed -i -e "s#image:.*$REPOSITORY.*#image: gcr.io/$PROJECT/$REPOSITORY:$RELEASE#g" deployment.yaml
 kubectl replace -f deployment.yaml
 rm deployment.yaml
-watch kubectl get pods -o wide
-                                   
+#watch kubectl get pods -o wide
