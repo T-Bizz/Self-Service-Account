@@ -29,7 +29,7 @@ git pull
 mkdir -p webapps
 
 #rename war file as root so that jetty knows what to do with it
-for file in *.war; do
+for file in target/scala-2.11/*.war; do
     mv "$file" "root.war"
 done
 
