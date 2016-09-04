@@ -43,5 +43,6 @@ else
   get_git_changes
 
   #publish the changes
+  chmod +x publish.sh
   ./publish.sh $(parse_git_hash)
 fi

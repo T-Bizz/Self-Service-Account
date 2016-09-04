@@ -10,7 +10,7 @@ import xml.Text
 import scala.util.Random
 
 object step extends Loggable {
-  var (step: Int, numberOfSteps: Int, numberOfQuestionsPerPage: Int, routeNumber: Int) = (0, 5, 3, 0)
+  var (step: Int, numberOfSteps: Int, numberOfQuestionsPerPage: Int, routeNumber: Int) = (0, 6, 3, 0)
   var skipTwoFactorStep: Boolean = true
   var title: String = ""
 
@@ -26,7 +26,7 @@ object step extends Loggable {
 
   def reset(): JsCmd = {
     step = 0
-    numberOfSteps = 5
+    numberOfSteps = 6
     numberOfQuestionsPerPage = 3
     routeNumber = 0
     skipTwoFactorStep = true
@@ -65,16 +65,18 @@ object step extends Loggable {
     case 0 => if (skipTwoFactorStep) {
       step
     } else {
-      2
+      if (step == 4) {
+        2
+      } else if (step == 5) {
+        3
+      } else {
+        0
+      }
     }
   }
 
   def verifyStepsInProcess: Int = routeNumber match {
-    case 0 => if (skipTwoFactorStep) {
-      3
-    } else {
-      2
-    }
+    case 0 => 3
   }
 
   def step1state: String = {
@@ -106,6 +108,7 @@ object step extends Loggable {
       case 3 => <div data-lift="embed?what=/ajax-templates-hidden/route-0-step-3"></div>
       case 4 => <div data-lift="embed?what=/ajax-templates-hidden/route-0-step-4"></div>
       case 5 => <div data-lift="embed?what=/ajax-templates-hidden/route-0-step-5"></div>
+      case 6 => <div data-lift="embed?what=/ajax-templates-hidden/route-0-step-6"></div>
       case _ => <div data-lift="embed?what=/ajax-templates-hidden/route-0-step-0"></div>
     }
   }
@@ -131,8 +134,11 @@ object step extends Loggable {
     }
 
     routeNumber match {
-      case 0 => if (skipTwoFactorStep & step == 4) {
-        step = 5
+      case 0 =>
+        if (skipTwoFactorStep & step == 4) {
+          step = 6
+        if (!skipTwoFactorStep & step == 2)
+          step = 4
       }
     }
   }
