@@ -1,0 +1,28 @@
+<div id="step-form" class="animated fadeIn" data-lift="stepBody">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <p class="lead text-center">
+        We can verify your identity by matching some of your details against our records. In order to do this, we will need to confirm your answers to at least 5 questions.
+      </p>
+      <p class="lead text-center">
+        If we are unable to match your details don't worry, you will still be able to gain access to Member Services Online by calling our Customer Information Center.
+      </p>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div id="header-title"></div>
+      <p>
+        <div data-lift="step.questions"></div>
+      </p>
+      <div id="footer-title"></div>
+      <script type="text/javascript">
+      $(function () {
+        $('.popover').hide();
+        $("#submit").html('Next <span class="fa fa-chevron-right fa-fw"></span>');
+        $('[data-toggle="popover"]').popover()
+      })
+      </script>
+    </div>
+  </div>
+</div>
