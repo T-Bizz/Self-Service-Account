@@ -36,7 +36,7 @@ import scala.xml.{NodeSeq,Text}
   class MockMemberProvider extends MemberProvider {
     val MemberNotFoundException = new Exception("member not found")
     val memberFacts = Map(
-      "1" -> Member(Person("testSurname","testFirstName",new Date(),27,"testFullName",None,None),Nil,Nil)
+      "1" -> Member(Person("testSurname","testFirstName",new Date(),27,"testFullName",Some("Mr"),Some("87654321")),Nil,Nil)
     )
     override def getMember(memberNumber:String):Either[Exception,Member] = memberFacts.get(memberNumber) match {
       case Some(m) => Right(m)
@@ -87,6 +87,36 @@ case class DateQuestion(override val category:String,override val title:NodeSeq,
   }
   override def check(answer:Answer):Boolean = try {
     dateFormat.parse(answer.value).getTime() == correctAnswer.getTime()
+  } catch {
+    case e:Exception => false
+  }
+}
+case class IntQuestion(override val category:String,override val title:NodeSeq,override val helpText:NodeSeq,override val placeHolder:String,override val order:Int,correctAnswer:Int) extends QuestionBase(category,title,helpText,placeHolder,order){
+  override def getValidationErrors(answer:String):Seq[String] = try {
+    answer.toInt
+    Nil
+  } catch {
+    case e:Exception => List("could not interpret answer as integer")
+  }
+  override def check(answer:Answer):Boolean = try {
+    answer.value.toInt == correctAnswer
+  } catch {
+    case e:Exception => false
+  }
+}
+case class DoubleQuestion(override val category:String,override val title:NodeSeq,override val helpText:NodeSeq,override val placeHolder:String,override val order:Int,correctAnswer:Double) extends QuestionBase(category,title,helpText,placeHolder,order){
+  var threshold = 0.01
+  def withinThreshold(a:Double,b:Double):Boolean = {
+    a - threshold > b || a + threshold < b
+  }
+  override def getValidationErrors(answer:String):Seq[String] = try {
+    answer.toDouble
+    Nil
+  } catch {
+    case e:Exception => List("could not interpret answer as integer")
+  }
+  override def check(answer:Answer):Boolean = try {
+    withinThreshold(answer.value.toDouble,correctAnswer)
   } catch {
     case e:Exception => false
   }
