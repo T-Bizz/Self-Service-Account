@@ -5,20 +5,13 @@ import au.gov.csc.SessionState._
 import scala.xml.NodeSeq
 import net.liftweb.util.Helpers._
 import net.liftweb.http.SHtml._
-import net.liftweb.http.SessionVar
 import net.liftweb.http.js.{JsCmd, JsCmds}
 import net.liftweb.http.js.JsCmds.SetHtml
 import xml.Text
 import scala.util.Random
 
 object step extends Loggable {
-<<<<<<< HEAD
-=======
-  var (step: Int, numberOfSteps: Int, numberOfQuestionsPerPage: Int, routeNumber: Int) = (0, 6, 3, 0)
-  var skipTwoFactorStep: Boolean = true
-  var title: String = ""
 
->>>>>>> development
   def render = {
 
     "#step-form" #> route &
@@ -30,20 +23,12 @@ object step extends Loggable {
   }
 
   def reset(): JsCmd = {
-<<<<<<< HEAD
+
     currentStep(0)
     numberOfSteps(5)
     numberOfQuestionsPerPage(3)
     routeNumber(0)
     skipTwoFactorStep(true)
-=======
-    step = 0
-    numberOfSteps = 6
-    numberOfQuestionsPerPage = 3
-    routeNumber = 0
-    skipTwoFactorStep = true
-    ValidateServiceNumber.serviceNumber = ""
->>>>>>> development
 
     SetHtml("step-form", route) &
       JsCmds.Run("jQuery('#li-step-1').removeClass('disabled').removeClass('active').addClass('" + step1state + "')") &
@@ -78,9 +63,9 @@ object step extends Loggable {
     case 0 => if (skipTwoFactorStep.is) {
       currentStep.is
     } else {
-      if (step == 4) {
+      if (currentStep.is == 4) {
         2
-      } else if (step == 5) {
+      } else if (currentStep.is == 5) {
         3
       } else {
         0
@@ -88,17 +73,12 @@ object step extends Loggable {
     }
   }
 
-<<<<<<< HEAD
   def verifyStepsInProcess: Int = routeNumber.is match {
     case 0 => if (skipTwoFactorStep.is) {
       3
     } else {
       2
     }
-=======
-  def verifyStepsInProcess: Int = routeNumber match {
-    case 0 => 3
->>>>>>> development
   }
 
   def step1state: String = {
@@ -155,18 +135,11 @@ object step extends Loggable {
       currentStep(0)
     }
 
-<<<<<<< HEAD
     routeNumber.is match {
       case 0 => if (skipTwoFactorStep.is & currentStep.is == 4) {
-        currentStep(5)
-=======
-    routeNumber match {
-      case 0 =>
-        if (skipTwoFactorStep & step == 4) {
-          step = 6
-        if (!skipTwoFactorStep & step == 2)
-          step = 4
->>>>>>> development
+          currentStep(6)
+        if (!skipTwoFactorStep.is & currentStep.is == 2)
+          currentStep(4)
       }
     }
   }
