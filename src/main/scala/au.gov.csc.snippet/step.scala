@@ -1,7 +1,7 @@
 package au.gov.csc.snippet
 
-import net.liftweb.common.Loggable
 import au.gov.csc.SessionState._
+import net.liftweb.common.Loggable
 import scala.xml.NodeSeq
 import net.liftweb.util.Helpers._
 import net.liftweb.http.SHtml._
