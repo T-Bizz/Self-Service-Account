@@ -24,17 +24,18 @@
       <div id="footer-title"></div>
       <script type="text/javascript">
       $(function () {
-      // move to next input on maxlength
-      $('#codeValue0').on('keyup', function(){
-      $('#codeValue1').focus();
-      })
-      $('#codeValue1').on('keyup', function(){
-      $('#codeValue2').focus();
-      })
-      $('#codeValue2').on('keyup', function(){
-      $('#codeValue3').focus();
-      })
-      $("#submit").html('Next <span class="fa fa-chevron-right fa-fw"></span>');
+        $('.popover').hide();
+        // move to next input on maxlength
+        $('#codeValue0').on('keyup', function(){
+        $('#codeValue1').focus();
+        })
+        $('#codeValue1').on('keyup', function(){
+        $('#codeValue2').focus();
+        })
+        $('#codeValue2').on('keyup', function(){
+        $('#codeValue3').focus();
+        })
+        $("#submit").html('Next <span class="fa fa-chevron-right fa-fw"></span>');
       })
       </script>
       </script>

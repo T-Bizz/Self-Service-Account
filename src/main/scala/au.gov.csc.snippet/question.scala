@@ -22,6 +22,13 @@ object question extends Loggable {
     if (currentQuestion > numberOfQuestions) {
       currentQuestion = 1
     }
+
+    step.routeNumber match {
+      case 0 => step.step match {
+        case 2 => if (currentQuestion > 3) currentQuestion = 1
+        case _ => if (currentQuestion < 4) currentQuestion = 4
+      }
+    }
   }
 
   def title(questionNumber: Int): NodeSeq = questionNumber match {

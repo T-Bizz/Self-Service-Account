@@ -2,20 +2,16 @@ package au.gov.csc.snippet
 
 import net.liftweb.common.Loggable
 import au.gov.csc.SessionState._
-
 import scala.xml.NodeSeq
 import net.liftweb.util.Helpers._
 import net.liftweb.http.SHtml._
 import net.liftweb.http.SessionVar
 import net.liftweb.http.js.{JsCmd, JsCmds}
 import net.liftweb.http.js.JsCmds.SetHtml
-
 import xml.Text
 import scala.util.Random
 
 object step extends Loggable {
-
-
   def render = {
 
     "#step-form" #> route &
@@ -41,7 +37,7 @@ object step extends Loggable {
   }
 
   def process(): JsCmd = {
-    Thread.sleep(500 + Random.nextInt(3000))
+    Thread.sleep(500 + Random.nextInt(2000))
     incrementStep
 
     if (currentStep.is == 0) {
