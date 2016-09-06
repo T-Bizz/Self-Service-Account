@@ -118,7 +118,7 @@ import scala.xml.{NodeSeq,Text}
   }
   case class StringQuestion(override val category:String,override val title:NodeSeq,override val helpText:NodeSeq,override val placeHolder:String,override val order:Int,correctAnswer:String) extends QuestionBase(category,title,helpText,placeHolder,order){
     override def getValidationErrors(answer:String):Seq[String] = answer match {
-      case s if s.length > 255 => List("answer must be less than 4000 characters in length")
+      case s if s.length < 255 => List("answer must be less than 255 characters in length")
       case other => Nil
     }
     override def check(answer:Answer):Boolean = answer.value == correctAnswer
@@ -211,11 +211,11 @@ case class Question(override val category:String,override val title:NodeSeq,over
       QuestionSet("personal",Text("Questions about yourself"),List(
         StringQuestion("personal",Text("What is your first name?"),NodeSeq.Empty,"John",0,member.person.firstName),
         StringQuestion("personal",Text("What is your surname?"),NodeSeq.Empty,"Smith",1,member.person.surname),
-        StringQuestion("personal",Text("What is your age?"),NodeSeq.Empty,"21",2,member.person.age.toString)
+        NumberQuestion("personal",Text("What is your age?"),NodeSeq.Empty,"21",2,member.person.age.toString)
       ) ::: member.person.title.map(t => {
         StringQuestion("personal",Text("What is your title?"),NodeSeq.Empty,"Mr",3,t)
       }).toList ::: member.person.tfn.toList.map(t => {
-        StringQuestion("personal",Text("What is your tax file number?"),NodeSeq.Empty,"12345678",4,t)
+        NumberQuestion("personal",Text("What is your tax file number?"),NodeSeq.Empty,"12345678",4,t)
       }),0,Some(Text("Click next to skip")))
       ) ::: member.memberships.toList.map(m => {
         val mid = "membership_%s".format(m.membershipNumber)
@@ -228,7 +228,6 @@ case class Question(override val category:String,override val title:NodeSeq,over
         }),1,Some(Text("Click next to skip")))
       })
     }
-
 
     protected var unansweredQuestions:List[QuestionBase] = questionSets.flatMap(_.questions)
     protected var correctAnswers:Int = 0
