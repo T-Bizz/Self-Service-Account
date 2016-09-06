@@ -21,7 +21,11 @@ class Boot {
       case resp => resp
     }
 
-    LiftRules.setSiteMap(SiteMap(Menu.i("Account Management") / "index", Menu.i("Account Management") / "alt"))
+    LiftRules.setSiteMap(SiteMap(
+      Menu.i("Create Account") / "singlePageApp",
+      Menu.i("Account Management") / "index",
+      Menu.i("Account Management") / "alt"
+    ))
 
     // Force the request to be UTF-8
     LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
@@ -29,5 +33,7 @@ class Boot {
     // Use HTML5 for rendering
     LiftRules.htmlProperties.default.set( (r: Req) =>
       new Html5Properties(r.userAgent))
+
+    au.gov.csc.SessionState
   }
 }
