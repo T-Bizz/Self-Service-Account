@@ -10,6 +10,7 @@ import net.liftweb.http.js.{JsCmd, JsCmds}
 import net.liftweb.http.js.JsCmds._
 import au.gov.csc._
 import net.liftweb.http.js.JE.JsRaw
+import net.liftweb.json.JsonAST.JNull
 
 import scala.util.Random
 import scala.xml._
@@ -18,7 +19,9 @@ import scala.xml._
   */
 object serviceNumber extends SessionVar[Option[String]](None)
 object currentFactSet extends SessionVar[Option[FactSet]](None)
-class singlePageApp {
+object currentAccountDetails extends SessionVar[Option[AccountDefinition]](None)
+class singlePageApp extends Logger {
+  val contentAreaId = "step-form"
   protected var factProvider = SessionState.userProvider
   def addValidationMarkup(isTrue: Boolean): JsCmd = {
     if (isTrue) {
@@ -27,26 +30,56 @@ class singlePageApp {
       JsCmds.Run("jQuery('#form-group-serviceNumber').removeClass('has-success').addClass('has-error')")
     }
   }
-  def askForMemberNumber = Templates(List("ajax-templates-hidden","route-0-step-0")).map(t => {
-    ("#serviceNumber" #> text(serviceNumber.is.getOrElse(""), s => {
+  def askForMemberNumber = Templates(List("ajax-templates-hidden","AskForMemberNumber")).map(t => {
+    ("#serviceNumber" #> ajaxText(serviceNumber.is.getOrElse(""), s => {
       serviceNumber(Some(s))
-      factProvider.getFacts(s) match {
-        case Right(member) => currentFactSet(Some(new MemberBackedFactSet(member,SessionState.minimumCorrectAnswers,SessionState.pageSize)))
-        case Left(e) => {
-          Alert(e.getMessage)
-        }
-      }
+      Noop
     }) &
+      /*
       "input [onchange]" #> SHtml.onEvent( answer =>
         answer match {
           case _ => addValidationMarkup(Random.nextBoolean())
         }
-      )).apply(t)
+      ) &
+      */
+      ".submitButton [onclick]" #> ajaxCall(JsRaw("this"),(_s:String) => {
+        serviceNumber.is.map(s => {
+          factProvider.getFacts(s) match {
+            case Right(member) => {
+              currentFactSet(Some(new MemberBackedFactSet(member, SessionState.minimumCorrectAnswers, SessionState.pageSize)))
+              generateCurrentPageNodeSeq.map(newPage => SetHtml(contentAreaId, newPage)).getOrElse(Alert("error"))
+            }
+            case Left(e) => {
+              Alert(e.getMessage)
+            }
+          }
+        }).getOrElse(Alert("please provide a member number"))
+      })
+      ).apply(t)
   })
-  def provideAccountDetails = Full(<div data-lift="embed?what=/ajax-templates-hidden/route-0-step-5"></div>)
+  def provideAccountDetails = {
+    for {
+      template <- Templates(List("ajax-templates-hidden","provideAccountNumber"))
+      memberNumber <- serviceNumber.is
+    } yield {
+      factProvider.getAccount(memberNumber) match {
+        case Right(accountDefinition) => {
+          (
+            ".accessNumberValue [value]" #> accountDefinition.password &
+              ".serviceNumberValue [value]" #> accountDefinition.memberNumber &
+              ".schemeValue [value]" #> accountDefinition.scheme
+            ).apply(template)
+        }
+        case Left(e) => {
+          Text(e.getMessage)
+        }
+      }
+    }
+  }
   def challengeFactSet(factSet:FactSet) = {
     factSet.getNextQuestions match {
       case Some(questionSet) => {
+        var potentialAnswers:List[Answer] = Nil
         Templates(List("ajax-text-snippets-hidden","QuestionSet")).map(qst => {
           (
             ".questionSetTitle" #> questionSet.title &
@@ -58,7 +91,15 @@ class singlePageApp {
                 }
                 questionTemplate.map(qt => {
                   questionSet.questions.toList.foldLeft(NodeSeq.Empty)((acc,question) => {
-                    val answerQuestionFunc = (answerString:String) => {Noop}
+                    val answerQuestionFunc = (answerString:String) => {
+                      question.getValidationErrors(answerString) match {
+                        case Nil => {
+                          potentialAnswers = Answer(answerString,question) :: potentialAnswers
+                          Noop
+                        }
+                        case other => Alert(other.mkString)
+                      }
+                    }
                     acc ++ ((
                       ".title" #> question.title &
                         ".questionInput [onchange]" #> ajaxCall(JsRaw("this.value"),answerQuestionFunc) &
@@ -69,6 +110,10 @@ class singlePageApp {
                   })
                 }).openOr(NodeSeq.Empty)
 
+              }) &
+              ".submitButton [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
+                factSet.answerQuestions(potentialAnswers)
+                generateCurrentPageNodeSeq.map(newPage => SetHtml(contentAreaId,newPage)).getOrElse(Alert("error"))
               })
             ).apply(qst)
         })
@@ -78,13 +123,25 @@ class singlePageApp {
       }
     }
   }
-  def render = {
-    "#step-form *" #> {
-      currentFactSet.is match {
-        case None => askForMemberNumber
-        case Some(factSet) if factSet.isComplete => provideAccountDetails
-        case Some(factSet) => challengeFactSet(factSet)
-      }
+  protected def generateCurrentPageNodeSeq:Box[NodeSeq] = {
+    currentFactSet.is match {
+      case None => askForMemberNumber
+      case Some(factSet) if !factSet.canComplete => Full(Text("we can't verify you online.  Please contact CSC CIC"))
+      case Some(factSet) if factSet.isComplete => provideAccountDetails
+      case Some(factSet) => challengeFactSet(factSet)
     }
+
+  }
+  def render = {
+    "#%s *".format(contentAreaId) #> generateCurrentPageNodeSeq &
+    "#reset [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
+      S.session.foreach(s => {
+        s.destroySession()
+        s.httpSession.foreach(httpsession => {
+          httpsession.terminate
+        })
+      })
+      RedirectTo("/singlePageApp")
+    })
   }
 }
