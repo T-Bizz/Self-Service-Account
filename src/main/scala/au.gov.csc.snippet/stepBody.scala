@@ -17,13 +17,11 @@ object stepBody extends Loggable {
     def twoFactorSelected(): JsCmd = {
       currentStep(3)
       skipTwoFactorStep(false)
-      step.process()
     }
 
     def notTwoFactorSelected(): JsCmd = {
       currentStep(1)
       skipTwoFactorStep(true)
-      step.process()
       Thread.sleep(500)
     }
 
