@@ -3,23 +3,71 @@ package au.gov.csc.snippet
 import java.util.Date
 
 import scala.xml.{NodeSeq,Text}
-/*
-  * Created by Tom and Sarah on 6/09/2016.
-  */
 
-  case class AccountDefinition(memberNumber:String,password:String,scheme:String)
-  case class Member(person:Person,memberships:Seq[Membership],contactDetails:Seq[ContactDetail])
-  case class Person(surname:String,firstName:String,dob:Date,age:Int,fullname:String,title:Option[String],tfn:Option[String])
-  case class Membership(membershipNumber:String,scheme:String,status:String,joinDate:Date,exitDate:Option[Date],effectDate:Option[Date])
+  case class AccountDefinition(memberNumber: String,
+                               password: String,
+                               scheme: String)
+
+  case class Member(person: Person,
+                    memberships: Seq[Membership],
+                    contactDetails: Seq[ContactDetail])
+
+  case class Person(surname: String,
+                    firstName: String,
+                    dob: Date,
+                    age: Int,
+                    fullname: String,
+                    title: Option[String],
+                    tfn: Option[String])
+
+  case class Membership(membershipNumber: String,
+                        scheme: String,
+                        status: String,
+                        joinDate: Date,
+                        exitDate: Option[Date],
+                        effectDate: Option[Date])
   trait ContactDetail
-  case class PhoneNumber(kind:String,areaCode:Int,phoneNumber:Int,isValid:Boolean,effectDate:Date,startDate:Date,endDate:Option[Date]) extends ContactDetail
-  case class EmailAddress(kind:String,emailAddress:String,isValid:Boolean,effectDate:Date,startDate:Date,endDate:Option[Date]) extends ContactDetail
-  case class Address(kind:String,address:String,isValid:Boolean,effectDate:Date,startDate:Date,endDate:Option[Date]) extends ContactDetail
-  case class ComplexAddress(kind:String,streetNumber:Int,city:String,state:String,country:String,postCode:String,isValid:Boolean,effectDate:Date,startDate:Date,endDate:Option[Date]) extends ContactDetail
+
+  case class PhoneNumber(kind: String,
+                         areaCode: Int,
+                         phoneNumber: Int,
+                         isValid: Boolean,
+                         effectDate: Date,
+                         startDate: Date,
+                         endDate: Option[Date])
+    extends ContactDetail
+
+  case class EmailAddress(kind: String,
+                          emailAddress: String,
+                          isValid: Boolean,
+                          effectDate: Date,
+                          startDate: Date,
+                          endDate: Option[Date])
+    extends ContactDetail
+
+  case class Address(kind: String,
+                     address: String,
+                     isValid: Boolean,
+                     effectDate: Date,
+                     startDate: Date,
+                     endDate: Option[Date])
+    extends ContactDetail
+
+  case class ComplexAddress(kind: String,
+                            streetNumber: Int,
+                            city: String,
+                            state: String,
+                            country: String,
+                            postCode: String,
+                            isValid: Boolean,
+                            effectDate: Date,
+                            startDate: Date,
+                            endDate: Option[Date])
+    extends ContactDetail
 
   trait FactProvider {
-    def getFacts(memberNumber:String):Either[Exception,Member]
-    def getAccount(memberNumber:String):Either[Exception,AccountDefinition]
+    def getFacts(memberNumber: String): Either[Exception, Member]
+    def getAccount(memberNumber: String): Either[Exception, AccountDefinition]
   }
 
   class MockFactProvider extends FactProvider {
@@ -70,12 +118,29 @@ import scala.xml.{NodeSeq,Text}
   }
   case class StringQuestion(override val category:String,override val title:NodeSeq,override val helpText:NodeSeq,override val placeHolder:String,override val order:Int,correctAnswer:String) extends QuestionBase(category,title,helpText,placeHolder,order){
     override def getValidationErrors(answer:String):Seq[String] = answer match {
-      case null => List("answer cannot be null")
-      case s if s.length < 1 => List("answer cannot be empty")
+      case s if s.length > 255 => List("answer must be less than 4000 characters in length")
       case other => Nil
     }
     override def check(answer:Answer):Boolean = answer.value == correctAnswer
   }
+
+case class NumberQuestion(override val category:String,override val title:NodeSeq,override val helpText:NodeSeq,override val placeHolder:String,override val order:Int,correctAnswer:String) extends QuestionBase(category,title,helpText,placeHolder,order){
+  def isNumeric(input: String): Boolean = input.forall(_.isDigit)
+
+  override def getValidationErrors(answer:String):Seq[String] = answer match {
+    case s if !isNumeric(s) => List("answer must be numeric")
+    case other => Nil
+  }
+  override def check(answer:Answer):Boolean = answer.value == correctAnswer
+}
+
+case class EmailQuestion(override val category:String,override val title:NodeSeq,override val helpText:NodeSeq,override val placeHolder:String,override val order:Int,correctAnswer:String) extends QuestionBase(category,title,helpText,placeHolder,order){
+  override def getValidationErrors(answer:String):Seq[String] = answer match {
+    case s if s.length < 1 => List("answer cannot be empty")
+    case other => Nil
+  }
+  override def check(answer:Answer):Boolean = answer.value == correctAnswer
+}
 
 case class DateQuestion(override val category:String,override val title:NodeSeq,override val helpText:NodeSeq,override val placeHolder:String,override val order:Int,correctAnswer:Date) extends QuestionBase(category,title,helpText,placeHolder,order){
   val dateFormat = new java.text.SimpleDateFormat("YYYY-mm-DD")

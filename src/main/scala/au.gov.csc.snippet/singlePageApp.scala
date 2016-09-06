@@ -86,8 +86,10 @@ class singlePageApp extends Logger {
               ".questionSetFooter" #> questionSet.footer &
               ".questions" #> questionSet.questions.toList.foldLeft(NodeSeq.Empty)((acc,question) => {
                 val questionTemplate = question match {
-                  case d:DateQuestion => Templates(List("ajax-text-snippets-hidden","DateQuestion"))
-                  case s:StringQuestion => Templates(List("ajax-text-snippets-hidden","StringQuestion"))
+                  case d:DateQuestion => Templates(List("ajax-templates-hidden","DateQuestion"))
+                  case s:StringQuestion => Templates(List("ajax-templates-hidden","StringQuestion"))
+                  case s:NumberQuestion => Templates(List("ajax-templates-hidden","NumberQuestion"))
+                  case s:EmailQuestion => Templates(List("ajax-templates-hidden","EmailQuestion"))
                 }
                 questionTemplate.map(qt => {
                   questionSet.questions.toList.foldLeft(NodeSeq.Empty)((acc,question) => {
@@ -101,10 +103,10 @@ class singlePageApp extends Logger {
                       }
                     }
                     acc ++ ((
-                      ".title" #> question.title &
-                        ".questionInput [onchange]" #> ajaxCall(JsRaw("this.value"),answerQuestionFunc) &
-                        ".questionInput [placeholder]" #> question.placeHolder &
-                        ".helpText *" #> question.helpText
+                      ".question-title" #> question.title &
+                        ".question-input [onchange]" #> ajaxCall(JsRaw("this.value"),answerQuestionFunc) &
+                        ".question-input [placeholder]" #> question.placeHolder &
+                        ".question-help-text [data-content]" #> question.helpText
                       ).apply(qt))
 
                   })
