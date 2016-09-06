@@ -28,6 +28,9 @@ object question extends Loggable {
         case 2 => if (currentQuestion > 3) currentQuestion = 1
         case _ => if (currentQuestion < 4) currentQuestion = 4
       }
+      case 1 => step.step match {
+        case _ => if (currentQuestion > 3) currentQuestion = 1
+      }
     }
   }
 

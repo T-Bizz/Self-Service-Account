@@ -27,6 +27,12 @@ git pull
 ./sbt compile
 ./sbt package
 mkdir -p webapps
+
+#rename war file as root so that jetty knows what to do with it
+for file in target/scala-2.11/*.war; do
+    mv "$file" "target/scala-2.11/root.war"
+done
+
 cp target/scala-2.11/*.war webapps/
 #Build the docker image.  This builds the project as well.
 docker build -t  $VERSION .

@@ -12,6 +12,13 @@ import xml.Text
 import scala.util.Random
 
 object step extends Loggable {
+<<<<<<< HEAD
+=======
+  var (step: Int, numberOfSteps: Int, numberOfQuestionsPerPage: Int, routeNumber: Int) = (0, 6, 3, 0)
+  var skipTwoFactorStep: Boolean = true
+  var title: String = ""
+
+>>>>>>> development
   def render = {
 
     "#step-form" #> route &
@@ -23,11 +30,20 @@ object step extends Loggable {
   }
 
   def reset(): JsCmd = {
+<<<<<<< HEAD
     currentStep(0)
     numberOfSteps(5)
     numberOfQuestionsPerPage(3)
     routeNumber(0)
     skipTwoFactorStep(true)
+=======
+    step = 0
+    numberOfSteps = 6
+    numberOfQuestionsPerPage = 3
+    routeNumber = 0
+    skipTwoFactorStep = true
+    ValidateServiceNumber.serviceNumber = ""
+>>>>>>> development
 
     SetHtml("step-form", route) &
       JsCmds.Run("jQuery('#li-step-1').removeClass('disabled').removeClass('active').addClass('" + step1state + "')") &
@@ -62,16 +78,27 @@ object step extends Loggable {
     case 0 => if (skipTwoFactorStep.is) {
       currentStep.is
     } else {
-      2
+      if (step == 4) {
+        2
+      } else if (step == 5) {
+        3
+      } else {
+        0
+      }
     }
   }
 
+<<<<<<< HEAD
   def verifyStepsInProcess: Int = routeNumber.is match {
     case 0 => if (skipTwoFactorStep.is) {
       3
     } else {
       2
     }
+=======
+  def verifyStepsInProcess: Int = routeNumber match {
+    case 0 => 3
+>>>>>>> development
   }
 
   def step1state: String = {
@@ -103,6 +130,7 @@ object step extends Loggable {
       case 3 => <div data-lift="embed?what=/ajax-templates-hidden/route-0-step-3"></div>
       case 4 => <div data-lift="embed?what=/ajax-templates-hidden/route-0-step-4"></div>
       case 5 => <div data-lift="embed?what=/ajax-templates-hidden/route-0-step-5"></div>
+      case 6 => <div data-lift="embed?what=/ajax-templates-hidden/route-0-step-6"></div>
       case _ => <div data-lift="embed?what=/ajax-templates-hidden/route-0-step-0"></div>
     }
   }
@@ -127,9 +155,18 @@ object step extends Loggable {
       currentStep(0)
     }
 
+<<<<<<< HEAD
     routeNumber.is match {
       case 0 => if (skipTwoFactorStep.is & currentStep.is == 4) {
         currentStep(5)
+=======
+    routeNumber match {
+      case 0 =>
+        if (skipTwoFactorStep & step == 4) {
+          step = 6
+        if (!skipTwoFactorStep & step == 2)
+          step = 4
+>>>>>>> development
       }
     }
   }

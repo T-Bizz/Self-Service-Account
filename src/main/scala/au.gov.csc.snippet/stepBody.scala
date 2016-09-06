@@ -49,7 +49,12 @@ object stepBody extends Loggable {
       case 3 => <div data-lift="embed?what=/ajax-text-snippets-hidden/route-0-step-3-header"></div>
       case 4 => <div data-lift="embed?what=/ajax-text-snippets-hidden/route-0-step-4-header"></div>
       case 5 => <div data-lift="embed?what=/ajax-text-snippets-hidden/route-0-step-5-header"></div>
+<<<<<<< HEAD
       case _ => <div id="header-title"/>
+=======
+      case 6 => <div data-lift="embed?what=/ajax-text-snippets-hidden/route-0-step-6-header"></div>
+      case _ => <div id="header-title"></div>
+>>>>>>> development
     }
   }
 
@@ -61,6 +66,7 @@ object stepBody extends Loggable {
       case 3 => <div data-lift="embed?what=/ajax-text-snippets-hidden/route-0-step-3-footer"></div>
       case 4 => <div data-lift="embed?what=/ajax-text-snippets-hidden/route-0-step-4-footer"></div>
       case 5 => <div data-lift="embed?what=/ajax-text-snippets-hidden/route-0-step-5-footer"></div>
+      case 6 => <div data-lift="embed?what=/ajax-text-snippets-hidden/route-0-step-6-footer"></div>
       case _ => <div id="footer-title"></div>
     }
   }
