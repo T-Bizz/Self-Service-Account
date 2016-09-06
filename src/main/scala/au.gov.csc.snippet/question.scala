@@ -28,6 +28,9 @@ object question extends Loggable {
         case 2 => if (currentQuestion > 3) currentQuestion = 1
         case _ => if (currentQuestion < 4) currentQuestion = 4
       }
+      case 1 => currentStep.is match {
+        case _ => if (currentQuestion > 3) currentQuestion = 1
+      }
     }
   }
 
@@ -48,5 +51,4 @@ object question extends Loggable {
     case 5 => <div data-lift="embed?what=/ajax-text-snippets-hidden/question-4-placeholder"></div>
     case 6 => <div data-lift="embed?what=/ajax-text-snippets-hidden/question-5-placeholder"></div>
   }
-
 }

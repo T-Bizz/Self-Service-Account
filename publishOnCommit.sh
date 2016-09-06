@@ -18,7 +18,7 @@ function parse_git_branch() {
 
 # get the last commit hash prepended with @ (i.e. @8a323d0)
 function parse_git_hash() {
-  git rev-parse --short HEAD 2> /dev/null | sed "s/\(.*\)/@\1/"
+  git rev-parse --short HEAD 2> /dev/null | sed "s/\(.*\)/\1/"
 }
 
 # Get details of any git commits
@@ -43,5 +43,6 @@ else
   get_git_changes
 
   #publish the changes
+  chmod +x publish.sh
   ./publish.sh $(parse_git_hash)
 fi

@@ -1,17 +1,17 @@
 package au.gov.csc.snippet
 
-import net.liftweb.common.Loggable
 import au.gov.csc.SessionState._
+import net.liftweb.common.Loggable
 import scala.xml.NodeSeq
 import net.liftweb.util.Helpers._
 import net.liftweb.http.SHtml._
-import net.liftweb.http.SessionVar
 import net.liftweb.http.js.{JsCmd, JsCmds}
 import net.liftweb.http.js.JsCmds.SetHtml
 import xml.Text
 import scala.util.Random
 
 object step extends Loggable {
+
   def render = {
 
     "#step-form" #> route &
@@ -23,6 +23,7 @@ object step extends Loggable {
   }
 
   def reset(): JsCmd = {
+
     currentStep(0)
     numberOfSteps(5)
     numberOfQuestionsPerPage(3)
@@ -62,7 +63,13 @@ object step extends Loggable {
     case 0 => if (skipTwoFactorStep.is) {
       currentStep.is
     } else {
-      2
+      if (currentStep.is == 4) {
+        2
+      } else if (currentStep.is == 5) {
+        3
+      } else {
+        0
+      }
     }
   }
 
@@ -103,6 +110,7 @@ object step extends Loggable {
       case 3 => <div data-lift="embed?what=/ajax-templates-hidden/route-0-step-3"></div>
       case 4 => <div data-lift="embed?what=/ajax-templates-hidden/route-0-step-4"></div>
       case 5 => <div data-lift="embed?what=/ajax-templates-hidden/route-0-step-5"></div>
+      case 6 => <div data-lift="embed?what=/ajax-templates-hidden/route-0-step-6"></div>
       case _ => <div data-lift="embed?what=/ajax-templates-hidden/route-0-step-0"></div>
     }
   }
@@ -129,7 +137,9 @@ object step extends Loggable {
 
     routeNumber.is match {
       case 0 => if (skipTwoFactorStep.is & currentStep.is == 4) {
-        currentStep(5)
+          currentStep(6)
+        if (!skipTwoFactorStep.is & currentStep.is == 2)
+          currentStep(4)
       }
     }
   }
