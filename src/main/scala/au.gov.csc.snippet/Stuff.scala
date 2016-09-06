@@ -66,26 +66,35 @@ import scala.xml.{NodeSeq,Text}
     extends ContactDetail
 
   trait FactProvider {
+
     def getFacts(memberNumber: String): Either[Exception, Member]
     def getAccount(memberNumber: String): Either[Exception, AccountDefinition]
   }
 
   class MockFactProvider extends FactProvider {
+
     val mockMemberProvider = new MockMemberProvider
     val mockAccountProvider = new MockAccountProvider
-    def getFacts(memberNumber:String):Either[Exception,Member] = mockMemberProvider.getMember(memberNumber)
-    def getAccount(memberNumber:String):Either[Exception,AccountDefinition] = mockAccountProvider.getAccount(memberNumber)
+
+    def getFacts(memberNumber:String):Either[Exception,Member] =
+      mockMemberProvider.getMember(memberNumber)
+
+    def getAccount(memberNumber:String):Either[Exception,AccountDefinition] =
+      mockAccountProvider.getAccount(memberNumber)
   }
 
   trait MemberProvider {
+
     def getMember(memberNumber:String):Either[Exception,Member]
   }
 
   class MockMemberProvider extends MemberProvider {
+
     val MemberNotFoundException = new Exception("member not found")
     val memberFacts = Map(
       "1" -> Member(Person("testSurname","testFirstName",new Date(),27,"testFullName",Some("Mr"),Some("87654321")),Nil,Nil)
     )
+
     override def getMember(memberNumber:String):Either[Exception,Member] = memberFacts.get(memberNumber) match {
       case Some(m) => Right(m)
       case None => Left(MemberNotFoundException)
@@ -93,120 +102,201 @@ import scala.xml.{NodeSeq,Text}
   }
 
   trait AccountProvider {
+
     def getAccount(memberNumber:String):Either[Exception,AccountDefinition]
   }
 
   class MockAccountProvider extends AccountProvider {
+
     val AccountNotFoundException = new Exception("account not found")
     val accounts = Map(
       "1" -> AccountDefinition("1","testPassword","testScheme")
     )
-    override def getAccount(memberNumber:String):Either[Exception,AccountDefinition] = accounts.get(memberNumber) match {
-      case Some(a) => Right(a)
-      case None => Left(AccountNotFoundException)
-    }
+
+    override def getAccount(memberNumber:String): Either[Exception,AccountDefinition] =
+      accounts.get(memberNumber) match {
+        case Some(a) => Right(a)
+        case None => Left(AccountNotFoundException)
+      }
   }
 
   object WorkflowTypeChoice extends Enumeration {
+
     type WorkflowTypeChoice = Value
-    val QuestionsOnly,SmsAndQuestions,EmailAndQuestions = Value
+
+    val QuestionsOnly, SmsAndQuestions, EmailAndQuestions = Value
   }
 
-  class QuestionBase(val category:String,val title:NodeSeq,val helpText:NodeSeq,val placeHolder:String,val order:Int){
-    def getValidationErrors(answer:String):Seq[String] = Nil
-    def check(answer:Answer):Boolean = false
+  class QuestionBase(val category: String,
+                     val title: NodeSeq,
+                     val helpText: NodeSeq,
+                     val placeHolder: String,
+                     val order: Int) {
+
+    def getValidationErrors(answer: String): Seq[String] =
+      Nil
+
+    def check(answer: Answer):Boolean =
+      false
   }
-  case class StringQuestion(override val category:String,override val title:NodeSeq,override val helpText:NodeSeq,override val placeHolder:String,override val order:Int,correctAnswer:String) extends QuestionBase(category,title,helpText,placeHolder,order){
-    override def getValidationErrors(answer:String):Seq[String] = answer match {
-      case s if s.length < 255 => List("answer must be less than 255 characters in length")
+
+  case class StringQuestion(override val category: String,
+                            override val title: NodeSeq,
+                            override val helpText: NodeSeq,
+                            override val placeHolder: String,
+                            override val order: Int,
+                            correctAnswer: String)
+    extends QuestionBase(category, title, helpText, placeHolder, order) {
+
+    override def getValidationErrors(answer:String): Seq[String] = answer match {
+      case s if s.length < 1 => List("answer cannot be empty")
       case other => Nil
     }
-    override def check(answer:Answer):Boolean = answer.value == correctAnswer
+
+    override def check(answer:Answer): Boolean =
+      answer.value == correctAnswer
   }
 
-case class NumberQuestion(override val category:String,override val title:NodeSeq,override val helpText:NodeSeq,override val placeHolder:String,override val order:Int,correctAnswer:String) extends QuestionBase(category,title,helpText,placeHolder,order){
-  def isNumeric(input: String): Boolean = input.forall(_.isDigit)
+case class NumberQuestion(override val category: String,
+                          override val title: NodeSeq,
+                          override val helpText: NodeSeq,
+                          override val placeHolder: String,
+                          override val order: Int,
+                          correctAnswer: String)
+  extends QuestionBase(category, title, helpText, placeHolder, order) {
 
-  override def getValidationErrors(answer:String):Seq[String] = answer match {
+  def isNumeric(input: String): Boolean =
+    input.forall(_.isDigit)
+
+  override def getValidationErrors(answer:String): Seq[String] = answer match {
     case s if !isNumeric(s) => List("answer must be numeric")
     case other => Nil
   }
-  override def check(answer:Answer):Boolean = answer.value == correctAnswer
+
+  override def check(answer:Answer):Boolean =
+    answer.value == correctAnswer
 }
 
-case class EmailQuestion(override val category:String,override val title:NodeSeq,override val helpText:NodeSeq,override val placeHolder:String,override val order:Int,correctAnswer:String) extends QuestionBase(category,title,helpText,placeHolder,order){
-  override def getValidationErrors(answer:String):Seq[String] = answer match {
+case class EmailQuestion(override val category: String,
+                         override val title:NodeSeq,
+                         override val helpText:NodeSeq,
+                         override val placeHolder:String,
+                         override val order:Int,
+                         correctAnswer: String)
+  extends QuestionBase(category, title, helpText, placeHolder, order) {
+
+  override def getValidationErrors(answer:String): Seq[String] = answer match {
     case s if s.length < 1 => List("answer cannot be empty")
     case other => Nil
   }
-  override def check(answer:Answer):Boolean = answer.value == correctAnswer
+
+  override def check(answer:Answer):Boolean =
+    answer.value == correctAnswer
 }
 
-case class DateQuestion(override val category:String,override val title:NodeSeq,override val helpText:NodeSeq,override val placeHolder:String,override val order:Int,correctAnswer:Date) extends QuestionBase(category,title,helpText,placeHolder,order){
+case class DateQuestion(override val category: String,
+                        override val title: NodeSeq,
+                        override val helpText: NodeSeq,
+                        override val placeHolder: String,
+                        override val order: Int,
+                        correctAnswer: Date)
+  extends QuestionBase(category, title, helpText, placeHolder, order){
+
   val dateFormat = new java.text.SimpleDateFormat("YYYY-mm-DD")
+
   override def getValidationErrors(answer:String):Seq[String] = try {
     dateFormat.parse(answer)
     Nil
   } catch {
     case e:Exception => List("could not interpret answer as date")
   }
+
   override def check(answer:Answer):Boolean = try {
     dateFormat.parse(answer.value).getTime() == correctAnswer.getTime()
   } catch {
     case e:Exception => false
   }
 }
-case class IntQuestion(override val category:String,override val title:NodeSeq,override val helpText:NodeSeq,override val placeHolder:String,override val order:Int,correctAnswer:Int) extends QuestionBase(category,title,helpText,placeHolder,order){
-  override def getValidationErrors(answer:String):Seq[String] = try {
+
+case class IntQuestion(override val category: String,
+                       override val title: NodeSeq,
+                       override val helpText: NodeSeq,
+                       override val placeHolder: String,
+                       override val order: Int,
+                       correctAnswer: Int)
+  extends QuestionBase(category, title, helpText, placeHolder, order) {
+
+  override def getValidationErrors(answer:String): Seq[String] = try {
     answer.toInt
     Nil
   } catch {
     case e:Exception => List("could not interpret answer as integer")
   }
+
   override def check(answer:Answer):Boolean = try {
     answer.value.toInt == correctAnswer
   } catch {
     case e:Exception => false
   }
 }
-case class DoubleQuestion(override val category:String,override val title:NodeSeq,override val helpText:NodeSeq,override val placeHolder:String,override val order:Int,correctAnswer:Double) extends QuestionBase(category,title,helpText,placeHolder,order){
+
+case class DoubleQuestion(override val category: String,
+                          override val title: NodeSeq,
+                          override val helpText: NodeSeq,
+                          override val placeHolder: String,
+                          override val order: Int,
+                          correctAnswer: Double)
+  extends QuestionBase(category, title, helpText, placeHolder, order){
+
   var threshold = 0.01
-  def withinThreshold(a:Double,b:Double):Boolean = {
+
+  def withinThreshold(a:Double,b:Double): Boolean = {
     a - threshold > b || a + threshold < b
   }
-  override def getValidationErrors(answer:String):Seq[String] = try {
+
+  override def getValidationErrors(answer:String): Seq[String] = try {
     answer.toDouble
     Nil
   } catch {
     case e:Exception => List("could not interpret answer as integer")
   }
-  override def check(answer:Answer):Boolean = try {
+
+  override def check(answer:Answer): Boolean = try {
     withinThreshold(answer.value.toDouble,correctAnswer)
   } catch {
     case e:Exception => false
   }
 }
-/*
-case class Question(override val category:String,override val title:NodeSeq,override val helpText:NodeSeq,override val placeHolder:String,override val order:Int) extends Question(category,title,helpText,placeHolder,order){
-  def getValidationErrors(answer:String):Seq[String]
-  def check(answer:Answer):Boolean
-}
-*/
-  case class Answer(value:String,question:QuestionBase)
 
-  case class QuestionSet(category:String,title:NodeSeq,questions:Seq[QuestionBase],order:Int,footer:Option[NodeSeq])
+  case class Answer(value: String,
+                    question: QuestionBase)
+
+  case class QuestionSet(category: String,
+                         title: NodeSeq,
+                         questions: Seq[QuestionBase],
+                         order: Int,
+                         footer: Option[NodeSeq])
 
   trait FactSet{
-    def getChoices:Seq[WorkflowTypeChoice.Value]
-    def getNextQuestions:Option[QuestionSet]
+
+    def getChoices: Seq[WorkflowTypeChoice.Value]
+    def getNextQuestions: Option[QuestionSet]
     def answerQuestions(answers:Seq[Answer])
-    def isComplete:Boolean
-    def canComplete:Boolean
+    def isComplete: Boolean
+    def canComplete: Boolean
   }
 
-  class MemberBackedFactSet(member:Member,minimumNumberOfCorrectAnswers:Int,questionsPerPage:Int) extends FactSet {
+  class MemberBackedFactSet(member:Member,
+                            minimumNumberOfCorrectAnswers: Int,
+                            questionsPerPage: Int)
+    extends FactSet {
+
     import WorkflowTypeChoice._
-    protected val questionSets:List[QuestionSet] = {
+
+    protected var unansweredQuestions: List[QuestionBase] = questionSets.flatMap(_.questions)
+    protected var correctAnswers: Int = 0
+
+    protected val questionSets: List[QuestionSet] = {
       List(
       QuestionSet("personal",Text("Questions about yourself"),List(
         StringQuestion("personal",Text("What is your first name?"),NodeSeq.Empty,"John",0,member.person.firstName),
@@ -229,10 +319,9 @@ case class Question(override val category:String,override val title:NodeSeq,over
       })
     }
 
-    protected var unansweredQuestions:List[QuestionBase] = questionSets.flatMap(_.questions)
-    protected var correctAnswers:Int = 0
     def getRemainingUnansweredQuestionCount = unansweredQuestions.length
-    def getChoices:Seq[WorkflowTypeChoice.Value] = {
+
+    def getChoices: Seq[WorkflowTypeChoice.Value] = {
       /*
       var hasMobile = false
       var hasEmail = false
@@ -256,7 +345,8 @@ case class Question(override val category:String,override val title:NodeSeq,over
         case _ => false
       })
     }
-    def answerQuestions(answers:Seq[Answer]) = unansweredQuestions = unansweredQuestions.filterNot{
+
+    def answerQuestions(answers: Seq[Answer]) = unansweredQuestions = unansweredQuestions.filterNot{
       case q:QuestionBase if answers.exists(a => a.question == q ) => {
         if (answers.exists(a => a.question == q && q.check(a))) {
           correctAnswers += 1
@@ -265,15 +355,16 @@ case class Question(override val category:String,override val title:NodeSeq,over
       }
       case _ => false
     }
-    override def getNextQuestions:Option[QuestionSet] = {
+
+    override def getNextQuestions: Option[QuestionSet] = {
       unansweredQuestions.groupBy(_.category).flatMap(kv => kv._2.grouped(questionsPerPage).toList.flatMap(qs => questionSets.find(_.category == kv._1).map(questionSet => questionSet.copy(questions = qs)))).toList.sortWith((a,b) => a.order < b.order).headOption
     }
 
-    override def isComplete:Boolean = {
+    override def isComplete: Boolean = {
       minimumNumberOfCorrectAnswers <= correctAnswers
     }
-    override def canComplete:Boolean = {
+
+    override def canComplete: Boolean = {
       minimumNumberOfCorrectAnswers <= (correctAnswers + unansweredQuestions.length)
     }
-
 }

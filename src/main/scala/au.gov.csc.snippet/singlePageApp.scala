@@ -3,26 +3,23 @@ package au.gov.csc.snippet
 import net.liftweb.http.{SessionVar, Templates}
 import net.liftweb.http._
 import net.liftweb.common._
-import net.liftweb.util._
 import net.liftweb.util.Helpers._
 import net.liftweb.http.SHtml._
 import net.liftweb.http.js.{JsCmd, JsCmds}
 import net.liftweb.http.js.JsCmds._
 import au.gov.csc._
 import net.liftweb.http.js.JE.JsRaw
-import net.liftweb.json.JsonAST.JNull
-
-import scala.util.Random
 import scala.xml._
-/**
-  * Created by Tom and Sarah on 6/09/2016.
-  */
+
 object serviceNumber extends SessionVar[Option[String]](None)
 object currentFactSet extends SessionVar[Option[FactSet]](None)
 object currentAccountDetails extends SessionVar[Option[AccountDefinition]](None)
+
 class singlePageApp extends Logger {
+
   val contentAreaId = "step-form"
   protected var factProvider = SessionState.userProvider
+
   def addValidationMarkup(isTrue: Boolean): JsCmd = {
     if (isTrue) {
       JsCmds.Run("jQuery('#form-group-serviceNumber').removeClass('has-error').addClass('has-success')")
@@ -30,18 +27,12 @@ class singlePageApp extends Logger {
       JsCmds.Run("jQuery('#form-group-serviceNumber').removeClass('has-success').addClass('has-error')")
     }
   }
+
   def askForMemberNumber = Templates(List("ajax-templates-hidden","AskForMemberNumber")).map(t => {
     ("#serviceNumber" #> ajaxText(serviceNumber.is.getOrElse(""), s => {
       serviceNumber(Some(s))
       Noop
     }) &
-      /*
-      "input [onchange]" #> SHtml.onEvent( answer =>
-        answer match {
-          case _ => addValidationMarkup(Random.nextBoolean())
-        }
-      ) &
-      */
       ".submitButton [onclick]" #> ajaxCall(JsRaw("this"),(_s:String) => {
         serviceNumber.is.map(s => {
           factProvider.getFacts(s) match {
@@ -57,6 +48,7 @@ class singlePageApp extends Logger {
       })
       ).apply(t)
   })
+
   def provideAccountDetails = {
     for {
       template <- Templates(List("ajax-templates-hidden","provideAccountNumber"))
@@ -76,20 +68,21 @@ class singlePageApp extends Logger {
       }
     }
   }
+
   def challengeFactSet(factSet:FactSet) = {
     factSet.getNextQuestions match {
       case Some(questionSet) => {
         var potentialAnswers:List[Answer] = Nil
-        Templates(List("ajax-text-snippets-hidden","QuestionSet")).map(qst => {
+        Templates(List("ajax-templates-hidden","QuestionSet")).map(qst => {
           (
-            ".questionSetTitle" #> questionSet.title &
-              ".questionSetFooter" #> questionSet.footer &
+            ".question-set-header" #> questionSet.title &
+              ".question-set-footer" #> questionSet.footer &
               ".questions" #> questionSet.questions.toList.foldLeft(NodeSeq.Empty)((acc,question) => {
                 val questionTemplate = question match {
                   case d:DateQuestion => Templates(List("ajax-templates-hidden","DateQuestion"))
                   case s:StringQuestion => Templates(List("ajax-templates-hidden","StringQuestion"))
-                  case s:NumberQuestion => Templates(List("ajax-templates-hidden","NumberQuestion"))
-                  case s:EmailQuestion => Templates(List("ajax-templates-hidden","EmailQuestion"))
+                  case n:NumberQuestion => Templates(List("ajax-templates-hidden","NumberQuestion"))
+                  case e:EmailQuestion => Templates(List("ajax-templates-hidden","EmailQuestion"))
                 }
                 questionTemplate.map(qt => {
                   questionSet.questions.toList.foldLeft(NodeSeq.Empty)((acc,question) => {
@@ -125,6 +118,7 @@ class singlePageApp extends Logger {
       }
     }
   }
+
   protected def generateCurrentPageNodeSeq:Box[NodeSeq] = {
     currentFactSet.is match {
       case None => askForMemberNumber
@@ -134,6 +128,7 @@ class singlePageApp extends Logger {
     }
 
   }
+
   def render = {
     "#%s *".format(contentAreaId) #> generateCurrentPageNodeSeq &
     "#reset [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
