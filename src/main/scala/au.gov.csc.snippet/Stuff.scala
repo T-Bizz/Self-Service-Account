@@ -127,6 +127,13 @@ import scala.xml.{NodeSeq,Text}
     val QuestionsOnly, SmsAndQuestions, EmailAndQuestions = Value
   }
 
+  object StageTypeChoice extends Enumeration {
+
+    type StageTypeChoice = Value
+
+    val Identify, Verify, Result = Value
+  }
+
   class QuestionBase(val category: String,
                      val title: NodeSeq,
                      val helpText: NodeSeq,
@@ -302,7 +309,7 @@ case class DoubleQuestion(override val category: String,
       ) ::: member.person.title.map(t => {
         StringQuestion("personal", Text("What is your title?"), NodeSeq.Empty,"Mr",3,t)
       }).toList ::: member.person.tfn.toList.map(t => {
-        NumberQuestion("personal", Text("What is your tax file number?"), NodeSeq.Empty,"12345678",4,t)
+        NumberQuestion("personal", Text("What is your tax file number?"), NodeSeq.Empty,"87654321",4,t)
       }),0,Some(Text("Click next to skip")))
       ) ::: member.memberships.toList.map(m => {
         val mid = "membership_%s".format(m.membershipNumber)

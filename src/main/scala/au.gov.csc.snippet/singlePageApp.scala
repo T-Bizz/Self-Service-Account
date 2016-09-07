@@ -9,16 +9,31 @@ import net.liftweb.http.js.{JsCmd, JsCmds}
 import net.liftweb.http.js.JsCmds._
 import au.gov.csc._
 import net.liftweb.http.js.JE.JsRaw
+import net.liftweb.util.CssSel
+
 import scala.xml._
+import StageTypeChoice._
 
 object serviceNumber extends SessionVar[Option[String]](None)
 object currentFactSet extends SessionVar[Option[FactSet]](None)
 object currentAccountDetails extends SessionVar[Option[AccountDefinition]](None)
+object currentStage extends SessionVar[Option[StageTypeChoice]](None)
 
 class singlePageApp extends Logger {
 
   val contentAreaId = "step-form"
   protected var factProvider = SessionState.userProvider
+
+  def selectCurrentStage: JsCmd = {
+    val setActiveStep: JsCmd = currentStage.is match {
+      case Some(StageTypeChoice.Verify) => JsCmds.Run("jQuery('#li-step-2').addClass('active')")
+      case Some(StageTypeChoice.Result) => JsCmds.Run("jQuery('#li-step-3').addClass('active')")
+      case None | Some(_) | Some(StageTypeChoice.Identify) => JsCmds.Run("jQuery('#li-step-1').addClass('active')")
+    }
+
+    JsCmds.Run("jQuery('.step-heading').addClass('disabled').removeClass('active')") &
+      setActiveStep
+  }
 
   def addValidationMarkup(isTrue: Boolean): JsCmd = {
     if (isTrue) {
@@ -29,6 +44,7 @@ class singlePageApp extends Logger {
   }
 
   def askForMemberNumber = Templates(List("ajax-templates-hidden","AskForMemberNumber")).map(t => {
+    currentStage(Some(Identify))
     ("#serviceNumber" #> ajaxText(serviceNumber.is.getOrElse(""), s => {
       serviceNumber(Some(s))
       Noop
@@ -45,7 +61,7 @@ class singlePageApp extends Logger {
           factProvider.getFacts(s) match {
             case Right(member) => {
               currentFactSet(Some(new MemberBackedFactSet(member, SessionState.minimumCorrectAnswers, SessionState.pageSize)))
-              generateCurrentPageNodeSeq.map(newPage => SetHtml(contentAreaId, newPage)).getOrElse(Alert("error"))
+              generateCurrentPageNodeSeq.map(newPage => SetHtml(contentAreaId, newPage) & selectCurrentStage).getOrElse(Alert("error"))
             }
             case Left(e) => {
               Alert(e.getMessage)
@@ -57,6 +73,8 @@ class singlePageApp extends Logger {
   })
 
   def provideAccountDetails = {
+    // HOW DO I USE selectCurrentStage here???????????????????????
+    currentStage(Some(Result))
     for {
       template <- Templates(List("ajax-templates-hidden","provideAccountNumber"))
       memberNumber <- serviceNumber.is
@@ -66,7 +84,8 @@ class singlePageApp extends Logger {
           (
             ".accessNumberValue [value]" #> accountDefinition.password &
               ".serviceNumberValue [value]" #> accountDefinition.memberNumber &
-              ".schemeValue [value]" #> accountDefinition.scheme
+              ".schemeValue [value]" #> accountDefinition.scheme &
+              startOver
             ).apply(template)
         }
         case Left(e) => {
@@ -77,14 +96,15 @@ class singlePageApp extends Logger {
   }
 
   def challengeFactSet(factSet:FactSet) = {
+    currentStage(Some(Verify))
     factSet.getNextQuestions match {
       case Some(questionSet) => {
         var potentialAnswers:List[Answer] = Nil
         Templates(List("ajax-templates-hidden","QuestionSet")).map(qst => {
           (
-            ".question-set-header" #> questionSet.title &
-              ".question-set-footer" #> questionSet.footer &
-              ".questions" #> questionSet.questions.toList.foldLeft(NodeSeq.Empty)((acc, question) => {
+            ".question-set-header *" #> questionSet.title &
+              ".question-set-footer *" #> questionSet.footer &
+              ".questions *" #> questionSet.questions.toList.foldLeft(NodeSeq.Empty)((acc, question) => {
 
                 val answerQuestionFunc = (answerString: String) => {
                   question.getValidationErrors(answerString) match {
@@ -114,13 +134,14 @@ class singlePageApp extends Logger {
               }) &
               ".submitButton [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
                 factSet.answerQuestions(potentialAnswers)
-                generateCurrentPageNodeSeq.map(newPage => SetHtml(contentAreaId,newPage)).getOrElse(Alert("error"))
-              })
+                generateCurrentPageNodeSeq.map(newPage => SetHtml(contentAreaId, newPage) & selectCurrentStage).getOrElse(Alert("error"))
+              }) &
+              startOver
             ).apply(qst)
         })
       }
       case None => {
-        Full(Text("we couldn't verify you.  Call CSC CIC"))
+        Full(Text("We couldn't verify your identity. Contact our Customer Information Center (CIC)."))
       }
     }
   }
@@ -128,23 +149,25 @@ class singlePageApp extends Logger {
   protected def generateCurrentPageNodeSeq:Box[NodeSeq] = {
     currentFactSet.is match {
       case None => askForMemberNumber
-      case Some(factSet) if !factSet.canComplete => Full(Text("we can't verify you online.  Please contact CSC CIC"))
+      case Some(factSet) if !factSet.canComplete => Full(Text("We can't verify your identity. Contact our Customer Information Center (CIC)."))
       case Some(factSet) if factSet.isComplete => provideAccountDetails
       case Some(factSet) => challengeFactSet(factSet)
     }
+  }
 
+  def startOver: CssSel = {
+    "#reset [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
+        S.session.foreach(s => {
+          s.destroySession()
+          s.httpSession.foreach(httpsession => {
+            httpsession.terminate
+          })
+        })
+        generateCurrentPageNodeSeq.map(newPage => SetHtml(contentAreaId, newPage) & selectCurrentStage).getOrElse(Alert("reset error"))
+      })
   }
 
   def render = {
-    "#%s *".format(contentAreaId) #> generateCurrentPageNodeSeq &
-    "#reset [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
-      S.session.foreach(s => {
-        s.destroySession()
-        s.httpSession.foreach(httpsession => {
-          httpsession.terminate
-        })
-      })
-      RedirectTo("/singlePageApp")
-    })
+    "#%s *".format(contentAreaId) #> generateCurrentPageNodeSeq
   }
 }
