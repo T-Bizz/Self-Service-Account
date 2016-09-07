@@ -26,9 +26,9 @@ class singlePageApp extends Logger {
 
   def selectCurrentStage: JsCmd = {
     val setActiveStep: JsCmd = currentStage.is match {
-      case Some(StageTypeChoice.Verify) => JsCmds.Run("jQuery('#li-step-2').addClass('active')")
-      case Some(StageTypeChoice.Result) => JsCmds.Run("jQuery('#li-step-3').addClass('active')")
-      case None | Some(_) | Some(StageTypeChoice.Identify) => JsCmds.Run("jQuery('#li-step-1').addClass('active')")
+      case Some(StageTypeChoice.Verify) => JsCmds.Run("jQuery('#li-step-2').removeClass('disabled').addClass('active')")
+      case Some(StageTypeChoice.Result) => JsCmds.Run("jQuery('#li-step-3').removeClass('disabled').addClass('active')")
+      case None | Some(_) | Some(StageTypeChoice.Identify) => JsCmds.Run("jQuery('#li-step-1').removeClass('disabled').addClass('active')")
     }
 
     JsCmds.Run("jQuery('.step-heading').addClass('disabled').removeClass('active')") &
