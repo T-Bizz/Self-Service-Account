@@ -11,19 +11,13 @@ import au.gov.csc._
 import net.liftweb.http.js.JE.JsRaw
 import scala.xml._
 
-object serviceNumber
-  extends SessionVar[Option[String]](None)
-
-object currentFactSet
-  extends SessionVar[Option[FactSet]](None)
-
-object currentAccountDetails
-  extends SessionVar[Option[AccountDefinition]](None)
+object serviceNumber extends SessionVar[Option[String]](None)
+object currentFactSet extends SessionVar[Option[FactSet]](None)
+object currentAccountDetails extends SessionVar[Option[AccountDefinition]](None)
 
 class singlePageApp extends Logger {
 
   val contentAreaId = "step-form"
-
   protected var factProvider = SessionState.userProvider
 
   def addValidationMarkup(isTrue: Boolean): JsCmd = {
@@ -39,6 +33,13 @@ class singlePageApp extends Logger {
       serviceNumber(Some(s))
       Noop
     }) &
+      /*
+      "input [onchange]" #> SHtml.onEvent( answer =>
+        answer match {
+          case _ => addValidationMarkup(Random.nextBoolean())
+        }
+      ) &
+      */
       ".submitButton [onclick]" #> ajaxCall(JsRaw("this"),(_s:String) => {
         serviceNumber.is.map(s => {
           factProvider.getFacts(s) match {
@@ -83,33 +84,33 @@ class singlePageApp extends Logger {
           (
             ".question-set-header" #> questionSet.title &
               ".question-set-footer" #> questionSet.footer &
-              ".questions" #> questionSet.questions.toList.foldLeft(NodeSeq.Empty)((acc,question) => {
-                val questionTemplate = question match {
-                  case d:DateQuestion => Templates(List("ajax-templates-hidden","DateQuestion"))
-                  case s:StringQuestion => Templates(List("ajax-templates-hidden","StringQuestion"))
-                  case n:NumberQuestion => Templates(List("ajax-templates-hidden","NumberQuestion"))
-                  case e:EmailQuestion => Templates(List("ajax-templates-hidden","EmailQuestion"))
-                }
-                questionTemplate.map(qt => {
-                  questionSet.questions.toList.foldLeft(NodeSeq.Empty)((acc,question) => {
-                    val answerQuestionFunc = (answerString:String) => {
-                      question.getValidationErrors(answerString) match {
-                        case Nil => {
-                          potentialAnswers = Answer(answerString, question) :: potentialAnswers
-                          Noop
-                        }
-                        case other => Alert(other.mkString)
-                      }
-                    }
-                    acc ++ ((
-                      ".question-title" #> question.title &
-                        ".question-input [onchange]" #> ajaxCall(JsRaw("this.value"), answerQuestionFunc) &
-                        ".question-input [placeholder]" #> question.placeHolder &
-                        ".question-help-text [data-content]" #> question.helpText
-                      ).apply(qt))
-                  })
-                }).openOr(NodeSeq.Empty)
+              ".questions" #> questionSet.questions.toList.foldLeft(NodeSeq.Empty)((acc, question) => {
 
+                val answerQuestionFunc = (answerString: String) => {
+                  question.getValidationErrors(answerString) match {
+                    case Nil => {
+                      potentialAnswers = Answer(answerString, question) :: potentialAnswers
+                      Noop
+                    }
+                    case other => Alert(other.mkString)
+                  }
+                }
+
+                val questionTemplate = question match {
+                  case d: DateQuestion => Templates(List("ajax-templates-hidden", "DateQuestion"))
+                  case s: StringQuestion => Templates(List("ajax-templates-hidden", "StringQuestion"))
+                  case n: NumberQuestion => Templates(List("ajax-templates-hidden", "NumberQuestion"))
+                  case e: EmailQuestion => Templates(List("ajax-templates-hidden", "EmailQuestion"))
+                }
+
+                questionTemplate.map(qt => {
+                  acc ++ ((
+                    ".question-title *" #> question.title &
+                      ".question-input [onchange]" #> ajaxCall(JsRaw("this.value"), answerQuestionFunc) &
+                      ".question-input [placeholder]" #> question.placeHolder &
+                      ".question-help-text [data-content]" #> question.helpText
+                    ).apply(qt))
+                }).openOr(NodeSeq.Empty)
               }) &
               ".submitButton [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
                 factSet.answerQuestions(potentialAnswers)

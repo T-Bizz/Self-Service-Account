@@ -92,7 +92,7 @@ import scala.xml.{NodeSeq,Text}
 
     val MemberNotFoundException = new Exception("member not found")
     val memberFacts = Map(
-      "1" -> Member(Person("testSurname","testFirstName",new Date(),27,"testFullName",Some("Mr"),Some("87654321")),Nil,Nil)
+      "1" -> Member(Person("Smith","John",new Date(),21,"John Smith",Some("Mr"),Some("87654321")),Nil,Nil)
     )
 
     override def getMember(memberNumber:String):Either[Exception,Member] = memberFacts.get(memberNumber) match {
@@ -293,9 +293,6 @@ case class DoubleQuestion(override val category: String,
 
     import WorkflowTypeChoice._
 
-    protected var unansweredQuestions: List[QuestionBase] = questionSets.flatMap(_.questions)
-    protected var correctAnswers: Int = 0
-
     protected val questionSets: List[QuestionSet] = {
       List(
       QuestionSet("personal",Text("Questions about yourself"),List(
@@ -303,9 +300,9 @@ case class DoubleQuestion(override val category: String,
         StringQuestion("personal", Text("What is your surname?"), NodeSeq.Empty,"Smith",1,member.person.surname),
         NumberQuestion("personal", Text("What is your age?"), NodeSeq.Empty,"21",2,member.person.age.toString)
       ) ::: member.person.title.map(t => {
-        StringQuestion("personal", Text("What is your title?"),NodeSeq.Empty,"Mr",3,t)
+        StringQuestion("personal", Text("What is your title?"), NodeSeq.Empty,"Mr",3,t)
       }).toList ::: member.person.tfn.toList.map(t => {
-        NumberQuestion("personal", Text("What is your tax file number?"),NodeSeq.Empty,"12345678",4,t)
+        NumberQuestion("personal", Text("What is your tax file number?"), NodeSeq.Empty,"12345678",4,t)
       }),0,Some(Text("Click next to skip")))
       ) ::: member.memberships.toList.map(m => {
         val mid = "membership_%s".format(m.membershipNumber)
@@ -318,6 +315,9 @@ case class DoubleQuestion(override val category: String,
         }),1,Some(Text("Click next to skip")))
       })
     }
+
+    protected var unansweredQuestions: List[QuestionBase] = questionSets.flatMap(_.questions)
+    protected var correctAnswers: Int = 0
 
     def getRemainingUnansweredQuestionCount = unansweredQuestions.length
 
