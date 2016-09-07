@@ -299,13 +299,13 @@ case class DoubleQuestion(override val category: String,
     protected val questionSets: List[QuestionSet] = {
       List(
       QuestionSet("personal",Text("Questions about yourself"),List(
-        StringQuestion("personal",Text("What is your first name?"),NodeSeq.Empty,"John",0,member.person.firstName),
-        StringQuestion("personal",Text("What is your surname?"),NodeSeq.Empty,"Smith",1,member.person.surname),
-        NumberQuestion("personal",Text("What is your age?"),NodeSeq.Empty,"21",2,member.person.age.toString)
+        StringQuestion("personal", Text("What is your first name?"), NodeSeq.Empty,"John",0,member.person.firstName),
+        StringQuestion("personal", Text("What is your surname?"), NodeSeq.Empty,"Smith",1,member.person.surname),
+        NumberQuestion("personal", Text("What is your age?"), NodeSeq.Empty,"21",2,member.person.age.toString)
       ) ::: member.person.title.map(t => {
-        StringQuestion("personal",Text("What is your title?"),NodeSeq.Empty,"Mr",3,t)
+        StringQuestion("personal", Text("What is your title?"),NodeSeq.Empty,"Mr",3,t)
       }).toList ::: member.person.tfn.toList.map(t => {
-        NumberQuestion("personal",Text("What is your tax file number?"),NodeSeq.Empty,"12345678",4,t)
+        NumberQuestion("personal", Text("What is your tax file number?"),NodeSeq.Empty,"12345678",4,t)
       }),0,Some(Text("Click next to skip")))
       ) ::: member.memberships.toList.map(m => {
         val mid = "membership_%s".format(m.membershipNumber)

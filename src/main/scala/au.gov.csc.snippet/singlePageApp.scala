@@ -11,13 +11,19 @@ import au.gov.csc._
 import net.liftweb.http.js.JE.JsRaw
 import scala.xml._
 
-object serviceNumber extends SessionVar[Option[String]](None)
-object currentFactSet extends SessionVar[Option[FactSet]](None)
-object currentAccountDetails extends SessionVar[Option[AccountDefinition]](None)
+object serviceNumber
+  extends SessionVar[Option[String]](None)
+
+object currentFactSet
+  extends SessionVar[Option[FactSet]](None)
+
+object currentAccountDetails
+  extends SessionVar[Option[AccountDefinition]](None)
 
 class singlePageApp extends Logger {
 
   val contentAreaId = "step-form"
+
   protected var factProvider = SessionState.userProvider
 
   def addValidationMarkup(isTrue: Boolean): JsCmd = {
@@ -89,7 +95,7 @@ class singlePageApp extends Logger {
                     val answerQuestionFunc = (answerString:String) => {
                       question.getValidationErrors(answerString) match {
                         case Nil => {
-                          potentialAnswers = Answer(answerString,question) :: potentialAnswers
+                          potentialAnswers = Answer(answerString, question) :: potentialAnswers
                           Noop
                         }
                         case other => Alert(other.mkString)
@@ -97,11 +103,10 @@ class singlePageApp extends Logger {
                     }
                     acc ++ ((
                       ".question-title" #> question.title &
-                        ".question-input [onchange]" #> ajaxCall(JsRaw("this.value"),answerQuestionFunc) &
+                        ".question-input [onchange]" #> ajaxCall(JsRaw("this.value"), answerQuestionFunc) &
                         ".question-input [placeholder]" #> question.placeHolder &
                         ".question-help-text [data-content]" #> question.helpText
                       ).apply(qt))
-
                   })
                 }).openOr(NodeSeq.Empty)
 
