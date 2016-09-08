@@ -1,6 +1,4 @@
 package au.gov.csc.snippet
-
-import au.gov.csc.SessionState._
 import net.liftweb.common.Loggable
 import net.liftweb.http.SHtml._
 import net.liftweb.http.js.JsCmd

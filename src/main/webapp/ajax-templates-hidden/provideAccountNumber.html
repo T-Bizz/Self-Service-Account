@@ -1,5 +1,5 @@
-<div id="step-form" class="animated fadeIn" data-lift="ValidateServiceNumber">
-	<div class="panel panel-default" data-lift="stepBody">
+<div id="step-form" class="animated fadeIn">
+	<div class="panel panel-default">
 		<div class="panel-body">
 			<div id="header-title"></div>
 			<div class="container">
@@ -29,11 +29,19 @@
 				</div>
 			</div>
 			<div id="footer-title"></div>
-			<script type="text/javascript">
-				$(function () {
-       				$('.popover').hide();
-				})
-			</script>
 		</div>
 	</div>
+	<div class="row">
+	    <div class="col-xs-6">
+	      <button type="submit" id="reset" class="btn btn-default btn-lg btn-block animated fadeIn"><span class="fa fa-repeat fa-fw"></span> Start over</button>
+	    </div>
+	    <div class="col-xs-6">
+	      <button type="submit" class="submitButton btn btn-primary btn-lg btn-block animated fadeIn"><span class="fa fa-link fa-fw"></span> Redirect to login page</button>
+	    </div>
+	</div>
+	<script type="text/javascript">
+		$(function () {
+				$('.popover').hide();
+		})
+	</script>
 </div>

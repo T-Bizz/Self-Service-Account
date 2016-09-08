@@ -31,7 +31,7 @@
   <div class="panel panel-default">
     <div class="panel-body">
       <div id="header-title"></div>
-      <div id="form-group-serviceNumber" class="form-group" data-lift="ValidateServiceNumber">
+      <div id="form-group-serviceNumber" class="form-group">
         <label for="serviceNumber" id="serviceNumber-label"><strong>Membership Number</strong></label>
         <div class="input-group input-group">
           <span class="input-group-addon" id="number"><i class="fa fa-hashtag fa-fw"></i></span>
@@ -44,15 +44,17 @@
         </div>
       </div>
       <div id="footer-title"></div>
-      <script type="text/javascript">
-      $(function () {
-        $('.popover').hide();
-        $('[data-toggle="popover"]').popover()
-      })
-      </script>
-      <div class="col-xs-6">
-        <button type="submit" class="submitButton btn btn-primary btn-lg btn-block animated fadeIn">Next <span class="fa fa-chevron-right fa-fw"></span></button>
-      </div>
     </div>
   </div>
+  <div class="row">
+    <div class="col-xs-12">
+      <button type="submit" class="submitButton btn btn-primary btn-lg btn-block animated fadeIn">Get Started <span class="fa fa-chevron-right fa-fw"></span></button>
+    </div>
+  </div>
+  <script type="text/javascript">
+  $(function () {
+    $('.popover').hide();
+    $('[data-toggle="popover"]').popover()
+  })
+  </script>
 </div>
