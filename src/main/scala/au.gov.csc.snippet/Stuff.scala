@@ -92,7 +92,7 @@ import scala.xml.{NodeSeq,Text}
 
     val MemberNotFoundException = new Exception("member not found")
     val memberFacts = Map(
-      "1" -> Member(Person("Smith","John",new Date(),21,"John Smith",Some("Mr"),Some("87654321")),Nil,Nil)
+      "77929555" -> Member(Person("Smith","John",new Date(),21,"John Smith",Some("Mr"),Some("87654321")),Nil,Nil)
     )
 
     override def getMember(memberNumber:String):Either[Exception,Member] = memberFacts.get(memberNumber) match {
@@ -110,7 +110,7 @@ import scala.xml.{NodeSeq,Text}
 
     val AccountNotFoundException = new Exception("account not found")
     val accounts = Map(
-      "1" -> AccountDefinition("1","testPassword","testScheme")
+      "77929555" -> AccountDefinition("77929555","testPassword","testScheme")
     )
 
     override def getAccount(memberNumber:String): Either[Exception,AccountDefinition] =
