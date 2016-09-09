@@ -29,8 +29,8 @@ import scala.xml.{NodeSeq,Text}
   trait ContactDetail
 
   case class PhoneNumber(kind: String,
-                         areaCode: Int,
-                         phoneNumber: Int,
+                         areaCode: String,
+                         phoneNumber: String,
                          isValid: Boolean,
                          effectDate: Date,
                          startDate: Date,
@@ -92,7 +92,20 @@ import scala.xml.{NodeSeq,Text}
 
     val MemberNotFoundException = new Exception("member not found")
     val memberFacts = Map(
-      "77929555" -> Member(Person("Smith","John",new Date(),21,"John Smith",Some("Mr"),Some("87654321")),Nil,Nil)
+      "77929555" -> Member(Person("Smith","John",new Date(),21,"John Smith",Some("Mr"),Some("87654321")),Nil,
+        List(PhoneNumber("mobile",
+          "1",
+          "2",
+          true,
+        new Date(),
+    new Date(),
+    Some(new Date())),
+    EmailAddress("internet?",
+      "tom@tom.com",
+      true,
+      new Date(),
+      new Date(),
+      Some(new Date()))))
     )
 
     override def getMember(memberNumber:String):Either[Exception,Member] = memberFacts.get(memberNumber) match {
@@ -201,6 +214,28 @@ case class EmailQuestion(override val category: String,
     answer.value == correctAnswer
 }
 
+object TokenGenerator {
+  import net.liftweb.util.Helpers._
+  def generateToken:String = nextFuncName
+}
+case class TokenQuestion(override val category: String,
+                         override val title:NodeSeq,
+                         override val helpText:NodeSeq,
+                         override val placeHolder:String,
+                         override val order:Int,
+                         val target:Either[EmailAddress,PhoneNumber])
+  extends QuestionBase(category, title, helpText, placeHolder, order) {
+  val correctAnswer = TokenGenerator.generateToken
+  override def getValidationErrors(answer:String): Seq[String] = answer match {
+    case s if s.length < 1 => List("answer cannot be empty")
+    case other => Nil
+  }
+
+  override def check(answer:Answer):Boolean =
+    answer.value == correctAnswer
+}
+
+
 case class DateQuestion(override val category: String,
                         override val title: NodeSeq,
                         override val helpText: NodeSeq,
@@ -286,7 +321,9 @@ case class DoubleQuestion(override val category: String,
 
   trait FactSet{
 
+    def getHasChosen:Boolean
     def getChoices: Seq[WorkflowTypeChoice.Value]
+    def setChoice(choice:WorkflowTypeChoice.Value)
     def getNextQuestions: Option[QuestionSet]
     def answerQuestions(answers:Seq[Answer])
     def isComplete: Boolean
@@ -320,14 +357,58 @@ case class DoubleQuestion(override val category: String,
         ) ::: m.exitDate.toList.map(ed => {
           DateQuestion(mid,Text("When did you exit this scheme?"),NodeSeq.Empty,"21/6/1985",3,ed)
         }),1,Some(Text("Click next to skip")))
-      })
-    }
+      }) ::: (member.contactDetails.toList.flatMap {
+        case e: EmailAddress => List(QuestionSet("sendEmailToken", Text("We're sending you a token to your email address"), List(
+          TokenQuestion("sendEmailToken", Text("Please enter the token you've received in your email"), NodeSeq.Empty, "012345", 0, Left(e))
+        ), 6, None))
+        case e: PhoneNumber if e.kind == "mobile" => List(QuestionSet("sendSMSToken", Text("We're sending you a token to your mobile phone"), List(
+          TokenQuestion("sendSMSToken", Text("Please enter the token you've received on your phone"), NodeSeq.Empty, "012345", 0, Right(e))
+        ), 6, None))
+        case _ => Nil
+
+      }) ::: List(QuestionSet("contactDetails",Text("Tell us about how we communicate with you"),member.contactDetails.flatMap{
+        case cd:PhoneNumber if cd.kind != "mobile" => {
+          List(
+            StringQuestion("contactDetails",Text("What's the area code of your phone number?"),NodeSeq.Empty,"03",0,cd.areaCode)
+          )
+        }
+        case cd:ComplexAddress => {
+          List(
+            StringQuestion("contactDetails",Text("What's your postcode?"),NodeSeq.Empty,"03",0,cd.postCode),
+            StringQuestion("contactDetails",Text("What's your suburb?"),NodeSeq.Empty,"03",0,cd.city),
+            StringQuestion("contactDetails",Text("What's your state?"),NodeSeq.Empty,"03",0,cd.state)
+          )
+        }
+        case _ => Nil
+      },4,None))
+   }
 
     protected var unansweredQuestions: List[QuestionBase] = questionSets.flatMap(_.questions)
     protected var correctAnswers: Int = 0
 
     def getRemainingUnansweredQuestionCount = unansweredQuestions.length
 
+    protected var hasChosen = false
+    def setChoice(choice:WorkflowTypeChoice.Value) = {
+      choice match {
+        case WorkflowTypeChoice.EmailAndQuestions => unansweredQuestions.filterNot {
+          case p: TokenQuestion if p.target.isRight => true
+          case _ => false
+        }
+        case WorkflowTypeChoice.SmsAndQuestions => unansweredQuestions.filterNot {
+          case p: TokenQuestion if p.target.isLeft => true
+          case _ => false
+        }
+        case WorkflowTypeChoice.QuestionsOnly => unansweredQuestions.filterNot {
+          case p: TokenQuestion => true
+          case _ => false
+        }
+      }
+      hasChosen = true;
+    }
+    def getHasChosen:Boolean = {
+        hasChosen
+    }
     def getChoices: Seq[WorkflowTypeChoice.Value] = {
       /*
       var hasMobile = false

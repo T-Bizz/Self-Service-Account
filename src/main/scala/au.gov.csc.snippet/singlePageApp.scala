@@ -8,8 +8,9 @@ import net.liftweb.http.SHtml._
 import net.liftweb.http.js.{JsCmd, JsCmds}
 import net.liftweb.http.js.JsCmds._
 import au.gov.csc._
-import net.liftweb.http.js.JE.JsRaw
+import net.liftweb.http.js.JE.{AnonFunc, JsFunc, JsRaw}
 import net.liftweb.util.CssSel
+
 import scala.xml._
 import StageTypeChoice._
 
@@ -18,8 +19,33 @@ object currentFactSet extends SessionVar[Option[FactSet]](None)
 object currentAccountDetails extends SessionVar[Option[AccountDefinition]](None)
 object currentStage extends SessionVar[Option[StageTypeChoice]](None)
 
-class singlePageApp extends Logger {
+object Scheme extends RequestVar[Option[String]](None)
 
+trait DetectScheme {
+  def getScheme:Option[String] = {
+    Scheme.is.map(s => Some(s)).getOrElse({
+      S.param("scheme").map(s => {
+        Scheme(Some(s))
+        s
+      })
+    })
+  }
+}
+class schemeBranding extends Logger with DetectScheme {
+  def render = {
+    getScheme.map(s => {
+      ".schemeName *" #> s
+    }).getOrElse({
+      S.redirectTo("/noSchemeProvided")
+    })
+  }
+}
+
+class singlePageApp extends Logger with DetectScheme {
+
+  protected def ?(key: String): String = {
+    S ? "%s%s".format(key, Scheme.is.map(s => "_%s".format(s)).getOrElse(""))
+  }
   val contentAreaId = "step-form"
   protected var factProvider = SessionState.userProvider
 
@@ -56,30 +82,91 @@ class singlePageApp extends Logger {
         new MshpNumber(serviceNumber.is.getOrElse("")).isValid match {
           case true => factProvider.getFacts(s) match {
             case Right(member) => {
-              currentFactSet(Some(new MemberBackedFactSet(member, SessionState.minimumCorrectAnswers, SessionState.pageSize)))
+              try {
+                currentFactSet(Some(new MemberBackedFactSet(member, SessionState.minimumCorrectAnswers, SessionState.pageSize)))
+              } catch {
+                case e:Exception => println("exception: %s\r\n%s".format(e.getMessage,e.getStackTraceString))
+              }
               SetHtml(contentAreaId, generateCurrentPageNodeSeq)
             }
             case Left(e) => {
               Alert(e.getMessage)
             }
           }
-          case false => Alert("please provide a valid member number")
+          case false => Alert(?("invalidMumberNumberProvided"))
         }
-      }).getOrElse(Alert("please provide a member number"))
+      }).getOrElse(Alert(?("noMemberNumberProvided")))
     })
     ).apply(t)
   }).openOr(NodeSeq.Empty)
 
-  def provideVerificationMethodChoice = {
+  def obfuscatePhoneNumber(in:String):String = {
+    if (in.length > 2) {
+      in.substring(in.length - 2)
+    } else in
+  }
+  def obfuscateEmailAddress(in:String):String = {
+    in.split("@").drop(1).toList.mkString("")
+  }
+  def provideVerificationMethodChoice(factSet:FactSet) = {
     currentStage(Some(Verify))
     (for {
       template <- Templates(List("ajax-templates-hidden", "provideVerificationMethodChoice"))
       memberNumber <- serviceNumber.is
     } yield {
+      var choices = factSet.getChoices
+      var currentChoice:Option[WorkflowTypeChoice.Value] = None
       (".header-title *" #> Templates(List("ajax-text-snippets-hidden", "route-0-step-1-header")) &
         ".footer-title *" #> Templates(List("ajax-text-snippets-hidden", "route-0-step-1-footer")) &
+        "#btn-phone" #> {(n:NodeSeq) => {
+          if (choices.contains(WorkflowTypeChoice.SmsAndQuestions)){
+            var mobileNumber = "" // get this from factSet
+            (
+              ".interpolationValue *" #> obfuscatePhoneNumber(mobileNumber) &
+              "#btn-phone [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
+                currentChoice = Some(WorkflowTypeChoice.SmsAndQuestions)
+                Noop
+              })
+              ).apply(n)
+          } else {
+            NodeSeq.Empty
+          }
+        }} &
+        "#btn-email" #> {(n:NodeSeq) => {
+          if (choices.contains(WorkflowTypeChoice.EmailAndQuestions)){
+            var emailAddress = "" // get this from factSet
+            (
+              ".interpolationValue *" #> obfuscateEmailAddress(emailAddress) &
+                "#btn-email [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
+                  currentChoice = Some(WorkflowTypeChoice.EmailAndQuestions)
+                  Noop
+                })
+              ).apply(n)
+          } else {
+            NodeSeq.Empty
+          }
+        }} &
+        "#btn-other" #> {(n:NodeSeq) => {
+          if (choices.contains(WorkflowTypeChoice.QuestionsOnly)){
+            var mobileNumber = "" // get this from factSet
+            (
+                "#btn-other [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
+                  currentChoice = Some(WorkflowTypeChoice.QuestionsOnly)
+                  Noop
+                })
+              ).apply(n)
+          } else {
+            NodeSeq.Empty
+          }
+        }} &
+
         ".submitButton [onclick]" #> ajaxCall(JsRaw("this"),(_s:String) => {
-          SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+          currentChoice.map(choice => {
+            factSet.setChoice(choice)
+            SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+          }).getOrElse({
+            Alert(?("chooseVerificationMethod"))
+          })
         }) &
         startOver
       ).apply(template)
@@ -133,6 +220,8 @@ class singlePageApp extends Logger {
                 case s: StringQuestion => Templates(List("ajax-templates-hidden", "StringQuestion"))
                 case n: NumberQuestion => Templates(List("ajax-templates-hidden", "NumberQuestion"))
                 case e: EmailQuestion => Templates(List("ajax-templates-hidden", "EmailQuestion"))
+                case t: TokenQuestion => Templates(List("ajax-templates-hidden", "StringQuestion"))
+                case _ => Empty
               }
 
               acc ++ questionTemplate.map(qt => {
@@ -153,16 +242,20 @@ class singlePageApp extends Logger {
         }).openOr(NodeSeq.Empty)
       }
       case None => {
-        Text("We couldn't verify your identity. Contact our Customer Information Center (CIC).")
+        Text(?("callCic"))
       }
     }
   }
 
   protected def generateCurrentPageNodeSeq: NodeSeq = {
+    //S.param("host")
+    //S.req.foreach(_.param("host"))
     currentFactSet.is match {
       case None => askForMemberNumber
-      case Some(factSet) => provideVerificationMethodChoice
-      case Some(factSet) if !factSet.canComplete => Text("We can't verify your identity. Contact our Customer Information Center (CIC).")
+      case Some(factSet) if !factSet.getHasChosen && factSet.getChoices.toList.length > 1 => {
+        provideVerificationMethodChoice(factSet)
+      }
+      case Some(factSet) if !factSet.canComplete => Text(?("callCic"))
       case Some(factSet) if factSet.isComplete => provideAccountDetails
       case Some(factSet)                       => challengeFactSet(factSet)
     }
@@ -176,11 +269,18 @@ class singlePageApp extends Logger {
           httpsession.terminate
         })
       })
-      SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+      RedirectTo("/index")
+      //SetHtml(contentAreaId, generateCurrentPageNodeSeq)
     })
   }
 
   def render = {
-    "#%s *".format(contentAreaId) #> generateCurrentPageNodeSeq
+    getScheme.map(s => {
+      "#%s *".format(contentAreaId) #> {generateCurrentPageNodeSeq}
+    }).getOrElse({
+      "#%s *".format(contentAreaId) #> Text(?("noSchemeProvided"))
+    })
   }
 }
+// here's a mechanim for putting a function into the javascript DOM.
+// Script(JsCrVar("fireError",AnonFunc(ajaxCall(JsRaw("this"),(s:String) => Noop))))
