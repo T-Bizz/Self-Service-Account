@@ -10,7 +10,6 @@ import net.liftweb.http.js.JsCmds._
 import au.gov.csc._
 import net.liftweb.http.js.JE.{JsRaw}
 import net.liftweb.util.CssSel
-
 import scala.xml._
 import StageTypeChoice._
 
@@ -56,7 +55,11 @@ class schemeBranding extends Logger with DetectScheme {
 class singlePageApp extends Logger with DetectScheme {
 
   protected def ?(key: String): String = {
-    S ? "%s%s".format(key, Scheme.is.map(s => "_%s".format(s)).getOrElse(""))
+    // get configured string for scheme or use the default configured string
+    var out = S ? "%s%s".format(key, Scheme.is.map(s => "-%s".format(s._1)).getOrElse(""))
+    if (out == "%s%s".format(key, Scheme.is.map(s => "-%s".format(s._1)).getOrElse("")))
+      out = S ? key
+    out
   }
   val contentAreaId = "step-form"
   protected var factProvider = SessionState.userProvider
@@ -89,7 +92,7 @@ class singlePageApp extends Logger with DetectScheme {
       val mn: MembershipNumber = new MshpNumber(s)
       addValidationMarkup("form-group-serviceNumber", mn.isValid, mn.validate.headOption.getOrElse(""), "Membership Number ")
     }) &
-    ".submitButton [onclick]" #> ajaxCall(JsRaw("this"),(_s:String) => {
+    ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"),(_s:String) => {
       serviceNumber.is.map(s => {
         new MshpNumber(serviceNumber.is.getOrElse("")).isValid match {
           case true => factProvider.getFacts(s) match {
@@ -105,9 +108,9 @@ class singlePageApp extends Logger with DetectScheme {
               Alert(e.getMessage)
             }
           }
-          case false => Alert(?("invalidMumberNumberProvided"))
+          case false => Alert(?("invalid-nembership-number-provided"))
         }
-      }).getOrElse(Alert(?("noMemberNumberProvided")))
+      }).getOrElse(Alert(?("no-membership-number-provided")))
     })
     ).apply(t)
   }).openOr(NodeSeq.Empty)
@@ -180,8 +183,7 @@ class singlePageApp extends Logger with DetectScheme {
             NodeSeq.Empty
           }
         }} &
-
-        ".submitButton [onclick]" #> ajaxCall(JsRaw("this"),(_s:String) => {
+        ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"),(_s:String) => {
           currentChoice.map(choice => {
             factSet.setChoice(choice)
             SetHtml(contentAreaId, generateCurrentPageNodeSeq)
@@ -254,7 +256,9 @@ class singlePageApp extends Logger with DetectScheme {
                   ).apply(qt))
               }).openOr(NodeSeq.Empty)
             }) &
-            ".submitButton [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
+            ".question-set-heading-description *" #> Text(?("question-set-heading-description")) &
+            ".question-set-heading-contact-cic *" #> Text(?("question-set-heading-contact-cic")) &
+            ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
               factSet.answerQuestions(potentialAnswers)
               SetHtml(contentAreaId, generateCurrentPageNodeSeq)
             }) &
@@ -263,32 +267,37 @@ class singlePageApp extends Logger with DetectScheme {
         }).openOr(NodeSeq.Empty)
       }
       case None => {
-        Text(?("callCic"))
+        Text(?("call-cic"))
       }
     }
   }
 
   protected def generateCurrentPageNodeSeq: NodeSeq = {
-    currentFactSet.is match {
+    val node = currentFactSet.is match {
       case None => askForMemberNumber
       case Some(factSet) if !factSet.getHasChosen && factSet.getChoices.toList.length > 1 => {
         provideVerificationMethodChoice(factSet)
       }
-      case Some(factSet) if !factSet.canComplete => Text(?("callCic"))
+      case Some(factSet) if !factSet.canComplete => Text(?("call-cic"))
       case Some(factSet) if factSet.isComplete => provideAccountDetails
       case Some(factSet)                       => challengeFactSet(factSet)
     }
+    (".btn-get-started-text *" #> ?("btn-get-started-text") &
+      ".btn-reset-text *" #> ?("btn-reset-text") &
+      ".btn-next-text *" #> ?("btn-next-text") &
+      ".btn-login-text *" #> ?("btn-login-text")
+    ).apply(node)
   } ++ Script(setCurrentStage)
 
   def startOver: CssSel = {
-    "#reset [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
+    ".btn-reset [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
       S.session.foreach(s => {
         s.destroySession()
         s.httpSession.foreach(httpsession => {
           httpsession.terminate
         })
       })
-      RedirectTo("/index")
+      RedirectTo("/?scheme=%s".format(getScheme.map(p => p._1).getOrElse("")))
     })
   }
 
