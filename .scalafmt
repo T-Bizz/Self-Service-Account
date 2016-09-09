@@ -1,2 +1,5 @@
 --bestEffortInDeeplyNestedCode
---style defaultWithAlign # For pretty alignment.
+--maxColumn 120
+--alignTokens false
+--alignByOpenParenCallSite
+--continuationIndentCallSite 2
