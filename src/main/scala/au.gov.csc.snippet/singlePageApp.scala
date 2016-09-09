@@ -257,7 +257,7 @@ class singlePageApp extends Logger with DetectScheme {
               }).openOr(NodeSeq.Empty)
             }) &
             ".question-set-heading-description *" #> Text(?("question-set-heading-description")) &
-            ".question-set-heading-contact-cic *" #> Text(?("question-set-heading-contact-cic")) &b
+            ".question-set-heading-contact-cic *" #> Text(?("question-set-heading-contact-cic")) &
             ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
               factSet.answerQuestions(potentialAnswers)
               SetHtml(contentAreaId, generateCurrentPageNodeSeq)
