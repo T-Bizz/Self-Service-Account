@@ -1,0 +1,5 @@
+--bestEffortInDeeplyNestedCode
+--maxColumn 120
+--alignTokens false
+--alignByOpenParenCallSite
+--continuationIndentCallSite 2

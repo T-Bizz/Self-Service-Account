@@ -1,5 +1,5 @@
 <!doctype html xmlns="http://www.w3.org/1999/xhtml" xmlns:lift='http://liftweb.net'>
-<html class="no-js" lang="">
+<html class="no-js lift:schemeBranding" lang="">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -14,8 +14,8 @@
     <link rel="stylesheet" href="/css/animate.css">
     <link rel="stylesheet" href="/css/font-awesome.min.css">
     <script src="/js/vendor/modernizr-2.8.3.min.js"></script>
-    <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
-    <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.12.0.min.js"><\/script>')</script>
+    <script src="/js/vendor/jquery-1.12.0.min.js"></script>
+    <script src="/js/main.js"></script>
   </head>
   <body>
     <!--[if lt IE 8]>
@@ -24,36 +24,14 @@
     <div class="container" style="margin-top:60px;">
       <div class="container">
         <div class="row">
-          <div class="col-md-4">
+          <div class="col-md-4 margin-bottom-lg">
             <a href="/index.html"><img src="/img/logo.gif"></a>
           </div>
-          <div class="col-md-8">
-            <div class="row margin-top-xl">
-              <div class="col-md-offset-2 col-xs-2">
-                <a href="https://css.gov.au/" class="thumbnail">
-                  <img src="/img/site_logo_css.gif" alt="Visit CSS - Commonwelth Superannuation Scheme">
-                </a>
-              </div>
-              <div class="col-xs-2">
-                <a href="https://militarysuper.gov.au/" class="thumbnail">
-                  <img src="/img/site_logo_msbs.gif" alt="Visit Military Super - Military Superannuation &amp; Benefits Scheme">
-                </a>
-              </div>
-              <div class="col-xs-2">
-                <a href="https://pss.gov.au/" class="thumbnail">
-                  <img src="/img/site_logo_pss.gif" alt="Visit PSS - Public Sector Superannuation Scheme">
-                </a>
-              </div>
-              <div class="col-xs-2">
-                <a href="https://dfrdb.gov.au/" class="thumbnail">
-                  <img src="/img/site_logo_dfrdb.gif" alt="Visit DFRDB - Defence Force Retirement &amp; Deathe Benefits Scheme">
-                </a>
-              </div>
-              <div class="col-xs-2">
-                <a href="https://adfsuper.gov.au/adf-cover/"" class="thumbnail">
-                  <img src="/img/site_logo_adfc.gif" alt="Visit ADFC">
-                </a>
-              </div>
+          <div class="col-md-offset-4 col-md-4 col-xs-6">
+            <div class="row">
+              <a href="#" class="thumbnail scheme-site-link">
+                <img src="#" alt="Logo" class="scheme-site-logo">
+              </a>
             </div>
           </div>
         </div>
@@ -67,38 +45,28 @@
               </div>
             </div>
             <div class="panel-body">
-              <form data-lift="form.ajax" action="/index" method="post">
-                <div data-lift="step">
-                  <div id="step-wizzard" class="padding-bottom-md">
-                    <ul class="nav nav-pills nav-justified setup-panel">
-                      <li class="active" id="li-step-1"><a href="#step-1">
-                        <h6 class="list-group-item-heading"><span class="fa fa-search fa-2x"></span></h6>
-                        <p class="list-group-item-text">1. Identify</p>
-                      </a></li>
-                      <li class="disabled" id="li-step-2"><a href="#step-2">
-                        <h6 class="list-group-item-heading"><span class="fa fa-check-circle-o fa-2x"></span></h6>
-                        <p class="list-group-item-text">2. Verify</p><p class="list-group-item-text" id="verify-step-number"></p>
-                      </a></li>
-                      <li class="disabled" id="li-step-3"><a href="#step-3">
-                        <h6 class="list-group-item-heading"><span class="fa fa-list-alt fa-2x"></span></h6>
-                        <p class="list-group-item-text">3. Result</p>
-                      </a></li>
-                    </ul>
-                  </div>
-                  <div id="step-form"></div>
-                  <div class="row">
-                    <div class="col-xs-6">
-                      <button type="submit" id="reset" class="btn btn-default btn-lg btn-block animated fadeIn"><span class="fa fa-repeat fa-fw"></span> Start over</button>
-                    </div>
-                    <div class="col-xs-6">
-                      <button type="submit" id="submit" class="btn btn-primary btn-lg btn-block animated fadeIn">Next <span class="fa fa-chevron-right fa-fw"></span></button>
-                    </div>
-                  </div>
-                  <div class="col-xs-12">
-                    <div data-lift="embed?what=/ajax-templates-hidden/spinner"></div>
-                  </div>
+              <div data-lift="singlePageApp">
+                <div id="step-wizzard" class="padding-bottom-md">
+                  <ul class="nav nav-pills nav-justified setup-panel">
+                    <li class="step-heading active" id="li-step-1"><a href="#step-1">
+                      <h6 class="list-group-item-heading"><span class="fa fa-search fa-2x"></span></h6>
+                      <p class="list-group-item-text">1. Identify</p>
+                    </a></li>
+                    <li class="step-heading disabled" id="li-step-2"><a href="#step-2">
+                      <h6 class="list-group-item-heading"><span class="fa fa-check-circle-o fa-2x"></span></h6>
+                      <p class="list-group-item-text">2. Verify</p><p class="list-group-item-text" id="verify-step-number"></p>
+                    </a></li>
+                    <li class="step-heading disabled" id="li-step-3"><a href="#step-3">
+                      <h6 class="list-group-item-heading"><span class="fa fa-list-alt fa-2x"></span></h6>
+                      <p class="list-group-item-text">3. Result</p>
+                    </a></li>
+                  </ul>
                 </div>
-              </form>
+                <div id="step-form"></div>
+                <div class="col-xs-12">
+                  <div data-lift="embed?what=/ajax-templates-hidden/spinner"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -108,7 +76,6 @@
       <div data-lift="embed?what=/ajax-templates-hidden/footer"></div>
     </div>
     <script src="/js/plugins.js"></script>
-    <script src="/js/main.js"></script>
     <script src="/js/bootstrap.min.js"></script>
   </body>
 </html>

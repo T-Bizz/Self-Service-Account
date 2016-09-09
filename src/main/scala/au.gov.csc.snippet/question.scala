@@ -2,7 +2,7 @@ package au.gov.csc.snippet
 
 import net.liftweb.common.Loggable
 import net.liftweb.util.Helpers._
-
+import au.gov.csc.SessionState._
 import scala.xml.NodeSeq
 
 object question extends Loggable {
@@ -23,12 +23,12 @@ object question extends Loggable {
       currentQuestion = 1
     }
 
-    step.routeNumber match {
-      case 0 => step.step match {
+    routeNumber.is match {
+      case 0 => currentStep.is match {
         case 2 => if (currentQuestion > 3) currentQuestion = 1
         case _ => if (currentQuestion < 4) currentQuestion = 4
       }
-      case 1 => step.step match {
+      case 1 => currentStep.is match {
         case _ => if (currentQuestion > 3) currentQuestion = 1
       }
     }
@@ -51,5 +51,4 @@ object question extends Loggable {
     case 5 => <div data-lift="embed?what=/ajax-text-snippets-hidden/question-4-placeholder"></div>
     case 6 => <div data-lift="embed?what=/ajax-text-snippets-hidden/question-5-placeholder"></div>
   }
-
 }
