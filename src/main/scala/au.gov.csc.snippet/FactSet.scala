@@ -92,6 +92,7 @@ class MockFactProvider extends FactProvider {
 
     def getRemainingUnansweredQuestionCount = unansweredQuestions.length
 
+    protected var chosenWorkflowType: Option[WorkflowTypeChoice.Value] = None
     protected var hasChosen = false
     def setChoice(choice:WorkflowTypeChoice.Value) = {
       choice match {
@@ -108,6 +109,7 @@ class MockFactProvider extends FactProvider {
           case _ => false
         }
       }
+      chosenWorkflowType = Some(choice)
       hasChosen = true;
     }
     def getHasChosen:Boolean = {
@@ -149,10 +151,24 @@ class MockFactProvider extends FactProvider {
     }
 
     override def getNextQuestions: Option[QuestionSet] = {
-      unansweredQuestions.groupBy(_.category).flatMap(kv => kv._2.grouped(questionsPerPage).toList.flatMap(
-        qs => questionSets.find(_.category == kv._1).map(
-          questionSet => questionSet.copy(questions = qs)
-        ))).toList.sortWith((a,b) => a.order < b.order).headOption
+      unansweredQuestions.groupBy(_.category).flatMap(
+        kv => kv._2.grouped(questionsPerPage).toList.flatMap(
+        qs => questionSets.find(_.category == kv._1))
+      ).toList.filter(
+        qs => qs.category match {
+          case "sendEmailToken" => chosenWorkflowType match
+          {
+            case Some(EmailAndQuestions) => true
+            case _ => false
+          }
+          case "sendSMSToken" => chosenWorkflowType match
+          {
+            case Some(SmsAndQuestions) => true
+            case _ => false
+          }
+          case _ => true
+        }
+      ).sortWith((a,b) => a.order < b.order).headOption
     }
 
     override def isComplete: Boolean = {
