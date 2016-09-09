@@ -156,8 +156,8 @@ class MockFactProvider extends FactProvider {
     override def getNextQuestions: Option[QuestionSet] = {
       unansweredQuestions.groupBy(_.category).flatMap(
         kv => kv._2.grouped(questionsPerPage).toList.flatMap(
-        qs => questionSets.find(_.category == kv._1))
-      ).toList.filter(
+          qs => questionSets.find(_.category == kv._1).map(questionSet => questionSet.copy(questions = qs))
+      ).filter(
         qs => qs.category match {
           case "sendEmailToken" => chosenWorkflowType match
           {
@@ -171,7 +171,7 @@ class MockFactProvider extends FactProvider {
           }
           case _ => true
         }
-      ).sortWith((a,b) => a.order < b.order).headOption
+      )).toList.sortWith((a,b) => a.order < b.order).headOption
     }
 
     override def isComplete: Boolean = {
