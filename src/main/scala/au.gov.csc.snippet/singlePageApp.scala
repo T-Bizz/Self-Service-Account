@@ -8,7 +8,7 @@ import net.liftweb.http.SHtml._
 import net.liftweb.http.js.{JsCmd, JsCmds}
 import net.liftweb.http.js.JsCmds._
 import au.gov.csc._
-import net.liftweb.http.js.JE.{AnonFunc, JsFunc, JsRaw}
+import net.liftweb.http.js.JE.{JsRaw}
 import net.liftweb.util.CssSel
 
 import scala.xml._
@@ -19,22 +19,34 @@ object currentFactSet extends SessionVar[Option[FactSet]](None)
 object currentAccountDetails extends SessionVar[Option[AccountDefinition]](None)
 object currentStage extends SessionVar[Option[StageTypeChoice]](None)
 
-object Scheme extends RequestVar[Option[String]](None)
+object Scheme extends RequestVar[Option[Tuple3[String,String,String]]](None)
 
 trait DetectScheme {
-  def getScheme:Option[String] = {
-    Scheme.is.map(s => Some(s)).getOrElse({
+  def getScheme:Option[Tuple3[String,String,String]] = {
+    Scheme.is.map(a => Some(a)).getOrElse({
       S.param("scheme").map(s => {
-        Scheme(Some(s))
-        s
-      })
+        s.toUpperCase match {
+          case "CSS" => Scheme(Some(Tuple3(s, "https://css.gov.au/", "/img/site_logo_css.png")))
+          case "PSS" => Scheme(Some(Tuple3(s, "https://pss.gov.au/", "/img/site_logo_pss.png")))
+          case "MSBS" => Scheme(Some(Tuple3(s, "https://militarysuper.gov.au/", "/img/site_logo_msbs.png")))
+          case "DFRB" => Scheme(Some(Tuple3(s, "https://dfrdb.gov.au/", "/img/site_logo_dfrdb.png")))
+          case "DFRDB" => Scheme(Some(Tuple3(s, "https://dfrdb.gov.au/", "/img/site_logo_dfrdb.png")))
+          case "ADFC" => Scheme(Some(Tuple3(s, "https://adfsuper.gov.au/adf-cover/", "/img/site_logo_adfc.png")))
+          case "1922" => Scheme(Some(Tuple3(s, "https://css.gov.au/", "/img/site_logo_css.png")))
+          case "PNG" => Scheme(Some(Tuple3(s, "https://css.gov.au/", "/img/site_logo_css.png")))
+          case _ => Scheme(None)
+        }
+      }).getOrElse(Scheme(None))
     })
   }
 }
+
 class schemeBranding extends Logger with DetectScheme {
   def render = {
     getScheme.map(s => {
-      ".schemeName *" #> s
+      ".schemeName *" #> Text(s._1) &
+        ".scheme-site-link [href]" #> Text(s._2) &
+          ".scheme-site-logo [src]" #> Text(s._3)
     }).getOrElse({
       S.redirectTo("/noSchemeProvided")
     })
@@ -101,13 +113,23 @@ class singlePageApp extends Logger with DetectScheme {
   }).openOr(NodeSeq.Empty)
 
   def obfuscatePhoneNumber(in:String):String = {
-    if (in.length > 2) {
+    if (in == "unknown")
+      in
+    else if (in.length > 2) {
       in.substring(in.length - 2)
-    } else in
+    }
+    else
+      in
   }
   def obfuscateEmailAddress(in:String):String = {
-    in.split("@").drop(1).toList.mkString("")
+    if (in == "unknown")
+      in
+    else if (in.contains("@"))
+      in.split("@").toList.mkString("")
+    else
+      in
   }
+
   def provideVerificationMethodChoice(factSet:FactSet) = {
     currentStage(Some(Verify))
     (for {
@@ -120,9 +142,9 @@ class singlePageApp extends Logger with DetectScheme {
         ".footer-title *" #> Templates(List("ajax-text-snippets-hidden", "route-0-step-1-footer")) &
         "#btn-phone" #> {(n:NodeSeq) => {
           if (choices.contains(WorkflowTypeChoice.SmsAndQuestions)){
-            var mobileNumber = "" // get this from factSet
+            val mobileNumber = obfuscatePhoneNumber(factSet.getCurrentMobileNumber)
             (
-              ".interpolationValue *" #> obfuscatePhoneNumber(mobileNumber) &
+              ".btn-phone-value *" #> mobileNumber &
               "#btn-phone [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
                 currentChoice = Some(WorkflowTypeChoice.SmsAndQuestions)
                 Noop
@@ -134,9 +156,9 @@ class singlePageApp extends Logger with DetectScheme {
         }} &
         "#btn-email" #> {(n:NodeSeq) => {
           if (choices.contains(WorkflowTypeChoice.EmailAndQuestions)){
-            var emailAddress = "" // get this from factSet
+            val emailAddress = obfuscateEmailAddress(factSet.getCurrentEmail)
             (
-              ".interpolationValue *" #> obfuscateEmailAddress(emailAddress) &
+              ".btn-email-value *" #> emailAddress &
                 "#btn-email [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
                   currentChoice = Some(WorkflowTypeChoice.EmailAndQuestions)
                   Noop
@@ -148,7 +170,6 @@ class singlePageApp extends Logger with DetectScheme {
         }} &
         "#btn-other" #> {(n:NodeSeq) => {
           if (choices.contains(WorkflowTypeChoice.QuestionsOnly)){
-            var mobileNumber = "" // get this from factSet
             (
                 "#btn-other [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
                   currentChoice = Some(WorkflowTypeChoice.QuestionsOnly)
@@ -248,8 +269,6 @@ class singlePageApp extends Logger with DetectScheme {
   }
 
   protected def generateCurrentPageNodeSeq: NodeSeq = {
-    //S.param("host")
-    //S.req.foreach(_.param("host"))
     currentFactSet.is match {
       case None => askForMemberNumber
       case Some(factSet) if !factSet.getHasChosen && factSet.getChoices.toList.length > 1 => {
@@ -270,16 +289,11 @@ class singlePageApp extends Logger with DetectScheme {
         })
       })
       RedirectTo("/index")
-      //SetHtml(contentAreaId, generateCurrentPageNodeSeq)
     })
   }
 
   def render = {
-    getScheme.map(s => {
-      "#%s *".format(contentAreaId) #> {generateCurrentPageNodeSeq}
-    }).getOrElse({
-      "#%s *".format(contentAreaId) #> Text(?("noSchemeProvided"))
-    })
+    "#%s *".format(contentAreaId) #> {generateCurrentPageNodeSeq}
   }
 }
 // here's a mechanim for putting a function into the javascript DOM.

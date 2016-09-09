@@ -94,13 +94,13 @@ import scala.xml.{NodeSeq,Text}
     val memberFacts = Map(
       "77929555" -> Member(Person("Smith","John",new Date(),21,"John Smith",Some("Mr"),Some("87654321")),Nil,
         List(PhoneNumber("mobile",
-          "1",
-          "2",
+          "11111111",
+          "22222222",
           true,
         new Date(),
     new Date(),
     Some(new Date())),
-    EmailAddress("internet?",
+    EmailAddress("internet",
       "tom@tom.com",
       true,
       new Date(),
@@ -328,6 +328,8 @@ case class DoubleQuestion(override val category: String,
     def answerQuestions(answers:Seq[Answer])
     def isComplete: Boolean
     def canComplete: Boolean
+    def getCurrentEmail: String
+    def getCurrentMobileNumber: String
   }
 
   class MemberBackedFactSet(member:Member,
@@ -365,7 +367,6 @@ case class DoubleQuestion(override val category: String,
           TokenQuestion("sendSMSToken", Text("Please enter the token you've received on your phone"), NodeSeq.Empty, "012345", 0, Right(e))
         ), 6, None))
         case _ => Nil
-
       }) ::: List(QuestionSet("contactDetails",Text("Tell us about how we communicate with you"),member.contactDetails.flatMap{
         case cd:PhoneNumber if cd.kind != "mobile" => {
           List(
@@ -426,7 +427,7 @@ case class DoubleQuestion(override val category: String,
       }
       */
       QuestionsOnly :: List(SmsAndQuestions).filter(v => member.contactDetails.exists{
-        case p:PhoneNumber if p.kind == "mobile" => true
+        case p:PhoneNumber if p.kind.toLowerCase == "mobile" => true
         case _ => false
       }) ::: List(EmailAndQuestions).filter(e => member.contactDetails.exists{
         case e:EmailAddress => true
@@ -454,5 +455,23 @@ case class DoubleQuestion(override val category: String,
 
     override def canComplete: Boolean = {
       minimumNumberOfCorrectAnswers <= (correctAnswers + unansweredQuestions.length)
+    }
+
+    def getCurrentEmail: String = {
+      member.contactDetails.toList.filter(c => c match {
+        case p:EmailAddress if p.kind.toLowerCase == "internet" => true
+        case _ => false
+      }).map(p => p match {
+        case p:EmailAddress => p.emailAddress
+      }).headOption.getOrElse("unknown")
+    }
+
+    def getCurrentMobileNumber: String = {
+      member.contactDetails.toList.filter(c => c match {
+        case p:PhoneNumber if p.kind.toLowerCase == "mobile" => true
+        case _ => false
+      }).map(p => p match {
+        case p:PhoneNumber => p.phoneNumber
+      }).headOption.getOrElse("unknown")
     }
 }
