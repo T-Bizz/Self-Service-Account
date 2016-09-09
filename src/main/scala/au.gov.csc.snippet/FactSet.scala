@@ -52,7 +52,7 @@ class MockFactProvider extends FactProvider {
         StringQuestion("personal", Text("What is your title?"), NodeSeq.Empty,"Mr",3,t)
       }).toList ::: member.person.tfn.toList.map(t => {
         NumberQuestion("personal", Text("What is your tax file number?"), NodeSeq.Empty,"87654321",4,t)
-      }),0,Some(Text("Click next to skip")))
+      }),1,Some(Text("Click next to skip")))
       ) ::: member.memberships.toList.map(m => {
         val mid = "membership_%s".format(m.membershipNumber)
         QuestionSet(mid,Text("Questions about your membership with ID number %s".format(m.membershipNumber)),List(
@@ -61,14 +61,14 @@ class MockFactProvider extends FactProvider {
           StringQuestion(mid,Text("What is your status?"),NodeSeq.Empty,"contributor",2,m.status)
         ) ::: m.exitDate.toList.map(ed => {
           DateQuestion(mid,Text("When did you exit this scheme?"),NodeSeq.Empty,"21/6/1985",3,ed)
-        }),1,Some(Text("Click next to skip")))
+        }),2,Some(Text("Click next to skip")))
       }) ::: (member.contactDetails.toList.flatMap {
         case e: EmailAddress => List(QuestionSet("sendEmailToken", Text("We're sending you a token to your email address"), List(
           TokenQuestion("sendEmailToken", Text("Please enter the token you've received in your email"), NodeSeq.Empty, "012345", 0, Left(e))
-        ), 6, None))
+        ), 0, None))
         case e: PhoneNumber if e.kind == "mobile" => List(QuestionSet("sendSMSToken", Text("We're sending you a token to your mobile phone"), List(
           TokenQuestion("sendSMSToken", Text("Please enter the token you've received on your phone"), NodeSeq.Empty, "012345", 0, Right(e))
-        ), 6, None))
+        ), 0, None))
         case _ => Nil
       }) ::: List(QuestionSet("contactDetails",Text("Tell us about how we communicate with you"),member.contactDetails.flatMap{
         case cd:PhoneNumber if cd.kind != "mobile" => {
@@ -84,7 +84,7 @@ class MockFactProvider extends FactProvider {
           )
         }
         case _ => Nil
-      },4,None))
+      },3,None))
    }
 
     protected var unansweredQuestions: List[QuestionBase] = questionSets.flatMap(_.questions)
@@ -149,7 +149,10 @@ class MockFactProvider extends FactProvider {
     }
 
     override def getNextQuestions: Option[QuestionSet] = {
-      unansweredQuestions.groupBy(_.category).flatMap(kv => kv._2.grouped(questionsPerPage).toList.flatMap(qs => questionSets.find(_.category == kv._1).map(questionSet => questionSet.copy(questions = qs)))).toList.sortWith((a,b) => a.order < b.order).headOption
+      unansweredQuestions.groupBy(_.category).flatMap(kv => kv._2.grouped(questionsPerPage).toList.flatMap(
+        qs => questionSets.find(_.category == kv._1).map(
+          questionSet => questionSet.copy(questions = qs)
+        ))).toList.sortWith((a,b) => a.order < b.order).headOption
     }
 
     override def isComplete: Boolean = {
