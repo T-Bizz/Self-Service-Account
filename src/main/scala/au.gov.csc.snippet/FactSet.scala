@@ -45,45 +45,45 @@ class MockFactProvider extends FactProvider {
     protected val questionSets: List[QuestionSet] = {
       List(
         QuestionSet("personal",Text("Questions about yourself"),List(
-          StringQuestion("personal", Text("What is your first name?"),      NodeSeq.Empty, "John"    , 0, member.person.firstName),
-          StringQuestion("personal", Text("What is your surname?"),         NodeSeq.Empty, "Smith"   , 1, member.person.surname),
-          NumberQuestion("personal", Text("What is your age?"),             NodeSeq.Empty, "21"      , 2, member.person.age.toString)
+          StringQuestion("personal", Text("What is your first name?"),      Text("Provide your first name"), "John"    , 0, member.person.firstName),
+          StringQuestion("personal", Text("What is your surname?"),         Text("Provide your surname"),    "Smith"   , 1, member.person.surname),
+          NumberQuestion("personal", Text("What is your age?"),             Text("Provide your age"),        "21"      , 2, member.person.age.toString)
         ) :::
           member.person.title.toList.map(t =>
-            StringQuestion("personal", Text("What is your title?"),           NodeSeq.Empty, "Mr"      , 3, t)
+            StringQuestion("personal", Text("What is your title?"),         Text("Provide your title"),      "Mr"      , 3, t)
           )
           ::: member.person.tfn.toList.map(t =>
-          NumberQuestion("personal", Text("What is your tax file number?"), NodeSeq.Empty, "87654321", 4, t)
+          NumberQuestion("personal", Text("What is your tax file number?"), Text("Provide your tax file number. This should be a 8 or 9 digit long numerical value."), "87654321", 4, t)
         )
           ,1,Some(Text("Click next to skip")))
       ) ::: member.memberships.toList.map(m => {
         val mid = "membership_%s".format(m.membershipNumber)
         QuestionSet(mid,Text("Questions about your membership with ID number %s".format(m.membershipNumber)),List(
-          StringQuestion(mid, Text("What is the name of the scheme?"),NodeSeq.Empty, "PSS",         1, m.scheme),
-          DateQuestion  (mid, Text("When did you join this scheme?"), NodeSeq.Empty, "21/6/1985",   2, m.joinDate),
-          StringQuestion(mid, Text("What is your status?"),           NodeSeq.Empty, "contributor", 3, m.status)
+          StringQuestion(mid, Text("What is the name of the scheme?"), Text("Provide the name of your scheme"),           "PSS",         1, m.scheme),
+          DateQuestion  (mid, Text("When did you join this scheme?"),  Text("Provide the date you entered this scheme"),  "21/6/1985",   2, m.joinDate),
+          StringQuestion(mid, Text("What is your status?"),            Text("Provide your scheme status"),                "contributor", 3, m.status)
         ) ::: m.exitDate.toList.map(ed => {
-          DateQuestion  (mid, Text("When did you exit this scheme?"), NodeSeq.Empty, "21/6/1985",  4, ed)
+          DateQuestion  (mid, Text("When did you exit this scheme?"),  Text("Provide the date you exited this scheme"),   "21/6/1985",  4, ed)
         }),2,Some(Text("Click next to skip")))
       }) ::: (member.contactDetails.toList.flatMap {
         case e: EmailAddress => List(QuestionSet("sendEmailToken", Text("We're sending you a token to your email address"), List(
-          TokenQuestion("sendEmailToken", Text("Please enter the token you've received in your email"), NodeSeq.Empty, "012345", 0, Left(e))
+          TokenQuestion("sendEmailToken", Text("Please enter the token you've received in your email"), Text("Provide the verification code you recieved"), "012345", 0, Left(e))
         ), 0, None))
         case e: PhoneNumber if e.kind == "mobile" => List(QuestionSet("sendSMSToken", Text("We're sending you a token to your mobile phone"), List(
-          TokenQuestion("sendSMSToken",   Text("Please enter the token you've received on your phone"), NodeSeq.Empty, "012345", 0, Right(e))
+          TokenQuestion("sendSMSToken",   Text("Please enter the token you've received on your phone"), Text("Provide the verification code you recieved"), "012345", 0, Right(e))
         ), 0, None))
         case _ => Nil
       }) ::: List(QuestionSet("contactDetails", Text("Tell us about how we communicate with you"), member.contactDetails.flatMap{
         case cd:PhoneNumber if cd.kind != "mobile" => {
           List(
-            StringQuestion("contactDetails", Text("What is the area code of your phone number?"), NodeSeq.Empty, "03",0, cd.areaCode)
+            StringQuestion("contactDetails", Text("What is the area code of your phone number?"), Text("Provide the area code of your contact number"), "03",0, cd.areaCode)
           )
         }
         case cd:ComplexAddress => {
           List(
-            StringQuestion("contactDetails", Text("What's your postcode?"), NodeSeq.Empty, "03", 0, cd.postCode),
-            StringQuestion("contactDetails", Text("What's your suburb?"),   NodeSeq.Empty, "03", 0, cd.city),
-            StringQuestion("contactDetails", Text("What's your state?"),    NodeSeq.Empty, "03", 0, cd.state)
+            StringQuestion("contactDetails", Text("What's your postcode?"), Text("Provide the post code for your current address"), "03", 0, cd.postCode),
+            StringQuestion("contactDetails", Text("What's your suburb?"),   Text("Provide the suburb for your current address"),    "03", 0, cd.city),
+            StringQuestion("contactDetails", Text("What's your state?"),    Text("Provide the state of your current address"),      "03", 0, cd.state)
           )
         }
         case _ => Nil

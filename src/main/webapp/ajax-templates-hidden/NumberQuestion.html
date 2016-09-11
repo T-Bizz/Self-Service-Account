@@ -1,12 +1,14 @@
 <div class="form-group">
-	<label for="question-input" id="question-label"><strong class="question-title"></strong></label>
-	<div class="input-group input-group">
-		<span class="input-group-addon"><i class="question-icon fa fa-question fa-fw"></i></span>
-		<input type="number" autocomplete="off" class="form-control question-input" id="question-input" placeholder="" aria-describedby="question-label">
-		<span class="input-group-btn hidden-xs">
-			<button class="btn btn-default question-help-text" type="button" data-container="body" data-toggle="popover" data-placement="top" data-content="" tabindex="-1">
-			<span class="fa fa-question fa-fw"></span>
-			</button>
-		</span>
-	</div>
+	<label class="question-label"><strong class="question-title"></strong>
+		<div class="input-group input-group">
+			<span class="input-group-addon"><span class="question-icon fa fa-question fa-fw"></span></span>
+			<input type="number" autocomplete="off" class="form-control question-input" title="" placeholder="" aria-describedby="question-label">
+			<span class="input-group-btn hidden-xs">
+				<button class="btn btn-default question-help-text" type="button" data-container="body" data-toggle="popover" data-placement="top" data-content="" tabindex="-1">
+				<span class="sr-only"></span>
+				<span class="fa fa-question fa-fw" title="This symbolizes a question mark"></span>
+				</button>
+			</span>
+		</div>
+	</label>
 </div>
