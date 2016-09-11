@@ -464,8 +464,8 @@ body {
 }
 
 .schemeCSS .btn-primary {
-    background-color: #0060A0;
-    border-color: #0060A0;
+    background-color: #005c9a;
+    border-color: #005c9a;
 }
 
 .schemeCSS .btn-primary:focus,
@@ -507,31 +507,31 @@ body {
 }
 
 .schemeCSS .panel-default > .panel-heading {
-    background-color: #007dc3;
-    border-color: #007dc3;
+    background-color: #007cc2;
+    border-color: #007cc2;
 }
 
 .schemePSS .btn-primary {
-    background-color: #F06424;
-    border-color: #F06424;
+    background-color: #d24606;
+    border-color: #d24606;
 }
 
 .schemePSS .btn-primary:focus,
 .schemePSS .btn-primary.focus {
-    background-color: #FF7E3E;
-    border-color: #FF7E3E;
+    background-color: #EC6020;
+    border-color: #EC6020;
 }
 
 .schemePSS .btn-primary:hover {
-    background-color: #FF7E3E;
-    border-color: #FF7E3E;
+    background-color: #EC6020;
+    border-color: #EC6020;
 }
 
 .schemePSS .btn-primary:active,
 .schemePSS .btn-primary.active,
 .schemePSS .open > .dropdown-toggle.btn-primary {
-    background-color: #FF7E3E;
-    border-color: #FF7E3E;
+    background-color: #EC6020;
+    border-color: #EC6020;
 }
 
 .schemePSS .btn-primary:active:hover,
@@ -543,43 +543,43 @@ body {
 .schemePSS .btn-primary:active.focus,
 .schemePSS .btn-primary.active.focus,
 .schemePSS .open > .dropdown-toggle.btn-primary.focus {
-    background-color: #FF7E3E;
-    border-color: #FF7E3E;
+    background-color: #EC6020;
+    border-color: #EC6020;
 }
 
 .schemePSS .list-group-item.active, 
   .schemePSS .list-group-item.active:focus, 
   .schemePSS .list-group-item.active:hover {
-    background-color: #FF7E3E;
-    border-color: #FF7E3E;
+    background-color: #EC6020;
+    border-color: #EC6020;
 }
 
 .schemePSS .panel-default > .panel-heading {
-    background-color: #f58026;
-    border-color: #f58026;
+    background-color: #e9741a;
+    border-color: #e9741a;
 }
 
 .schemeMSBS .btn-primary {
-    background-color: #A94611;
-    border-color: #A94611;
+    background-color: #9b3803;
+    border-color: #9b3803;
 }
 
 .schemeMSBS .btn-primary:focus,
 .schemeMSBS .btn-primary.focus {
-    background-color: #C3602B;
-    border-color: #C3602B;
+    background-color: #B5521D;
+    border-color: #B5521D;
 }
 
 .schemeMSBS .btn-primary:hover {
-    background-color: #C3602B;
-    border-color: #C3602B;
+    background-color: #B5521D;
+    border-color: #B5521D;
 }
 
 .schemeMSBS .btn-primary:active,
 .schemeMSBS .btn-primary.active,
 .schemeMSBS .open > .dropdown-toggle.btn-primary {
-    background-color: #C3602B;
-    border-color: #C3602B;
+    background-color: #B5521D;
+    border-color: #B5521D;
 }
 
 .schemeMSBS .btn-primary:active:hover,
@@ -591,15 +591,15 @@ body {
 .schemeMSBS .btn-primary:active.focus,
 .schemeMSBS .btn-primary.active.focus,
 .schemeMSBS .open > .dropdown-toggle.btn-primary.focus {
-    background-color: #C3602B;
-    border-color: #C3602B;
+    background-color: #B5521D;
+    border-color: #B5521D;
 }
 
 .schemeMSBS .list-group-item.active, 
   .schemeMSBS .list-group-item.active:focus, 
   .schemeMSBS .list-group-item.active:hover {
-    background-color: #C3602B;
-    border-color: #C3602B;
+    background-color: #B5521D;
+    border-color: #B5521D;
 }
 
 .schemeMSBS .panel-default > .panel-heading {
@@ -608,26 +608,26 @@ body {
 }
 
 .schemeDFRDB .btn-primary {
-    background-color: #416618;
-    border-color: #416618;
+    background-color: #3d6214;
+    border-color: #3d6214;
 }
 
 .schemeDFRDB .btn-primary:focus,
 .schemeDFRDB .btn-primary.focus {
-    background-color: #5B8032;
-    border-color: #5B8032;
+    background-color: #577C2E;
+    border-color: #577C2E;
 }
 
 .schemeDFRDB .btn-primary:hover {
-    background-color: #5B8032;
-    border-color: #5B8032;
+    background-color: #577C2E;
+    border-color: #577C2E;
 }
 
 .schemeDFRDB .btn-primary:active,
 .schemeDFRDB .btn-primary.active,
 .schemeDFRDB .open > .dropdown-toggle.btn-primary {
-    background-color: #5B8032;
-    border-color: #5B8032;
+    background-color: #577C2E;
+    border-color: #577C2E;
 }
 
 .schemeDFRDB .btn-primary:active:hover,
@@ -639,20 +639,20 @@ body {
 .schemeDFRDB .btn-primary:active.focus,
 .schemeDFRDB .btn-primary.active.focus,
 .schemeDFRDB .open > .dropdown-toggle.btn-primary.focus {
-    background-color: #5B8032;
-    border-color: #5B8032;
+    background-color: #577C2E;
+    border-color: #577C2E;
 }
 
 .schemeDFRDB .list-group-item.active, 
   .schemeDFRDB .list-group-item.active:focus, 
   .schemeDFRDB .list-group-item.active:hover {
-    background-color: #5B8032;
-    border-color: #5B8032;
+    background-color: #577C2E;
+    border-color: #577C2E;
 }
 
 .schemeDFRDB .panel-default > .panel-heading {
-    background-color: #5c8727;
-    border-color: #5c8727;
+    background-color: #578222;
+    border-color: #578222;
 }
 
 .schemeADFC .btn-primary {
@@ -756,7 +756,7 @@ h1, .h1 {
 }
 
 .list-group-item-text {
-    color: #707070;
+    color: #535353;
 }
 
 .nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
