@@ -3,12 +3,9 @@ package au.gov.csc
 import au.gov.csc.snippet.MockFactProvider
 import net.liftweb.http.SessionVar
 
-/**
-  * Created by Tom and Sarah on 5/09/2016.
-  */
 object SessionState {
 
-  var minimumCorrectAnswers = 4
+  var minimumCorrectAnswers = 3
   var pageSize = 3
 
   object userState extends SessionVar[Option[String]](None)

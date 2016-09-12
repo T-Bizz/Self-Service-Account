@@ -18,41 +18,6 @@ object currentFactSet extends SessionVar[Option[FactSet]](None)
 object currentAccountDetails extends SessionVar[Option[AccountDefinition]](None)
 object currentStage extends SessionVar[Option[StageTypeChoice]](None)
 
-object Scheme extends RequestVar[Option[Tuple3[String,String,String]]](None)
-
-trait DetectScheme {
-  def getScheme:Option[Tuple3[String,String,String]] = {
-    Scheme.is.map(a => Some(a)).getOrElse({
-      S.param("scheme").map(s => {
-        s.toUpperCase match {
-          case "CSS" => Scheme(Some(Tuple3("CSS", "https://css.gov.au/", "/img/site_logo_css.png")))
-          case "PSS" => Scheme(Some(Tuple3("PSS", "https://pss.gov.au/", "/img/site_logo_pss.png")))
-          case "MSBS" => Scheme(Some(Tuple3("MSBS", "https://militarysuper.gov.au/", "/img/site_logo_msbs.png")))
-          case "DFRB" => Scheme(Some(Tuple3("DFRDB", "https://dfrdb.gov.au/", "/img/site_logo_dfrdb.png")))
-          case "DFRDB" => Scheme(Some(Tuple3("DFRDB", "https://dfrdb.gov.au/", "/img/site_logo_dfrdb.png")))
-          case "ADFC" => Scheme(Some(Tuple3("ADFC", "https://adfsuper.gov.au/adf-cover/", "/img/site_logo_adfc.png")))
-          case "1922" => Scheme(Some(Tuple3("CSS", "https://css.gov.au/", "/img/site_logo_css.png")))
-          case "PNG" => Scheme(Some(Tuple3("CSC", "https://css.gov.au/", "/img/site_logo_css.png")))
-          case _ => Scheme(None)
-        }
-      }).getOrElse(Scheme(None))
-    })
-  }
-}
-
-class schemeBranding extends Logger with DetectScheme {
-  def render = {
-    getScheme.map(s => {
-      ".schemeName *" #> Text(s._1) &
-        "body [class+]" #> Text("scheme%s".format(s._1.toUpperCase)) &
-        ".scheme-site-link [href]" #> Text(s._2) &
-        ".scheme-site-logo [src]" #> Text(s._3)
-    }).getOrElse({
-      S.redirectTo("/noSchemeProvided")
-    })
-  }
-}
-
 class singlePageApp extends Logger with DetectScheme {
 
   protected def ?(key: String): String = {
