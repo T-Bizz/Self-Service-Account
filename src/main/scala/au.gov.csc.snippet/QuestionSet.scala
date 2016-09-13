@@ -94,9 +94,8 @@ case class EmailQuestion(override val category: String,
 object TokenGenerator {
   import net.liftweb.util.Helpers._
   def generateToken:String = {
-    val nfn = nextFuncName
-    println(nfn)
-    nfn
+    /* nextFuncName */
+    "012345"
   }
 }
 

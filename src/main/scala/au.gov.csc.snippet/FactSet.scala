@@ -68,10 +68,10 @@ class MemberBackedFactSet(member:Member,
     }) ::: (member.contactDetails.toList.flatMap {
       case e: EmailAddress => List(QuestionSet("sendEmailToken", Text("We're sending you a token to your email address"), List(
         TokenQuestion("sendEmailToken", Text("Please enter the token you've received in your email"), Text("Provide the verification code you recieved"), "012345", true, 0, Left(e))
-      ), 0, None))
+      ), 0, Some(Text("If you don't recieve a verification code within the next 5 minutes, contact the CIC."))))
       case e: PhoneNumber if e.kind == "mobile" => List(QuestionSet("sendSMSToken", Text("We're sending you a token to your mobile phone"), List(
         TokenQuestion("sendSMSToken",   Text("Please enter the token you've received on your phone"), Text("Provide the verification code you recieved"), "012345", true, 0, Right(e))
-      ), 0, None))
+      ), 0, Some(Text("If you don't recieve a verification code within the next 5 minutes, contact the CIC."))))
       case _ => Nil
     }) ::: List(QuestionSet("contactDetails", Text("Tell us about how we communicate with you"), member.contactDetails.flatMap{
       case cd:PhoneNumber if cd.kind != "mobile" => {
