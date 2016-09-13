@@ -52,6 +52,7 @@ class singlePageApp extends Logger with DetectScheme {
   }
 
   def showError(errorMessage: String): NodeSeq = {
+    currentStage(Some(Result))
     Templates(List("ajax-templates-hidden", "Error")).map(t => {
       (".error-text *" #> Text(errorMessage) &
         startOver
@@ -95,6 +96,8 @@ class singlePageApp extends Logger with DetectScheme {
     ).apply(t)
   }).openOr(NodeSeq.Empty)
 
+  private def obscure(text: String) = "*" * text.length
+
   def obfuscatePhoneNumber(in:String):String = {
     if (in == "unknown")
       in
@@ -106,12 +109,15 @@ class singlePageApp extends Logger with DetectScheme {
   }
 
   def obfuscateEmailAddress(in:String):String = {
-    if (in == "unknown")
-      in
-    else if (in.contains("@"))
-      in.split("@").toList.mkString("")
-    else
-      in
+    val shortMailbox = "(.{1,2})".r
+    val longMailbox = "(.)(.*)(.)".r
+    val domain = in.split("@").toList.tail(0)
+
+    in match {
+      case shortMailbox(address) => s"${obscure(address)}@$domain"
+      case longMailbox(firstLetter,middle,lastLetter) => s"$firstLetter${obscure(middle)}$lastLetter@$domain"
+      case _ => in
+    }
   }
 
   def provideVerificationMethodChoice(factSet:FactSet): NodeSeq = {
