@@ -42,10 +42,10 @@ class singlePageApp extends Logger with DetectScheme {
 
   def addValidationMarkup(formGroupId: String, isValid: Boolean, error: String, errorPrefix: String): JsCmd = {
     if (isValid) {
-      JsCmds.Run("jQuery('#%s').removeClass('has-error').addClass('has-success');".format(formGroupId) +
+      JsCmds.Run("jQuery('#%s').removeClass('has-error')".format(formGroupId) +
         "jQuery('#%s').find('.help-block').remove();".format(formGroupId))
     } else {
-      JsCmds.Run("jQuery('#%s').removeClass('has-success').addClass('has-error');".format(formGroupId) +
+      JsCmds.Run("jQuery('#%s').addClass('has-error');".format(formGroupId) +
         "jQuery('#%s').find('.help-block').remove();".format(formGroupId) +
         "jQuery('#%s .input-group').after('<span class=\"help-block\">%s</span>');".format(formGroupId, errorPrefix + error))
     }
@@ -210,14 +210,22 @@ class singlePageApp extends Logger with DetectScheme {
           ".question-set-header *" #> questionSet.title &
             ".question-set-footer *" #> questionSet.footer &
             ".questions *" #> questionSet.questions.toList.foldLeft(NodeSeq.Empty)((acc, question) => {
+              // every question that has been presented on the screen has been answered, this way users can skip questions
+              potentialAnswers = Answer("", question) :: potentialAnswers
 
               val answerQuestionFunc = (answerString: String) => {
+                potentialAnswers = potentialAnswers.filterNot(pa => {
+                  if (pa.question == question)
+                    true
+                  else
+                    false
+                })
+                potentialAnswers = Answer(answerString, question) :: potentialAnswers
                 question.getValidationErrors(answerString) match {
                   case Nil => {
-                    potentialAnswers = Answer(answerString, question) :: potentialAnswers
                     Noop
                   }
-                  case other => showModalError(?("error-title"), other.mkString)
+                  case o => showModalError(?("error-title"), o.mkString)
                 }
               }
 
@@ -260,7 +268,10 @@ class singlePageApp extends Logger with DetectScheme {
   protected def generateCurrentPageNodeSeq: NodeSeq = {
     val node = currentFactSet.is match {
       case None => askForMemberNumber
-      case Some(factSet) if !factSet.getHasChosen && factSet.getChoices.toList.length > 1 => {
+      case Some(factSet) if !factSet.getHasChosen && factSet.getChoices.size == 0 => {
+        showError(?("call-cic"))
+      }
+      case Some(factSet) if !factSet.getHasChosen => {
         provideVerificationMethodChoice(factSet)
       }
       case Some(factSet) if !factSet.canComplete => showError(?("call-cic"))

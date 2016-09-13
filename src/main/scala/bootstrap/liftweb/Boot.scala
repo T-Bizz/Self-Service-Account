@@ -5,17 +5,27 @@ import net.liftweb.http._
 import net.liftweb.http.js.JE
 import net.liftweb.sitemap.{Menu, SiteMap}
 
+import scala.collection.immutable.::
+
 class Boot {
 
   def boot {
     LiftRules.addToPackages("au.gov.csc")
 
     LiftRules.resourceNames = List("TextSnippets")
+
     // Display loader and prevent form submission while AJAX is still awaiting a response
     LiftRules.ajaxStart = Full( () => LiftRules.jsArtifacts.show("ajax-spinner").cmd &
       JE.JsRaw("$('input[type=\"submit\"]').prop('disabled', true);").cmd)
     LiftRules.ajaxEnd = Full( () => LiftRules.jsArtifacts.hide("ajax-spinner").cmd &
       JE.JsRaw("$('input[type=\"submit\"]').prop('disabled', false);").cmd)
+
+    // Map params to a pretty URL
+    LiftRules.statelessRewrite.append {
+      case RewriteRequest(ParsePath("scheme" :: key :: Nil,"",true,_),_,_) => {
+        RewriteResponse("index" :: Nil, Map("scheme" -> key))
+      }
+    }
 
     LiftRules.responseTransformers.append {
       case Customised(resp) => resp
