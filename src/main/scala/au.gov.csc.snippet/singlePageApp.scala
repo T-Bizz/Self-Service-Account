@@ -293,7 +293,7 @@ class singlePageApp extends Logger with DetectScheme {
           httpsession.terminate
         })
       })
-      RedirectTo("/?scheme=%s".format(getScheme.map(p => p._1).getOrElse("")))
+      RedirectTo("/scheme/%s".format(getScheme.map(p => p._1).getOrElse("")))
     })
   }
 
