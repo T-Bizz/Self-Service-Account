@@ -42,7 +42,7 @@ class singlePageApp extends Logger with DetectScheme {
 
   def addValidationMarkup(formGroupId: String, isValid: Boolean, error: String, errorPrefix: String): JsCmd = {
     if (isValid) {
-      JsCmds.Run("jQuery('#%s').removeClass('has-error')".format(formGroupId) +
+      JsCmds.Run("jQuery('#%s').removeClass('has-error');".format(formGroupId) +
         "jQuery('#%s').find('.help-block').remove();".format(formGroupId))
     } else {
       JsCmds.Run("jQuery('#%s').addClass('has-error');".format(formGroupId) +
@@ -69,10 +69,14 @@ class singlePageApp extends Logger with DetectScheme {
     (".header-title *" #> ?("identify-header") &
       ".footer-title *" #> ?("identify-footer") &
       "#serviceNumber" #> ajaxText(serviceNumber.is.getOrElse(""), s => {
-      serviceNumber(Some(s))
-      val mn: MembershipNumber = new MshpNumber(s)
-      addValidationMarkup("form-group-serviceNumber", mn.isValid, mn.validate.headOption.getOrElse(""), "Membership Number ")
-    }) &
+        serviceNumber(Some(s))
+        if (s == "") {
+          addValidationMarkup("form-group-serviceNumber", true, "", "")
+        } else {
+          val mn: MembershipNumber = new MshpNumber(s)
+          addValidationMarkup("form-group-serviceNumber", mn.isValid, mn.validate.headOption.getOrElse(""), "Membership Number ")
+        }
+      }) &
     ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"),(_s:String) => {
       serviceNumber.is.map(s => {
         new MshpNumber(serviceNumber.is.getOrElse("")).isValid match {
