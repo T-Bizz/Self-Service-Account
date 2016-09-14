@@ -18,41 +18,6 @@ object currentFactSet extends SessionVar[Option[FactSet]](None)
 object currentAccountDetails extends SessionVar[Option[AccountDefinition]](None)
 object currentStage extends SessionVar[Option[StageTypeChoice]](None)
 
-object Scheme extends RequestVar[Option[Tuple3[String,String,String]]](None)
-
-trait DetectScheme {
-  def getScheme:Option[Tuple3[String,String,String]] = {
-    Scheme.is.map(a => Some(a)).getOrElse({
-      S.param("scheme").map(s => {
-        s.toUpperCase match {
-          case "CSS" => Scheme(Some(Tuple3("CSS", "https://css.gov.au/", "/img/site_logo_css.png")))
-          case "PSS" => Scheme(Some(Tuple3("PSS", "https://pss.gov.au/", "/img/site_logo_pss.png")))
-          case "MSBS" => Scheme(Some(Tuple3("MSBS", "https://militarysuper.gov.au/", "/img/site_logo_msbs.png")))
-          case "DFRB" => Scheme(Some(Tuple3("DFRDB", "https://dfrdb.gov.au/", "/img/site_logo_dfrdb.png")))
-          case "DFRDB" => Scheme(Some(Tuple3("DFRDB", "https://dfrdb.gov.au/", "/img/site_logo_dfrdb.png")))
-          case "ADFC" => Scheme(Some(Tuple3("ADFC", "https://adfsuper.gov.au/adf-cover/", "/img/site_logo_adfc.png")))
-          case "1922" => Scheme(Some(Tuple3("CSS", "https://css.gov.au/", "/img/site_logo_css.png")))
-          case "PNG" => Scheme(Some(Tuple3("CSC", "https://css.gov.au/", "/img/site_logo_css.png")))
-          case _ => Scheme(None)
-        }
-      }).getOrElse(Scheme(None))
-    })
-  }
-}
-
-class schemeBranding extends Logger with DetectScheme {
-  def render = {
-    getScheme.map(s => {
-      ".schemeName *" #> Text(s._1) &
-        "body [class+]" #> Text("scheme%s".format(s._1.toUpperCase)) &
-        ".scheme-site-link [href]" #> Text(s._2) &
-        ".scheme-site-logo [src]" #> Text(s._3)
-    }).getOrElse({
-      S.redirectTo("/noSchemeProvided")
-    })
-  }
-}
-
 class singlePageApp extends Logger with DetectScheme {
 
   protected def ?(key: String): String = {
@@ -86,9 +51,23 @@ class singlePageApp extends Logger with DetectScheme {
     }
   }
 
-  def askForMemberNumber = Templates(List("ajax-templates-hidden","AskForMemberNumber")).map(t => {
+  def showError(errorMessage: String): NodeSeq = {
+    Templates(List("ajax-templates-hidden", "Error")).map(t => {
+      (".error-text *" #> Text(errorMessage) &
+        startOver
+      ).apply(t)
+    }).openOr(NodeSeq.Empty)
+  }
+
+  def showModalError(errorTitle: String, errorMessage: String): JsCmd = {
+    JsRaw("jQuery('.modal-error .modal-title-text').html('%s'); jQuery('.modal-error .modal-text').html('%s'); jQuery('.modal-error').modal('show');".format(errorTitle, errorMessage))
+  }
+
+  def askForMemberNumber: NodeSeq = Templates(List("ajax-templates-hidden","AskForMemberNumber")).map(t => {
     currentStage(Some(Identify))
-    ("#serviceNumber" #> ajaxText(serviceNumber.is.getOrElse(""), s => {
+    (".header-title *" #> ?("identify-header") &
+      ".footer-title *" #> ?("identify-footer") &
+      "#serviceNumber" #> ajaxText(serviceNumber.is.getOrElse(""), s => {
       serviceNumber(Some(s))
       val mn: MembershipNumber = new MshpNumber(s)
       addValidationMarkup("form-group-serviceNumber", mn.isValid, mn.validate.headOption.getOrElse(""), "Membership Number ")
@@ -106,12 +85,12 @@ class singlePageApp extends Logger with DetectScheme {
               SetHtml(contentAreaId, generateCurrentPageNodeSeq)
             }
             case Left(e) => {
-              Alert(e.getMessage)
+              showModalError(?("error-title"), ?(e.getMessage))
             }
           }
-          case false => Alert(?("invalid-nembership-number-provided"))
+          case false => showModalError(?("error-title-invalid-data"), ?("invalid-nembership-number-provided"))
         }
-      }).getOrElse(Alert(?("no-membership-number-provided")))
+      }).getOrElse(showModalError(?("error-title-missing-data"), ?("no-membership-number-provided")))
     })
     ).apply(t)
   }).openOr(NodeSeq.Empty)
@@ -125,6 +104,7 @@ class singlePageApp extends Logger with DetectScheme {
     else
       in
   }
+
   def obfuscateEmailAddress(in:String):String = {
     if (in == "unknown")
       in
@@ -134,7 +114,7 @@ class singlePageApp extends Logger with DetectScheme {
       in
   }
 
-  def provideVerificationMethodChoice(factSet:FactSet) = {
+  def provideVerificationMethodChoice(factSet:FactSet): NodeSeq = {
     currentStage(Some(Verify))
     (for {
       template <- Templates(List("ajax-templates-hidden", "provideVerificationMethodChoice"))
@@ -142,8 +122,9 @@ class singlePageApp extends Logger with DetectScheme {
     } yield {
       var choices = factSet.getChoices
       var currentChoice:Option[WorkflowTypeChoice.Value] = None
-      (".header-title *" #> Templates(List("ajax-text-snippets-hidden", "route-0-step-1-header")) &
-        ".footer-title *" #> Templates(List("ajax-text-snippets-hidden", "route-0-step-1-footer")) &
+      (".header-title *" #> ?("verification-method-choice-header") &
+        ".sub-header-title *" #> ?("verification-method-choice-sub-header") &
+        ".footer-title *" #> ?("verification-method-choice-footer") &
         "#btn-phone" #> {(n:NodeSeq) => {
           if (choices.contains(WorkflowTypeChoice.SmsAndQuestions)){
             val mobileNumber = obfuscatePhoneNumber(factSet.getCurrentMobileNumber)
@@ -189,7 +170,7 @@ class singlePageApp extends Logger with DetectScheme {
             factSet.setChoice(choice)
             SetHtml(contentAreaId, generateCurrentPageNodeSeq)
           }).getOrElse({
-            Alert(?("chooseVerificationMethod"))
+            showModalError(?("error-title"), ?("no-verification-method-chosen"))
           })
         }) &
         startOver
@@ -197,7 +178,7 @@ class singlePageApp extends Logger with DetectScheme {
     }).openOr(NodeSeq.Empty)
   }
 
-  def provideAccountDetails = {
+  def provideAccountDetails: NodeSeq = {
     currentStage(Some(Result))
     (for {
       template <- Templates(List("ajax-templates-hidden", "provideAccountNumber"))
@@ -205,21 +186,22 @@ class singlePageApp extends Logger with DetectScheme {
     } yield {
       factProvider.getAccount(memberNumber) match {
         case Right(accountDefinition) => {
-          (
-            ".accessNumberValue [value]" #> accountDefinition.password &
-              ".serviceNumberValue [value]" #> accountDefinition.memberNumber &
-              ".schemeValue [value]" #> accountDefinition.scheme &
+          (".header-title *" #> ?("result-header") &
+              ".footer-title *" #> ?("result-footer") &
+              ".membership-number *" #> accountDefinition.password &
+              ".password *" #> accountDefinition.memberNumber &
+              ".scheme-value *" #> accountDefinition.scheme &
               startOver
             ).apply(template)
         }
         case Left(e) => {
-          Text(e.getMessage)
+          showError(e.getMessage)
         }
       }
     }).openOr(NodeSeq.Empty)
   }
 
-  def challengeFactSet(factSet:FactSet) = {
+  def challengeFactSet(factSet:FactSet): NodeSeq = {
     currentStage(Some(Verify))
     factSet.getNextQuestions match {
       case Some(questionSet) => {
@@ -235,7 +217,7 @@ class singlePageApp extends Logger with DetectScheme {
                     potentialAnswers = Answer(answerString, question) :: potentialAnswers
                     Noop
                   }
-                  case other => Alert(other.mkString)
+                  case other => showModalError(?("error-title"), other.mkString)
                 }
               }
 
@@ -270,7 +252,7 @@ class singlePageApp extends Logger with DetectScheme {
         }).openOr(NodeSeq.Empty)
       }
       case None => {
-        Text(?("call-cic"))
+        showError(?("call-cic"))
       }
     }
   }
@@ -281,7 +263,7 @@ class singlePageApp extends Logger with DetectScheme {
       case Some(factSet) if !factSet.getHasChosen && factSet.getChoices.toList.length > 1 => {
         provideVerificationMethodChoice(factSet)
       }
-      case Some(factSet) if !factSet.canComplete => Text(?("call-cic"))
+      case Some(factSet) if !factSet.canComplete => showError(?("call-cic"))
       case Some(factSet) if factSet.isComplete => provideAccountDetails
       case Some(factSet)                       => challengeFactSet(factSet)
     }
