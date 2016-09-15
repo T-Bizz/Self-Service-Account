@@ -198,8 +198,8 @@ class singlePageApp extends Logger with DetectScheme {
         case Right(accountDefinition) => {
           (".header-title *" #> ?("result-header") &
               ".footer-title *" #> ?("result-footer") &
-              ".membership-number *" #> accountDefinition.password &
-              ".password *" #> accountDefinition.memberNumber &
+              ".membership-number *" #> accountDefinition.memberNumber  &
+              ".password *" #> accountDefinition.password &
               ".scheme-value *" #> accountDefinition.scheme &
               startOver
             ).apply(template)

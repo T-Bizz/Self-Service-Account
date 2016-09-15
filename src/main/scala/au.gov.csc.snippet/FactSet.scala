@@ -55,7 +55,7 @@ class MemberBackedFactSet(member:Member,
         ::: member.person.tfn.toList.map(t =>
         NumberQuestion("personal", Text("What is your tax file number?"), Text("Provide your tax file number. This should be a 8 or 9 digit long numerical value."), "87654321", false, 4, t)
       )
-        ,1,Some(Text("Click next to skip")))
+        ,1,Some(Text("Click next to submit your answers")))
     ) ::: member.memberships.toList.map(m => {
       val mid = "membership_%s".format(m.membershipNumber)
       QuestionSet(mid,Text("Questions about your membership with ID number %s".format(m.membershipNumber)),List(
@@ -64,7 +64,7 @@ class MemberBackedFactSet(member:Member,
         StringQuestion(mid, Text("What is your status?"),            Text("Provide your scheme status"),                "contributor", false, 3, m.status)
       ) ::: m.exitDate.toList.map(ed => {
         DateQuestion  (mid, Text("When did you exit this scheme?"),  Text("Provide the date you exited this scheme"),   "21/6/1985",   false, 4, ed)
-      }),2,Some(Text("Click next to skip")))
+      }),2,Some(Text("Click next to submit your answers")))
     }) ::: (member.contactDetails.toList.flatMap {
       case e: EmailAddress => List(QuestionSet("sendEmailToken", Text("We're sending you a token to your email address"), List(
         TokenQuestion("sendEmailToken", Text("Please enter the token you've received in your email"), Text("Provide the verification code you recieved"), "012345", true, 0, Left(e))
