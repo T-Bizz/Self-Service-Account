@@ -162,6 +162,50 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification {
       !isFound
     }
 
+    "include SMS token option question when member has a mobile number" in {
+      val fp = createFixture(Map("1" -> Member(
+        Person("testSurname",
+          "testFirstName",
+          new Date(),
+          27,
+          "testFullName",
+          Some("Senor"),
+          Some("87654321")),
+        Nil,
+        List(EmailAddress("Internet",
+          "blah@blah.com",
+          true,
+          new Date(),
+          new Date(),
+          None)
+        ))))
+      val m = fp.getFacts("1")
+      val fs: FactSet = new MemberBackedFactSet(m.right.get,2,4)
+
+      var isNotFinished: Boolean = true
+      var isFound: Boolean = false
+      while(fs.canComplete & isNotFinished) {
+        fs.getNextQuestions match {
+          case Some(a) => {a.category match {
+            case "sendSMSToken" => isFound = true
+            case _ => Nil
+          }
+            a.questions.map(q => {
+              q match {
+                case s:StringQuestion => fs.answerQuestions(List(Answer(s.correctAnswer,q)))
+                case n:NumberQuestion => fs.answerQuestions(List(Answer(n.correctAnswer,q)))
+                case _ => Nil
+              }
+            })
+          }
+          case _ => {
+            isNotFinished = false
+          }
+        }
+      }
+      !isFound
+    }
+
     "no Email token option when member has no Email Address" in {
       val fp = createFixture(Map("1" -> Member(
         Person("testSurname",
