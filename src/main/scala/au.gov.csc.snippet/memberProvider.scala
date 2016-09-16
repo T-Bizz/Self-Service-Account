@@ -23,6 +23,7 @@ case class Membership(membershipNumber: String,
                       joinDate: Date,
                       exitDate: Option[Date],
                       effectDate: Option[Date])
+
 trait ContactDetail
 
 case class PhoneNumber(kind: String,
@@ -72,7 +73,14 @@ class MockMemberProvider extends MemberProvider {
         Some("Mr"),
         Some("87654321")
       ),
-      Nil,
+      List(
+        Membership("77929555",
+          "CSS",
+          "Preserved",
+          new Date(),
+          None,
+          Some(new Date()))
+      ),
       List(
         PhoneNumber(
           "mobile",
