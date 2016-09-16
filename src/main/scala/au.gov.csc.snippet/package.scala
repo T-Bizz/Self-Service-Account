@@ -6,7 +6,7 @@ import net.liftweb.http.SessionVar
 object SessionState {
 
   var minimumCorrectAnswers = 3
-  var pageSize = 3
+  var pageSize = 2
 
   object userState extends SessionVar[Option[String]](None)
   val userProvider = new MockFactProvider()//new MockUserProvider()

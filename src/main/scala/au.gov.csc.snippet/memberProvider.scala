@@ -43,23 +43,14 @@ case class EmailAddress(kind: String,
   extends ContactDetail
 
 case class Address(kind: String,
-                   address: String,
-                   isValid: Boolean,
-                   effectDate: Date,
-                   startDate: Date,
-                   endDate: Option[Date])
-  extends ContactDetail
-
-case class ComplexAddress(kind: String,
-                          streetNumber: Int,
-                          city: String,
-                          state: String,
-                          country: String,
-                          postCode: String,
-                          isValid: Boolean,
-                          effectDate: Date,
-                          startDate: Date,
-                          endDate: Option[Date])
+                   line1: String,
+                   line2: String,
+                   line3: String,
+                   city: String,
+                   state: String,
+                   country: String,
+                   postCode: String,
+                   isValid: Boolean)
   extends ContactDetail
 
 trait MemberProvider {
@@ -71,20 +62,46 @@ class MockMemberProvider extends MemberProvider {
 
   val MemberNotFoundException = new Exception("member not found")
   val memberFacts = Map(
-    "77929555" -> Member(Person("Smith","John",new Date(),21,"John Smith",Some("Mr"),Some("87654321")),Nil,
-      List(PhoneNumber("mobile",
-        "11111111",
-        "22222222",
-        true,
+    "77929555" -> Member(
+      Person(
+        "Smith",
+        "John",
         new Date(),
-        new Date(),
-        Some(new Date())),
-        EmailAddress("internet",
+        21,
+        "John Smith",
+        Some("Mr"),
+        Some("87654321")
+      ),
+      Nil,
+      List(
+        PhoneNumber(
+          "mobile",
+          "11111111",
+          "22222222",
+          true,
+          new Date(),
+          new Date(),
+          Some(new Date())
+        ),
+        EmailAddress(
+          "internet",
           "tom@tom.com",
           true,
           new Date(),
           new Date(),
-          Some(new Date()))))
+          Some(new Date())),
+        Address(
+          "Residential",
+          "Unit 4, Chandler St Belconnen",
+          "",
+          "",
+          "Canberra",
+          "ACT",
+          "Australia",
+          "2917",
+          true)
+      )
+    )
   )
 
   override def getMember(memberNumber:String):Either[Exception,Member] = memberFacts.get(memberNumber) match {
@@ -92,4 +109,3 @@ class MockMemberProvider extends MemberProvider {
     case None => Left(MemberNotFoundException)
   }
 }
-

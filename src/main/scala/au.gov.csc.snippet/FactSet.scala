@@ -76,8 +76,7 @@ class MemberBackedFactSet(member:Member,
                          false,
                          2,
                          member.person.age.toString)
-        )
-        ::: member.person.tfn.toList.map(t =>
+        ) ::: member.person.tfn.toList.map(t =>
           NumberQuestion("personal",
                          Text(?("hygine-tfn-question")),
                          Text(?("hygine-tfn-help-text")),
@@ -85,46 +84,40 @@ class MemberBackedFactSet(member:Member,
                          false,
                          4,
                          t)
-      ),
+        ),
       1,
       Some(Text(?("hygine-questions-footer"))))
     ) ::: member.memberships.toList.map(m => {
       val mid = "membership_%s".format(m.membershipNumber)
 
       QuestionSet(mid,
-                  Text("Questions about your membership with ID number %s".format(m.membershipNumber)),
-                  List(StringQuestion(mid,
-                                      Text("What is the name of the scheme?"),
-                                      Text("Provide the name of your scheme"),
-                                      "PSS",
-                                      false,
-                                      1,
-                                      m.scheme),
-                       DateQuestion  (mid,
-                                      Text("When did you join this scheme?"),
-                                      Text("Provide the date you entered this scheme"),
-                                      "21/6/1985",
-                                      false,
-                                      2,
-                                      m.joinDate),
-                       StringQuestion(mid,
-                                      Text("What is your status?"),
-                                      Text("Provide your scheme status"),
-                                      "contributor",
-                                      false,
-                                      3,
-                                      m.status)
+                  Text(?("membership-questions-title") + m.membershipNumber),
+                  List(
+                    DateQuestion(mid,
+                                 Text(?("membership-join-date-help-text")),
+                                 Text(?("membership-join-date-question")),
+                                 ?("membership-join-date-placeholder"),
+                                 false,
+                                 2,
+                                 m.joinDate),
+                    StringQuestion(mid,
+                                   Text(?("membership-status-question")),
+                                   Text(?("membership-status-help-text")),
+                                   ?("membership-status-placeholder"),
+                                   false,
+                                   3,
+                                   m.status)
                   ) ::: m.exitDate.toList.map(ed => {
                     DateQuestion(mid,
-                                 Text("When did you exit this scheme?"),
-                                 Text("Provide the date you exited this scheme"),
-                                 "21/6/1985",
+                                 Text(?("membership-exit-date-question")),
+                                 Text(?("membership-exit-help-text")),
+                                 ?("membership-exit-date-placeholder"),
                                  false,
                                  4,
                                  ed)
                   }),
       2,
-      Some(Text("Click next to submit your answers")))
+      Some(Text(?("membership-questions-footer"))))
     }) ::: (member.contactDetails.toList.flatMap {
       case e: EmailAddress =>
         List(QuestionSet("sendEmailToken",
@@ -155,21 +148,51 @@ class MemberBackedFactSet(member:Member,
                          0,
                          Some(Text(?("token-sms-footer")))))
       case _ => Nil
-    }) ::: List(QuestionSet("contactDetails", Text("Tell us about how we communicate with you"), member.contactDetails.flatMap{
-      case cd:PhoneNumber if cd.kind != "mobile" => {
-        List(
-          StringQuestion("contactDetails", Text("What is the area code of your phone number?"), Text("Provide the area code of your contact number"), "03", false, 0, cd.areaCode)
-        )
-      }
-      case cd:ComplexAddress => {
-        List(
-          StringQuestion("contactDetails", Text("What's your postcode?"), Text("Provide the post code for your current address"), "03", false, 0, cd.postCode),
-          StringQuestion("contactDetails", Text("What's your suburb?"),   Text("Provide the suburb for your current address"),    "03", false, 0, cd.city),
-          StringQuestion("contactDetails", Text("What's your state?"),    Text("Provide the state of your current address"),      "03", false, 0, cd.state)
-        )
-      }
-      case _ => Nil
-    }, 4, None))
+    }) ::: List(
+      QuestionSet(
+        "contactDetails",
+          Text(?("contact-details-questions-title")),
+          member.contactDetails.flatMap{
+            case cd:PhoneNumber => {
+              List(
+                StringQuestion("contactDetails",
+                               Text(?("contact-details-phone-number-question")),
+                               Text(?("contact-details-phone-number-help-text")),
+                               ?("contact-details-phone-number-placeholder"),
+                               false,
+                               0,
+                               cd.phoneNumber)
+              )
+            }
+            case cd:Address => {
+              List(
+                StringQuestion("contactDetails",
+                               Text(?("contact-details-post-code-question")),
+                               Text(?("Provide your postcode for your current address")),
+                               ?("contact-details-post-code-placeholder"),
+                               false,
+                               0,
+                               cd.postCode),
+                StringQuestion("contactDetails",
+                  Text(?("contact-details-suburb-question")),
+                  Text(?("contact-details-suburb-help-text")),
+                  ?("contact-details-suburb-placeholder"),
+                  false,
+                  0,
+                  cd.city),
+                StringQuestion("contactDetails",
+                               Text(?("contact-details-state-question")),
+                               Text(?("contact-details-state-help-text")),
+                               ?("contact-details-state-placeholder"),
+                               false,
+                               0,
+                               cd.state)
+              )
+            }
+            case _ => Nil
+          },
+      4,
+      None))
   }
 
   protected var unansweredQuestions: List[QuestionBase] = questionSets.flatMap(_.questions)
