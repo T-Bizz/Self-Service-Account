@@ -290,6 +290,7 @@ class singlePageApp extends Logger with DetectScheme {
     }
     (".btn-get-started-text *" #> ?("btn-get-started-text") &
       ".btn-reset-text *" #> ?("btn-reset-text") &
+      ".btn-repeat-text *" #> ?("btn-repeat-text") &
       ".btn-next-text *" #> ?("btn-next-text") &
       ".btn-login-text *" #> ?("btn-login-text")
     ).apply(node)

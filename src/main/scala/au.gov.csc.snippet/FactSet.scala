@@ -40,7 +40,16 @@ class MemberBackedFactSet(member:Member,
                           questionsPerPage: Int)
   extends FactSet {
 
+  import net.liftweb.http._
   import WorkflowTypeChoice._
+
+  protected def ?(key: String): String = {
+    // get configured string for scheme or use the default configured string
+    var out = S ? "%s%s".format(key, Scheme.is.map(s => "-%s".format(s._1)).getOrElse(""))
+    if (out == "%s%s".format(key, Scheme.is.map(s => "-%s".format(s._1)).getOrElse("")))
+      out = S ? key
+    out
+  }
 
   protected val questionSets: List[QuestionSet] = {
     List(
@@ -66,12 +75,24 @@ class MemberBackedFactSet(member:Member,
         DateQuestion  (mid, Text("When did you exit this scheme?"),  Text("Provide the date you exited this scheme"),   "21/6/1985",   false, 4, ed)
       }),2,Some(Text("Click next to submit your answers")))
     }) ::: (member.contactDetails.toList.flatMap {
-      case e: EmailAddress => List(QuestionSet("sendEmailToken", Text("We're sending you a token to your email address"), List(
-        TokenQuestion("sendEmailToken", Text("Please enter the token you've received in your email"), Text("Provide the verification code you recieved"), "012345", true, 0, Left(e))
-      ), 0, Some(Text("If you don't recieve a verification code within the next 5 minutes, contact the CIC."))))
-      case e: PhoneNumber if e.kind == "mobile" => List(QuestionSet("sendSMSToken", Text("We're sending you a token to your mobile phone"), List(
-        TokenQuestion("sendSMSToken",   Text("Please enter the token you've received on your phone"), Text("Provide the verification code you recieved"), "012345", true, 0, Right(e))
-      ), 0, Some(Text("If you don't recieve a verification code within the next 5 minutes, contact the CIC."))))
+      case e: EmailAddress => List(QuestionSet("sendEmailToken", Text(?("token-email-title")), List(
+        TokenQuestion("sendEmailToken",
+                      Text(?("token-email-question")),
+                      Text(?("token-email-help-text")),
+                      ?("token-email-placeholder"),
+                      true,
+                      0,
+                      Left(e))
+      ), 0, Some(Text("token-email-footer"))))
+      case e: PhoneNumber if e.kind == "mobile" => List(QuestionSet("sendSMSToken", Text(?("token-sms-title")), List(
+        TokenQuestion("sendSMSToken",
+                      Text(?("token-sms-question")),
+                      Text(?("token-sms-help-text")),
+                      ?("token-sms-placeholder"),
+                      true,
+                      0,
+                      Right(e))
+      ), 0, Some(Text(?("token-sms-footer")))))
       case _ => Nil
     }) ::: List(QuestionSet("contactDetails", Text("Tell us about how we communicate with you"), member.contactDetails.flatMap{
       case cd:PhoneNumber if cd.kind != "mobile" => {
