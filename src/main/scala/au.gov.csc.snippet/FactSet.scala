@@ -53,46 +53,107 @@ class MemberBackedFactSet(member:Member,
 
   protected val questionSets: List[QuestionSet] = {
     List(
-      QuestionSet("personal",Text("Questions about yourself"),List(
-        StringQuestion("personal", Text("What is your first name?"),      Text("Provide your first name"), "John"    , false, 0, member.person.firstName),
-        StringQuestion("personal", Text("What is your surname?"),         Text("Provide your surname"),    "Smith"   , false, 1, member.person.surname),
-        NumberQuestion("personal", Text("What is your age?"),             Text("Provide your age"),        "21"      , false, 2, member.person.age.toString)
-      ) :::
-        member.person.title.toList.map(t =>
-          StringQuestion("personal", Text("What is your title?"),         Text("Provide your title"),      "Mr"      , false, 3, t)
+      QuestionSet("personal",Text(?("hygine-questions-title")),
+        List(
+          StringQuestion("personal",
+                         Text(?("hygine-first-name-question")),
+                         Text(?("hygine-first-name-help-text")),
+                         ?("hygine-first-name-placeholder"),
+                         false,
+                         0,
+                         member.person.firstName),
+          StringQuestion("personal",
+                         Text(?("hygine-surname-question")),
+                         Text(?("hygine-surname-help-text")),
+                         ?("hygine-surname-placeholder"),
+                         false,
+                         1,
+                         member.person.surname),
+          NumberQuestion("personal",
+                         Text(?("hygine-age-question")),
+                         Text(?("hygine-age-help-text")),
+                         ?("hygine-age-placeholder"),
+                         false,
+                         2,
+                         member.person.age.toString)
         )
         ::: member.person.tfn.toList.map(t =>
-        NumberQuestion("personal", Text("What is your tax file number?"), Text("Provide your tax file number. This should be a 8 or 9 digit long numerical value."), "87654321", false, 4, t)
-      )
-        ,1,Some(Text("Click next to submit your answers")))
+          NumberQuestion("personal",
+                         Text(?("hygine-tfn-question")),
+                         Text(?("hygine-tfn-help-text")),
+                         ?("hygine-tfn-placeholder"),
+                         false,
+                         4,
+                         t)
+      ),
+      1,
+      Some(Text(?("hygine-questions-footer"))))
     ) ::: member.memberships.toList.map(m => {
       val mid = "membership_%s".format(m.membershipNumber)
-      QuestionSet(mid,Text("Questions about your membership with ID number %s".format(m.membershipNumber)),List(
-        StringQuestion(mid, Text("What is the name of the scheme?"), Text("Provide the name of your scheme"),           "PSS",         false, 1, m.scheme),
-        DateQuestion  (mid, Text("When did you join this scheme?"),  Text("Provide the date you entered this scheme"),  "21/6/1985",   false, 2, m.joinDate),
-        StringQuestion(mid, Text("What is your status?"),            Text("Provide your scheme status"),                "contributor", false, 3, m.status)
-      ) ::: m.exitDate.toList.map(ed => {
-        DateQuestion  (mid, Text("When did you exit this scheme?"),  Text("Provide the date you exited this scheme"),   "21/6/1985",   false, 4, ed)
-      }),2,Some(Text("Click next to submit your answers")))
+
+      QuestionSet(mid,
+                  Text("Questions about your membership with ID number %s".format(m.membershipNumber)),
+                  List(StringQuestion(mid,
+                                      Text("What is the name of the scheme?"),
+                                      Text("Provide the name of your scheme"),
+                                      "PSS",
+                                      false,
+                                      1,
+                                      m.scheme),
+                       DateQuestion  (mid,
+                                      Text("When did you join this scheme?"),
+                                      Text("Provide the date you entered this scheme"),
+                                      "21/6/1985",
+                                      false,
+                                      2,
+                                      m.joinDate),
+                       StringQuestion(mid,
+                                      Text("What is your status?"),
+                                      Text("Provide your scheme status"),
+                                      "contributor",
+                                      false,
+                                      3,
+                                      m.status)
+                  ) ::: m.exitDate.toList.map(ed => {
+                    DateQuestion(mid,
+                                 Text("When did you exit this scheme?"),
+                                 Text("Provide the date you exited this scheme"),
+                                 "21/6/1985",
+                                 false,
+                                 4,
+                                 ed)
+                  }),
+      2,
+      Some(Text("Click next to submit your answers")))
     }) ::: (member.contactDetails.toList.flatMap {
-      case e: EmailAddress => List(QuestionSet("sendEmailToken", Text(?("token-email-title")), List(
-        TokenQuestion("sendEmailToken",
-                      Text(?("token-email-question")),
-                      Text(?("token-email-help-text")),
-                      ?("token-email-placeholder"),
-                      true,
-                      0,
-                      Left(e))
-      ), 0, Some(Text("token-email-footer"))))
-      case e: PhoneNumber if e.kind == "mobile" => List(QuestionSet("sendSMSToken", Text(?("token-sms-title")), List(
-        TokenQuestion("sendSMSToken",
-                      Text(?("token-sms-question")),
-                      Text(?("token-sms-help-text")),
-                      ?("token-sms-placeholder"),
-                      true,
-                      0,
-                      Right(e))
-      ), 0, Some(Text(?("token-sms-footer")))))
+      case e: EmailAddress =>
+        List(QuestionSet("sendEmailToken",
+                         Text(?("token-email-title")),
+                         List(
+                           TokenQuestion("sendEmailToken",
+                                         Text(?("token-email-question")),
+                                         Text(?("token-email-help-text")),
+                                         ?("token-email-placeholder"),
+                                         true,
+                                         0,
+                                         Left(e))
+                         ),
+                         0,
+                         Some(Text("token-email-footer"))))
+      case e: PhoneNumber if e.kind == "mobile" =>
+        List(QuestionSet("sendSMSToken",
+                         Text(?("token-sms-title")),
+                         List(
+                           TokenQuestion("sendSMSToken",
+                                         Text(?("token-sms-question")),
+                                         Text(?("token-sms-help-text")),
+                                         ?("token-sms-placeholder"),
+                                         true,
+                                         0,
+                                         Right(e))
+                         ),
+                         0,
+                         Some(Text(?("token-sms-footer")))))
       case _ => Nil
     }) ::: List(QuestionSet("contactDetails", Text("Tell us about how we communicate with you"), member.contactDetails.flatMap{
       case cd:PhoneNumber if cd.kind != "mobile" => {
