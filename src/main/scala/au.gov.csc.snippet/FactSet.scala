@@ -59,6 +59,7 @@ class MemberBackedFactSet(member:Member,
                          Text(?("hygine-first-name-question")),
                          Text(?("hygine-first-name-help-text")),
                          ?("hygine-first-name-placeholder"),
+                         ?("hygine-first-name-icon"),
                          false,
                          0,
                          member.person.firstName),
@@ -66,6 +67,7 @@ class MemberBackedFactSet(member:Member,
                          Text(?("hygine-surname-question")),
                          Text(?("hygine-surname-help-text")),
                          ?("hygine-surname-placeholder"),
+                         ?("hygine-surname-icon"),
                          false,
                          1,
                          member.person.surname),
@@ -73,6 +75,7 @@ class MemberBackedFactSet(member:Member,
                          Text(?("hygine-age-question")),
                          Text(?("hygine-age-help-text")),
                          ?("hygine-age-placeholder"),
+                         ?("hygine-age-icon"),
                          false,
                          2,
                          member.person.age.toString)
@@ -81,6 +84,7 @@ class MemberBackedFactSet(member:Member,
                          Text(?("hygine-tfn-question")),
                          Text(?("hygine-tfn-help-text")),
                          ?("hygine-tfn-placeholder"),
+                         ?("hygine-tfn-icon"),
                          false,
                          4,
                          t)
@@ -91,30 +95,36 @@ class MemberBackedFactSet(member:Member,
       val mid = "membership_%s".format(m.membershipNumber)
 
       QuestionSet(mid,
-                  Text(?("membership-questions-title") + m.membershipNumber),
+                  Text(?("membership-questions-title") + " %s".format(m.membershipNumber)),
                   List(
-                    DateQuestion(mid,
-                                 Text(?("membership-join-date-help-text")),
-                                 Text(?("membership-join-date-question")),
-                                 ?("membership-join-date-placeholder"),
-                                 false,
-                                 2,
-                                 m.joinDate),
-                    StringQuestion(mid,
-                                   Text(?("membership-status-question")),
-                                   Text(?("membership-status-help-text")),
-                                   ?("membership-status-placeholder"),
-                                   false,
-                                   3,
-                                   m.status)
+                    DateQuestion(
+                      mid,
+                      Text(?("membership-join-date-help-text")),
+                      Text(?("membership-join-date-question")),
+                      ?("membership-join-date-placeholder"),
+                      ?("membership-join-date-icon"),
+                      false,
+                      2,
+                      m.joinDate),
+                    StringQuestion(
+                      mid,
+                      Text(?("membership-status-question")),
+                      Text(?("membership-status-help-text")),
+                      ?("membership-status-placeholder"),
+                      ?("membership-status-icon"),
+                      false,
+                      3,
+                      m.status)
                   ) ::: m.exitDate.toList.map(ed => {
-                    DateQuestion(mid,
-                                 Text(?("membership-exit-date-question")),
-                                 Text(?("membership-exit-help-text")),
-                                 ?("membership-exit-date-placeholder"),
-                                 false,
-                                 4,
-                                 ed)
+                    DateQuestion(
+                      mid,
+                      Text(?("membership-exit-date-question")),
+                      Text(?("membership-exit-help-text")),
+                      ?("membership-exit-date-placeholder"),
+                      ?("membership-exit-date-icon"),
+                      false,
+                      4,
+                      ed)
                   }),
       2,
       Some(Text(?("membership-questions-footer"))))
@@ -123,13 +133,15 @@ class MemberBackedFactSet(member:Member,
         List(QuestionSet("sendEmailToken",
                          Text(?("token-email-title")),
                          List(
-                           TokenQuestion("sendEmailToken",
-                                         Text(?("token-email-question")),
-                                         Text(?("token-email-help-text")),
-                                         ?("token-email-placeholder"),
-                                         true,
-                                         0,
-                                         Left(e))
+                           TokenQuestion(
+                             "sendEmailToken",
+                             Text(?("token-email-question")),
+                             Text(?("token-email-help-text")),
+                             ?("token-email-placeholder"),
+                             ?("toekn-email-icon"),
+                             true,
+                             0,
+                             Left(e))
                          ),
                          0,
                          Some(Text("token-email-footer"))))
@@ -137,13 +149,15 @@ class MemberBackedFactSet(member:Member,
         List(QuestionSet("sendSMSToken",
                          Text(?("token-sms-title")),
                          List(
-                           TokenQuestion("sendSMSToken",
-                                         Text(?("token-sms-question")),
-                                         Text(?("token-sms-help-text")),
-                                         ?("token-sms-placeholder"),
-                                         true,
-                                         0,
-                                         Right(e))
+                           TokenQuestion(
+                             "sendSMSToken",
+                             Text(?("token-sms-question")),
+                             Text(?("token-sms-help-text")),
+                             ?("token-sms-placeholder"),
+                             ?("toekn-sms-icon"),
+                             true,
+                             0,
+                             Right(e))
                          ),
                          0,
                          Some(Text(?("token-sms-footer")))))
@@ -155,38 +169,46 @@ class MemberBackedFactSet(member:Member,
           member.contactDetails.flatMap{
             case cd:PhoneNumber => {
               List(
-                StringQuestion("contactDetails",
-                               Text(?("contact-details-phone-number-question")),
-                               Text(?("contact-details-phone-number-help-text")),
-                               ?("contact-details-phone-number-placeholder"),
-                               false,
-                               0,
-                               cd.phoneNumber)
+                StringQuestion(
+                  "contactDetails",
+                  Text(?("contact-details-phone-number-question")),
+                  Text(?("contact-details-phone-number-help-text")),
+                  ?("contact-details-phone-number-placeholder"),
+                  ?("contact-details-phone-number-icon"),
+                  false,
+                  0,
+                  cd.phoneNumber)
               )
             }
             case cd:Address => {
               List(
-                StringQuestion("contactDetails",
-                               Text(?("contact-details-post-code-question")),
-                               Text(?("Provide your postcode for your current address")),
-                               ?("contact-details-post-code-placeholder"),
-                               false,
-                               0,
-                               cd.postCode),
-                StringQuestion("contactDetails",
+                StringQuestion(
+                  "contactDetails",
+                  Text(?("contact-details-post-code-question")),
+                  Text(?("Provide your postcode for your current address")),
+                  ?("contact-details-post-code-placeholder"),
+                  ?("contact-details-post-code-icon"),
+                  false,
+                  0,
+                  cd.postCode),
+                StringQuestion(
+                  "contactDetails",
                   Text(?("contact-details-suburb-question")),
                   Text(?("contact-details-suburb-help-text")),
                   ?("contact-details-suburb-placeholder"),
+                  ?("contact-details-suburb-icon"),
                   false,
                   0,
                   cd.city),
-                StringQuestion("contactDetails",
-                               Text(?("contact-details-state-question")),
-                               Text(?("contact-details-state-help-text")),
-                               ?("contact-details-state-placeholder"),
-                               false,
-                               0,
-                               cd.state)
+                StringQuestion(
+                  "contactDetails",
+                  Text(?("contact-details-state-question")),
+                  Text(?("contact-details-state-help-text")),
+                  ?("contact-details-state-placeholder"),
+                  ?("contact-details-state-icon"),
+                  false,
+                  0,
+                  cd.state)
               )
             }
             case _ => Nil

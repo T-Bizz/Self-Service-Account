@@ -255,7 +255,8 @@ class singlePageApp extends Logger with DetectScheme {
                     ".question-input [onchange]" #> ajaxCall(JsRaw("this.value"), answerQuestionFunc) &
                     ".question-input [placeholder]" #> question.placeHolder &
                     ".question-help-text [data-content]" #> question.helpText &
-                    ".question-help-text .sr-only *" #> question.helpText
+                    ".question-help-text .sr-only *" #> question.helpText &
+                    ".question-icon [class+]" #> question.icon
                   ).apply(qt))
               }).openOr(NodeSeq.Empty)
             }) &

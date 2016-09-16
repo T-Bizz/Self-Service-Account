@@ -8,6 +8,7 @@ class QuestionBase(val category: String,
                    val title: NodeSeq,
                    val helpText: NodeSeq,
                    val placeHolder: String,
+                   val icon: String,
                    val mustBeCorrect: Boolean,
                    val order: Int) {
 
@@ -29,6 +30,7 @@ case class StringQuestion(override val category: String,
                           override val title: NodeSeq,
                           override val helpText: NodeSeq,
                           override val placeHolder: String,
+                          override val icon: String,
                           override val mustBeCorrect: Boolean,
                           override val order: Int,
                           correctAnswer: String)
@@ -36,6 +38,7 @@ case class StringQuestion(override val category: String,
                        title,
                        helpText,
                        placeHolder,
+                       icon,
                        mustBeCorrect,
                        order) {
 
@@ -52,6 +55,7 @@ case class NumberQuestion(override val category: String,
                           override val title: NodeSeq,
                           override val helpText: NodeSeq,
                           override val placeHolder: String,
+                          override val icon: String,
                           override val mustBeCorrect: Boolean,
                           override val order: Int,
                           correctAnswer: String)
@@ -59,6 +63,7 @@ case class NumberQuestion(override val category: String,
                        title,
                        helpText,
                        placeHolder,
+                       icon,
                        mustBeCorrect,
                        order) {
 
@@ -75,6 +80,7 @@ case class EmailQuestion(override val category: String,
                          override val title:NodeSeq,
                          override val helpText:NodeSeq,
                          override val placeHolder:String,
+                         override val icon: String,
                          override val mustBeCorrect: Boolean,
                          override val order:Int,
                          correctAnswer: String)
@@ -82,6 +88,7 @@ case class EmailQuestion(override val category: String,
                        title,
                        helpText,
                        placeHolder,
+                       icon,
                        mustBeCorrect,
                        order) {
 
@@ -103,6 +110,7 @@ case class TokenQuestion(override val category: String,
                          override val title:NodeSeq,
                          override val helpText:NodeSeq,
                          override val placeHolder:String,
+                         override val icon: String,
                          override val mustBeCorrect: Boolean,
                          override val order:Int,
                          val target:Either[EmailAddress,PhoneNumber])
@@ -110,6 +118,7 @@ case class TokenQuestion(override val category: String,
                        title,
                        helpText,
                        placeHolder,
+                       icon,
                        mustBeCorrect,
                        order) {
 
@@ -128,6 +137,7 @@ case class DateQuestion(override val category: String,
                         override val title: NodeSeq,
                         override val helpText: NodeSeq,
                         override val placeHolder: String,
+                        override val icon: String,
                         override val mustBeCorrect: Boolean,
                         override val order: Int,
                         correctAnswer: Date)
@@ -135,6 +145,7 @@ case class DateQuestion(override val category: String,
                        title,
                        helpText,
                        placeHolder,
+                       icon,
                        mustBeCorrect,
                        order) {
 
