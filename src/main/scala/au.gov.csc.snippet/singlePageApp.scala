@@ -55,7 +55,7 @@ class singlePageApp extends Logger with DetectScheme {
     currentStage(Some(Result))
     Templates(List("ajax-templates-hidden", "Error")).map(t => {
       (".error-text *" #> Text(errorMessage) &
-        startOver
+        startAgain
       ).apply(t)
     }).openOr(NodeSeq.Empty)
   }
@@ -183,7 +183,7 @@ class singlePageApp extends Logger with DetectScheme {
             showModalError(?("error-title"), ?("no-verification-method-chosen"))
           })
         }) &
-        startOver
+        startAgain
       ).apply(template)
     }).openOr(NodeSeq.Empty)
   }
@@ -201,7 +201,7 @@ class singlePageApp extends Logger with DetectScheme {
               ".membership-number *" #> accountDefinition.memberNumber  &
               ".password *" #> accountDefinition.password &
               ".scheme-value *" #> accountDefinition.scheme &
-              startOver
+              startAgain
             ).apply(template)
         }
         case Left(e) => {
@@ -266,7 +266,7 @@ class singlePageApp extends Logger with DetectScheme {
               factSet.answerQuestions(potentialAnswers)
               SetHtml(contentAreaId, generateCurrentPageNodeSeq)
             }) &
-            startOver
+            startAgain
           ).apply(qst)
         }).openOr(NodeSeq.Empty)
       }
@@ -291,13 +291,15 @@ class singlePageApp extends Logger with DetectScheme {
     }
     (".btn-get-started-text *" #> ?("btn-get-started-text") &
       ".btn-reset-text *" #> ?("btn-reset-text") &
-      ".btn-repeat-text *" #> ?("btn-repeat-text") &
+      ".btn-restart-text *" #> ?("btn-restart-text") &
       ".btn-next-text *" #> ?("btn-next-text") &
-      ".btn-login-text *" #> ?("btn-login-text")
+      ".btn-login-text *" #> ?("btn-login-text") &
+      startAgain &
+      startOver
     ).apply(node)
   } ++ Script(setCurrentStage)
 
-  def startOver: CssSel = {
+  def startAgain: CssSel = {
     ".btn-reset [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
       S.session.foreach(s => {
         s.destroySession()
@@ -306,6 +308,18 @@ class singlePageApp extends Logger with DetectScheme {
         })
       })
       RedirectTo("/scheme/%s".format(getScheme.map(p => p._1).getOrElse("")))
+    })
+  }
+
+  def startOver: CssSel = {
+    ".btn-restart [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
+      S.session.foreach(s => {
+        s.destroySession()
+        s.httpSession.foreach(httpsession => {
+          httpsession.terminate
+        })
+      })
+      RedirectTo("/")
     })
   }
 
