@@ -144,7 +144,7 @@ class MemberBackedFactSet(member:Member,
                              Left(e))
                          ),
                          0,
-                         Some(Text("token-email-footer"))))
+                         Some(Text(?("token-email-footer")))))
       case e: PhoneNumber if e.kind == "mobile" =>
         List(QuestionSet("sendSMSToken",
                          Text(?("token-sms-title")),

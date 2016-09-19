@@ -27,6 +27,7 @@ class singlePageApp extends Logger with DetectScheme {
       out = S ? key
     out
   }
+
   val contentAreaId = "step-form"
   protected var factProvider = SessionState.userProvider
 
@@ -166,11 +167,11 @@ class singlePageApp extends Logger with DetectScheme {
         "#btn-other" #> {(n:NodeSeq) => {
           if (choices.contains(WorkflowTypeChoice.QuestionsOnly)){
             (
-                "#btn-other [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
-                  currentChoice = Some(WorkflowTypeChoice.QuestionsOnly)
-                  Noop
-                })
-              ).apply(n)
+              "#btn-other [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
+                currentChoice = Some(WorkflowTypeChoice.QuestionsOnly)
+                Noop
+              })
+            ).apply(n)
           } else {
             NodeSeq.Empty
           }
@@ -197,12 +198,12 @@ class singlePageApp extends Logger with DetectScheme {
       factProvider.getAccount(memberNumber) match {
         case Right(accountDefinition) => {
           (".header-title *" #> ?("result-header") &
-              ".footer-title *" #> ?("result-footer") &
-              ".membership-number *" #> accountDefinition.memberNumber  &
-              ".password *" #> accountDefinition.password &
-              ".scheme-value *" #> accountDefinition.scheme &
-              startOver(".btn-reset [onclick]", "/")
-            ).apply(template)
+            ".footer-title *" #> ?("result-footer") &
+            ".membership-number *" #> accountDefinition.memberNumber  &
+            ".password *" #> accountDefinition.password &
+            ".scheme-value *" #> accountDefinition.scheme &
+            startOver(".btn-reset [onclick]", "/")
+          ).apply(template)
         }
         case Left(e) => {
           showError(e.getMessage)
@@ -225,16 +226,11 @@ class singlePageApp extends Logger with DetectScheme {
 
               val answerQuestionFunc = (answerString: String) => {
                 potentialAnswers = potentialAnswers.filterNot(pa => {
-                  if (pa.question == question)
-                    true
-                  else
-                    false
+                  pa.question == question
                 })
                 potentialAnswers = Answer(answerString, question) :: potentialAnswers
                 question.getValidationErrors(answerString) match {
-                  case Nil => {
-                    Noop
-                  }
+                  case Nil =>  Noop
                   case o => showModalError(?("error-title"), o.mkString)
                 }
               }
@@ -316,5 +312,3 @@ class singlePageApp extends Logger with DetectScheme {
     "#%s *".format(contentAreaId) #> {generateCurrentPageNodeSeq}
   }
 }
-// here's a mechanim for putting a function into the javascript DOM.
-// Script(JsCrVar("fireError",AnonFunc(ajaxCall(JsRaw("this"),(s:String) => Noop))))
