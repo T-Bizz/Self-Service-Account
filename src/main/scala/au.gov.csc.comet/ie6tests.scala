@@ -20,9 +20,6 @@ class cometTest extends CometActor {
       "#stopButton" #> NodeSeq.Empty &
       "#cometResponse *" #> currentResponse
   }
-
-
-
   override def fixedRender = {
     "#startButton" #> ajaxButton("start",() => {
       this ! Start
