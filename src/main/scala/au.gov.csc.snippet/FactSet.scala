@@ -154,7 +154,7 @@ class MemberBackedFactSet(member:Member,
                              Text(?("token-sms-question")),
                              Text(?("token-sms-help-text")),
                              ?("token-sms-placeholder"),
-                             ?("toekn-sms-icon"),
+                             ?("token-sms-icon"),
                              true,
                              0,
                              Right(e))

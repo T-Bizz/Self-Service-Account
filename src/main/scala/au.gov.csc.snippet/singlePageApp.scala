@@ -47,7 +47,7 @@ class singlePageApp extends Logger with DetectScheme {
     } else {
       JsCmds.Run("jQuery('#%s').addClass('has-error');".format(formGroupId) +
         "jQuery('#%s').find('.help-block').remove();".format(formGroupId) +
-        "jQuery('#%s .input-group').after('<span class=\"help-block\">%s</span>');".format(formGroupId, errorPrefix + error))
+        "jQuery('#%s .input-group').after('<span class=\"help-block\" aria-live=\"assertive\" aria-relevant=\"additions removals\">%s</span>');".format(formGroupId, errorPrefix + error))
     }
   }
 
@@ -55,7 +55,7 @@ class singlePageApp extends Logger with DetectScheme {
     currentStage(Some(Result))
     Templates(List("ajax-templates-hidden", "Error")).map(t => {
       (".error-text *" #> Text(errorMessage) &
-        startAgain
+        startOver(".btn-reset [onclick]", "/")
       ).apply(t)
     }).openOr(NodeSeq.Empty)
   }
@@ -183,7 +183,7 @@ class singlePageApp extends Logger with DetectScheme {
             showModalError(?("error-title"), ?("no-verification-method-chosen"))
           })
         }) &
-        startAgain
+        startOver(".btn-reset [onclick]", "/")
       ).apply(template)
     }).openOr(NodeSeq.Empty)
   }
@@ -201,7 +201,7 @@ class singlePageApp extends Logger with DetectScheme {
               ".membership-number *" #> accountDefinition.memberNumber  &
               ".password *" #> accountDefinition.password &
               ".scheme-value *" #> accountDefinition.scheme &
-              startAgain
+              startOver(".btn-reset [onclick]", "/")
             ).apply(template)
         }
         case Left(e) => {
@@ -266,7 +266,7 @@ class singlePageApp extends Logger with DetectScheme {
               factSet.answerQuestions(potentialAnswers)
               SetHtml(contentAreaId, generateCurrentPageNodeSeq)
             }) &
-            startAgain
+            startOver(".btn-reset [onclick]", "/")
           ).apply(qst)
         }).openOr(NodeSeq.Empty)
       }
@@ -294,32 +294,21 @@ class singlePageApp extends Logger with DetectScheme {
       ".btn-restart-text *" #> ?("btn-restart-text") &
       ".btn-next-text *" #> ?("btn-next-text") &
       ".btn-login-text *" #> ?("btn-login-text") &
-      startAgain &
-      startOver
+      startOver(".btn-restart [onclick]", "/") &
+      startOver()
     ).apply(node)
   } ++ Script(setCurrentStage)
 
-  def startAgain: CssSel = {
-    ".btn-reset [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
+  def startOver(csssel: String = ".btn-reset [onclick]",
+                redirect: String = "/scheme/%s".format(getScheme.map(p => p._1).getOrElse(""))): CssSel = {
+    csssel #> ajaxCall(JsRaw("this"), (s: String) => {
       S.session.foreach(s => {
         s.destroySession()
         s.httpSession.foreach(httpsession => {
           httpsession.terminate
         })
       })
-      RedirectTo("/scheme/%s".format(getScheme.map(p => p._1).getOrElse("")))
-    })
-  }
-
-  def startOver: CssSel = {
-    ".btn-restart [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
-      S.session.foreach(s => {
-        s.destroySession()
-        s.httpSession.foreach(httpsession => {
-          httpsession.terminate
-        })
-      })
-      RedirectTo("/")
+      RedirectTo(redirect)
     })
   }
 

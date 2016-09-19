@@ -8,9 +8,6 @@ import scala.xml.{NodeSeq, Text}
 import net.liftweb.http.SHtml._
 import net.liftweb.util.Helpers._
 import net.liftweb.util.Schedule
-/**
-  * Created by Mike on 8/09/2016.
-  */
 
 case object Start
 case object Stop
@@ -23,6 +20,9 @@ class cometTest extends CometActor {
       "#stopButton" #> NodeSeq.Empty &
       "#cometResponse *" #> currentResponse
   }
+
+
+
   override def fixedRender = {
     "#startButton" #> ajaxButton("start",() => {
       this ! Start
@@ -54,5 +54,4 @@ class cometTest extends CometActor {
     }
     case _ => {}
   }
-
 }
