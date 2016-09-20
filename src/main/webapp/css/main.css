@@ -425,6 +425,10 @@ body {
 }
 
 /* Scheme spesific branding */
+.scheme-site-logo-item {
+  max-width: 100%;
+}
+
 .text-brand {
     color: #fff !important;
 }
