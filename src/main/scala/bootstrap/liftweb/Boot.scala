@@ -4,9 +4,7 @@ import net.liftweb.common.Full
 import net.liftweb.http._
 import net.liftweb.http.js.JE
 import net.liftweb.sitemap.{Menu, SiteMap}
-
 import scala.collection.immutable.::
-
 import au.gov.csc.comet.{PushActorManager,TokenMessage}
 
 class Boot {
@@ -24,8 +22,14 @@ class Boot {
 
     LiftRules.statelessDispatch.append {
       case r@Req("token" :: sessionIdentifier :: token :: Nil,_,_) => () => {
-        PushActorManager ! TokenMessage(sessionIdentifier,token) 
-        Full(PlainTextResponse("token received"))
+        PushActorManager ! TokenMessage(sessionIdentifier, token)
+
+        for {
+          session <- S.session
+          req <- S.request
+          template = Templates("tokenReceived" :: Nil)
+          response <- session.processTemplate(template, req, req.path, 200)
+        } yield response
       }
     }
 
