@@ -101,8 +101,8 @@ case class EmailQuestion(override val category: QuestionSetType.Value,
 object TokenGenerator {
   import net.liftweb.util.Helpers._
   def generateToken:String = {
-    /* nextFuncName */
-    "012345"
+    nextFuncName
+    //"012345"
   }
 }
 
@@ -122,10 +122,12 @@ case class TokenQuestion(override val category: QuestionSetType.Value,
                        mustBeCorrect,
                        order) {
 
-  val correctAnswer = TokenGenerator.generateToken
+  var correctAnswer:Option[String] = None
   protected val tokenSender = SessionState.tokenSender
   override def ask:Unit = {
-    tokenSender.send(target,correctAnswer)
+    var ca = TokenGenerator.generateToken
+    correctAnswer = Some(ca)
+    tokenSender.send(target,ca)
   }
 
   override def getValidationErrors(answer:String): Seq[String] = answer match {
@@ -134,7 +136,7 @@ case class TokenQuestion(override val category: QuestionSetType.Value,
   }
 
   override def check(answer:Answer):Boolean =
-    answer.value.toLowerCase == correctAnswer.toLowerCase
+    correctAnswer.exists(_.toLowerCase == answer.value.toLowerCase)
 }
 
 case class DateQuestion(override val category: QuestionSetType.Value,

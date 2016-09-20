@@ -242,16 +242,19 @@ class singlePageApp extends Logger with DetectScheme {
                   case o => showModalError(?("error-title"), o.mkString)
                 }
               }
-
+              val askQuestionFunc = (_unused:String) => {
+                question.ask
+                showModalError(?("token-sent-title"), ?("token-sent-description"))
+              }
               val questionTemplate = question match {
                 case d: DateQuestion => Templates(List("ajax-templates-hidden", "DateQuestion"))
                 case s: StringQuestion => Templates(List("ajax-templates-hidden", "StringQuestion"))
                 case n: NumberQuestion => Templates(List("ajax-templates-hidden", "NumberQuestion"))
                 case e: EmailQuestion => Templates(List("ajax-templates-hidden", "EmailQuestion"))
-                case t: TokenQuestion => Templates(List("ajax-templates-hidden", "StringQuestion"))
+                case t: TokenQuestion => Templates(List("ajax-templates-hidden", "TokenQuestion"))
                 case _ => Empty
               }
-
+              askQuestionFunc("")
               acc ++ questionTemplate.map(qt => {
                 ((
                   ".question-title *" #> question.title &
@@ -260,6 +263,15 @@ class singlePageApp extends Logger with DetectScheme {
                     ".question-input [placeholder]" #> question.placeHolder &
                     ".question-help-text [data-content]" #> question.helpText &
                     ".question-help-text .sr-only *" #> question.helpText &
+                    ".action-group" #> {
+                      ".question-ask-action [onclick]" #> ajaxCall(JsRaw("this.value"), askQuestionFunc) &
+                      ".question-ask-action-label *" #> {
+                        question match {
+                          case t:TokenQuestion if t.target.isLeft => Text(?("resend-token-to-email")) 
+                          case t:TokenQuestion => Text(?("resend-token-to-mobile")) 
+                        }
+                      }
+                    } &
                     ".question-icon [class+]" #> question.icon
                   ).apply(qt))
               }).openOr(NodeSeq.Empty)
