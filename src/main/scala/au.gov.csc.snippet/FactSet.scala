@@ -142,7 +142,7 @@ class MemberBackedFactSet(member:Member,
                 Text(?("token-email-question")),
                 Text(?("token-email-help-text")),
                 ?("token-email-placeholder"),
-                ?("toekn-email-icon"),
+                ?("token-email-icon"),
                 true,
                 0,
                 Left(e))
