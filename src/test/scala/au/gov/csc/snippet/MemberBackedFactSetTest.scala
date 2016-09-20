@@ -91,9 +91,53 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
                                                         Nil)))
         val m = fp.getFacts("1")
         val fs = new MemberBackedFactSet(m.right.get,4,2)
+        fs.setChoice(WorkflowTypeChoice.QuestionsOnly)
         val questions = fs.getNextQuestions.get
         fs.answerQuestions(List(Answer("badAnswer",questions.questions.head)))
         fs.getRemainingUnansweredQuestionCount must beEqualTo(3)
+      })
+    }
+    "accept a correct answer to a questionSet which requires only 1 answer, and mark as completed successfully" in {
+      inSession({
+        val fp = createFixture(Map("1" -> Member(Person("testSurname",
+                                                        "testFirstName",
+                                                        new Date(),
+                                                        27,
+                                                        "testFullName",
+                                                        Some("Senor"),
+                                                        Some("87654321")),
+                                                        Nil,
+                                                        Nil)))
+        val m = fp.getFacts("1")
+        val fs = new MemberBackedFactSet(m.right.get,1,1)
+        fs.setChoice(WorkflowTypeChoice.QuestionsOnly)
+        val isComplete = fs.isComplete
+        val questions = fs.getNextQuestions.get
+        fs.answerQuestions(List(Answer("testFirstName",questions.questions.head)))
+        val isComplete2 = fs.isComplete
+        isComplete == false && isComplete2 == true
+      })
+    }
+    "not accept a second correct answer to a question already answered incorrectly" in {
+      inSession({
+        val fp = createFixture(Map("1" -> Member(Person("testSurname",
+                                                        "testFirstName",
+                                                        new Date(),
+                                                        27,
+                                                        "testFullName",
+                                                        Some("Senor"),
+                                                        Some("87654321")),
+                                                        Nil,
+                                                        Nil)))
+        val m = fp.getFacts("1")
+        val fs = new MemberBackedFactSet(m.right.get,1,1)
+        val isComplete = fs.isComplete
+        val questions = fs.getNextQuestions.get
+        fs.answerQuestions(List(Answer("badAnswer",questions.questions.head)))
+        val isComplete2 = fs.isComplete
+        fs.answerQuestions(List(Answer("testFirstName",questions.questions.head)))
+        val isComplete3 = fs.isComplete
+        isComplete == false && isComplete2 == false && isComplete3 == false
       })
     }
 
