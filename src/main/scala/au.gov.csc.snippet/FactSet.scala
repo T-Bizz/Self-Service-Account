@@ -93,73 +93,79 @@ class MemberBackedFactSet(member:Member,
       1,
       Some(Text(?("hygine-questions-footer"))))
     ) ::: member.memberships.toList.map(m => {
-      QuestionSet(QuestionSetType.CurrentMembership,
-                  Text(?("membership-questions-title") + " %s".format(m.membershipNumber)),
-                  List(
-                    DateQuestion(
-                      QuestionSetType.CurrentMembership,
-                      Text(?("membership-join-date-help-text")),
-                      Text(?("membership-join-date-question")),
-                      ?("membership-join-date-placeholder"),
-                      ?("membership-join-date-icon"),
-                      false,
-                      2,
-                      m.joinDate),
-                    StringQuestion(
-                      QuestionSetType.CurrentMembership,
-                      Text(?("membership-status-question")),
-                      Text(?("membership-status-help-text")),
-                      ?("membership-status-placeholder"),
-                      ?("membership-status-icon"),
-                      false,
-                      3,
-                      m.status)
-                  ) ::: m.exitDate.toList.map(ed => {
-                    DateQuestion(
-                      QuestionSetType.CurrentMembership,
-                      Text(?("membership-exit-date-question")),
-                      Text(?("membership-exit-help-text")),
-                      ?("membership-exit-date-placeholder"),
-                      ?("membership-exit-date-icon"),
-                      false,
-                      4,
-                      ed)
-                  }),
+      QuestionSet(
+        QuestionSetType.CurrentMembership,
+        Text(?("membership-questions-title") + " %s".format(m.membershipNumber)),
+        List(
+          DateQuestion(
+            QuestionSetType.CurrentMembership,
+            Text(?("membership-join-date-help-text")),
+            Text(?("membership-join-date-question")),
+            ?("membership-join-date-placeholder"),
+            ?("membership-join-date-icon"),
+            false,
+            2,
+            m.joinDate),
+          StringQuestion(
+            QuestionSetType.CurrentMembership,
+            Text(?("membership-status-question")),
+            Text(?("membership-status-help-text")),
+            ?("membership-status-placeholder"),
+            ?("membership-status-icon"),
+            false,
+            3,
+            m.status)
+        ) ::: m.exitDate.toList.map(ed => {
+          DateQuestion(
+            QuestionSetType.CurrentMembership,
+            Text(?("membership-exit-date-question")),
+            Text(?("membership-exit-help-text")),
+            ?("membership-exit-date-placeholder"),
+            ?("membership-exit-date-icon"),
+            false,
+            4,
+            ed)
+        }),
       2,
       Some(Text(?("membership-questions-footer"))))
     }) ::: (member.contactDetails.toList.flatMap {
       case e: EmailAddress =>
-        List(QuestionSet(QuestionSetType.TokenEmail,
-                         Text(?("token-email-title")),
-                         List(
-                           TokenQuestion(
-                             QuestionSetType.TokenEmail,
-                             Text(?("token-email-question")),
-                             Text(?("token-email-help-text")),
-                             ?("token-email-placeholder"),
-                             ?("toekn-email-icon"),
-                             true,
-                             0,
-                             Left(e))
-                         ),
-                         0,
-                         Some(Text(?("token-email-footer")))))
+        List(
+          QuestionSet(
+            QuestionSetType.TokenEmail,
+            Text(?("token-email-title")),
+            List(
+              TokenQuestion(
+                QuestionSetType.TokenEmail,
+                Text(?("token-email-question")),
+                Text(?("token-email-help-text")),
+                ?("token-email-placeholder"),
+                ?("toekn-email-icon"),
+                true,
+                0,
+                Left(e))
+            ),
+            0,
+            Some(Text(?("token-email-footer"))))
+        )
       case e: PhoneNumber if e.kind == "mobile" =>
-        List(QuestionSet(QuestionSetType.TokenSMS,
-                         Text(?("token-sms-title")),
-                         List(
-                           TokenQuestion(
-                             QuestionSetType.TokenSMS,
-                             Text(?("token-sms-question")),
-                             Text(?("token-sms-help-text")),
-                             ?("token-sms-placeholder"),
-                             ?("token-sms-icon"),
-                             true,
-                             0,
-                             Right(e))
-                         ),
-                         0,
-                         Some(Text(?("token-sms-footer")))))
+        List(
+          QuestionSet(
+            QuestionSetType.TokenSMS,
+            Text(?("token-sms-title")),
+            List(
+            TokenQuestion(
+              QuestionSetType.TokenSMS,
+              Text(?("token-sms-question")),
+              Text(?("token-sms-help-text")),
+              ?("token-sms-placeholder"),
+              ?("token-sms-icon"),
+              true,
+              0,
+              Right(e))
+            ),
+            0,
+Some(Text(?("token-sms-footer")))))
       case _ => Nil
     }) ::: List(
       QuestionSet(

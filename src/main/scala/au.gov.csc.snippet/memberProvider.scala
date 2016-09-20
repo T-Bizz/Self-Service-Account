@@ -79,6 +79,12 @@ class MockMemberProvider extends MemberProvider {
           "Preserved",
           new Date(),
           None,
+          Some(new Date())),
+        Membership("77929551",
+          "CSS",
+          "Subsumed",
+          new Date(),
+          Some(new Date()),
           Some(new Date()))
       ),
       List(
