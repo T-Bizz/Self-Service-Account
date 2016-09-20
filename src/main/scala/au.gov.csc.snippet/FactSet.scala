@@ -33,6 +33,7 @@ trait FactSet{
   def canComplete: Boolean
   def getCurrentEmail: String
   def getCurrentMobileNumber: String
+  def getRemainingUnansweredQuestionCount:Int
 }
 
 class MemberBackedFactSet(member:Member,
@@ -231,22 +232,24 @@ Some(Text(?("token-sms-footer")))))
   def getRemainingUnansweredQuestionCount = unansweredQuestions.length
 
   def setChoice(choice:WorkflowTypeChoice.Value) = {
-    choice match {
-      case WorkflowTypeChoice.EmailAndQuestions => unansweredQuestions.filterNot {
-        case p: TokenQuestion if p.target.isRight => true
-        case _ => false
+    if (hasChosen == false){
+      unansweredQuestions = choice match {
+        case WorkflowTypeChoice.EmailAndQuestions => unansweredQuestions.filterNot {
+          case p: TokenQuestion if p.target.isRight => true
+          case _ => false
+        }
+        case WorkflowTypeChoice.SmsAndQuestions => unansweredQuestions.filterNot {
+          case p: TokenQuestion if p.target.isLeft => true
+          case _ => false
+        }
+        case WorkflowTypeChoice.QuestionsOnly => unansweredQuestions.filterNot {
+          case p: TokenQuestion => true
+          case _ => false
+        }
       }
-      case WorkflowTypeChoice.SmsAndQuestions => unansweredQuestions.filterNot {
-        case p: TokenQuestion if p.target.isLeft => true
-        case _ => false
-      }
-      case WorkflowTypeChoice.QuestionsOnly => unansweredQuestions.filterNot {
-        case p: TokenQuestion => true
-        case _ => false
-      }
+      chosenWorkflowType = Some(choice)
+      hasChosen = true;
     }
-    chosenWorkflowType = Some(choice)
-    hasChosen = true;
   }
 
   def getHasChosen:Boolean = {

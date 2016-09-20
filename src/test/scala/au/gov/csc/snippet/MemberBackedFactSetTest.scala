@@ -8,7 +8,6 @@ import java.util.Date
 trait SHelpers {
   import net.liftweb.http._
   import net.liftweb.common._
-  import org.springframework.mock.web._
   import java.io.ByteArrayInputStream
 
   def generateFakeSession:LiftSession = {
@@ -71,7 +70,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
                                                                Nil)))
         val m = fp.getFacts("77929555")
         val fs = new MemberBackedFactSet(m.right.get,4,2)
-        fs.getRemainingUnansweredQuestionCount must beEqualTo(5)
+        fs.getRemainingUnansweredQuestionCount must beEqualTo(4)
       })
     }
 
@@ -94,7 +93,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
         val fs = new MemberBackedFactSet(m.right.get,4,2)
         val questions = fs.getNextQuestions.get
         fs.answerQuestions(List(Answer("badAnswer",questions.questions.head)))
-        fs.getRemainingUnansweredQuestionCount must beEqualTo(4)
+        fs.getRemainingUnansweredQuestionCount must beEqualTo(3)
       })
     }
 
@@ -196,7 +195,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
         while(fs.canComplete & isNotFinished) {
           fs.getNextQuestions match {
             case Some(a) => {a.category match {
-                              case "sendSMSToken" => isFound = true
+                              case QuestionSetType.TokenSMS => isFound = true
                               case _ => Nil
                              }
                              a.questions.map(q => {
@@ -242,7 +241,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
         while(fs.canComplete & isNotFinished) {
           fs.getNextQuestions match {
             case Some(a) => {a.category match {
-              case "sendSMSToken" => isFound = true
+              case QuestionSetType.TokenSMS => isFound = true
               case _ => Nil
             }
               a.questions.map(q => {
@@ -259,6 +258,34 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
           }
         }
         !isFound
+      })
+    }
+
+    "for a given factSet, a choice should only be allowed to be made once" in {
+       inSession({
+        val fp = createFixture(Map("1" -> Member(
+          Person("testSurname",
+                 "testFirstName",
+                 new Date(),
+                 27,
+                 "testFullName",
+                 Some("Senor"),
+                 Some("87654321")),
+          Nil,
+          List(EmailAddress("Internet",
+                            "blah@blah.com",
+                            true,
+                            new Date(),
+                            new Date(),
+                            None)))))
+        val m = fp.getFacts("1")
+        val fs: FactSet = new MemberBackedFactSet(m.right.get,2,4)
+
+        fs.setChoice(WorkflowTypeChoice.EmailAndQuestions)
+        val firstCount = fs.getRemainingUnansweredQuestionCount
+        fs.setChoice(WorkflowTypeChoice.QuestionsOnly)
+        val secondCount = fs.getRemainingUnansweredQuestionCount
+        firstCount == secondCount
       })
     }
 
@@ -287,7 +314,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
         while(fs.canComplete & isNotFinished) {
           fs.getNextQuestions match {
             case Some(a) => {a.category match {
-              case "sendEmailToken" => isFound = true
+              case QuestionSetType.TokenEmail => isFound = true
               case _ => Nil
             }
               a.questions.map(q => {
