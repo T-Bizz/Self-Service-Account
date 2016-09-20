@@ -39,8 +39,10 @@ class PushActor extends CometActor with CometListener with SinglePageAppView {
         if q.isInstanceOf[TokenQuestion]
       } yield {
         fs.answerQuestions(List(Answer(t,q)))
-        val jsCmd:JsCmd = showModalError(?("token-received-title"),?("token-received-successfully")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
-        println("sending jsCmd: %s".format(jsCmd))
+        val jsCmd:JsCmd = fs.canComplete match {
+          case true => showModalError(?("token-received-title"),?("token-received-successfully")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+          case false => showModalError(?("token-received-title"),?("token-received-error")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+        }
         partialUpdate(jsCmd)
       }
     }
