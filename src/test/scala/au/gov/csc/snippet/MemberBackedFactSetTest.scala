@@ -4,6 +4,7 @@ package au.gov.csc.snippet
   */
 import org.specs2._
 import java.util.Date
+import scala.xml._
 
 trait SHelpers {
   import net.liftweb.http._
@@ -378,5 +379,50 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
       })
     }
 
+  }
+  "TokenQuestion" should {
+    def createFixture(tokenGenerate:()=>String,onTokenGenerate:String=>Unit) = {
+      new TokenQuestion(QuestionSetType.TokenEmail,NodeSeq.Empty,NodeSeq.Empty,"","",false,0,Left(EmailAddress("","test@test",true,new Date(),new Date(),None))){
+        override protected val tokenGenerator = new TokenGenerator(){
+          override def generateToken:String = tokenGenerate()
+        }
+        override protected val tokenSender = new MockTokenSender(){
+          override def send(target:Either[EmailAddress,PhoneNumber],token:String):Option[Exception] = {
+            onTokenGenerate(token)
+            super.send(target,token)
+  }
+        }
+      }
+    }
+    "generate a token when asked" in {
+      var sentToken = ""
+      val tq = createFixture(() => "testToken",(t:String) => sentToken = t)
+      val firstState = sentToken
+      tq.ask
+      firstState == "" && sentToken == "testToken"
+    }
+    "fail to check when not asked" in {
+      val tq = createFixture(() => "testToken",(t:String) => {})
+      !tq.check(Answer("testToken",tq))
+    }
+    "check successfully against the generated token" in {
+      var sentToken = ""
+      val tq = createFixture(() => "testToken",(t:String) => sentToken = t)
+      tq.ask
+      tq.check(Answer(sentToken,tq))
+    }
+    "fail check when a previous token is provided to answer" in {
+      var sentToken = ""
+      var tokenCount = 0
+      val tq = createFixture(() => {
+        tokenCount += 1
+        "testToken_%s".format(tokenCount)
+      },(t:String) => sentToken = t)
+      tq.ask
+      val firstState = sentToken
+      tq.ask
+      val secondState = sentToken
+      !tq.check(Answer(firstState,tq)) && tq.check(Answer(secondState,tq))
+    }
   }
 }
