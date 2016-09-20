@@ -177,12 +177,16 @@ class singlePageApp extends Logger with DetectScheme {
           }
         }} &
         ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"),(_s:String) => {
-          currentChoice.map(choice => {
-            factSet.setChoice(choice)
-            SetHtml(contentAreaId, generateCurrentPageNodeSeq)
-          }).getOrElse({
-            showModalError(?("error-title"), ?("no-verification-method-chosen"))
-          })
+          if (factSet.getHasChosen){
+             showModalError(?("error-title"),?("already-chosen")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+          } else {
+            currentChoice.map(choice => {
+              factSet.setChoice(choice)
+              SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+            }).getOrElse({
+              showModalError(?("error-title"), ?("no-verification-method-chosen"))
+            })
+          }
         }) &
         startOver(".btn-reset [onclick]", "/")
       ).apply(template)
