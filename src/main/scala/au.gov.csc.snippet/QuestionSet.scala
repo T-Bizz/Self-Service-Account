@@ -42,11 +42,6 @@ case class StringQuestion(override val category: QuestionSetType.Value,
                        mustBeCorrect,
                        order) {
 
-  override def getValidationErrors(answer:String): Seq[String] = answer match {
-    case s if s.length < 1 => List("answer cannot be empty")
-    case other => Nil
-  }
-
   override def check(answer:Answer): Boolean =
     answer.value.toLowerCase == correctAnswer.toLowerCase
 }
@@ -70,8 +65,6 @@ case class NumberQuestion(override val category: QuestionSetType.Value,
   def isNumeric(input: String): Boolean =
     input.forall(_.isDigit)
 
-  override def getValidationErrors(answer:String): Seq[String] = Nil
-
   override def check(answer:Answer):Boolean =
     answer.value == correctAnswer
 }
@@ -92,8 +85,6 @@ case class EmailQuestion(override val category: QuestionSetType.Value,
                        mustBeCorrect,
                        order) {
 
-  override def getValidationErrors(answer:String): Seq[String] = Nil
-
   override def check(answer:Answer):Boolean =
     answer.value.toLowerCase == correctAnswer.toLowerCase
 }
@@ -102,8 +93,8 @@ object TokenGenerator extends TokenGenerator
 class TokenGenerator {
   import net.liftweb.util.Helpers._
   def generateToken:String = {
-    nextFuncName
-    //"012345"
+    //nextFuncName
+    "012345"
   }
 }
 
