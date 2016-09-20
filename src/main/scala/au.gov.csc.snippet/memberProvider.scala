@@ -63,6 +63,60 @@ class MockMemberProvider extends MemberProvider {
 
   val MemberNotFoundException = new Exception("member not found")
   val memberFacts = Map(
+    "75431657" -> Member(
+      Person(
+        "Smith",
+        "John",
+        new Date(),
+        21,
+        "John Smith",
+        Some("Mr"),
+        Some("87654321")
+      ),
+      List(
+        Membership("75431657",
+          "CSS",
+          "Preserved",
+          new Date(),
+          None,
+          Some(new Date())),
+        Membership("77929551",
+          "CSS",
+          "Subsumed",
+          new Date(),
+          Some(new Date()),
+          Some(new Date()))
+      ),
+      List(
+        PhoneNumber(
+          "mobile",
+          "11111111",
+          "22222222",
+          true,
+          new Date(),
+          new Date(),
+          Some(new Date())
+        ),
+        EmailAddress(
+          "internet",
+          "tom@tom.com",
+          true,
+          new Date(),
+          new Date(),
+          Some(new Date())),
+        Address(
+          "Residential",
+          "Unit 4, Chandler St Belconnen",
+          "",
+          "",
+          "Canberra",
+          "ACT",
+          "Australia",
+          "2917",
+          true)
+      )
+    ),
+
     "77929555" -> Member(
       Person(
         "Smith",

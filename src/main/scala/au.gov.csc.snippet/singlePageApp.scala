@@ -79,24 +79,28 @@ class singlePageApp extends Logger with DetectScheme {
         }
       }) &
     ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"),(_s:String) => {
-      serviceNumber.is.map(s => {
-        new MshpNumber(serviceNumber.is.getOrElse("")).isValid match {
-          case true => factProvider.getFacts(s) match {
-            case Right(member) => {
-              try {
-                currentFactSet(Some(new MemberBackedFactSet(member, SessionState.minimumCorrectAnswers, SessionState.pageSize)))
-              } catch {
-                case e:Exception => println("exception: %s\r\n%s".format(e.getMessage,e.getStackTraceString))
+      if (currentFactSet.is.isDefined){
+        showModalError(?("error-title-invalid-data"), ?("membership-number-already-provided")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+      } else {
+        serviceNumber.is.map(s => {
+          new MshpNumber(serviceNumber.is.getOrElse("")).isValid match {
+            case true => factProvider.getFacts(s) match {
+              case Right(member) => {
+                try {
+                  currentFactSet(Some(new MemberBackedFactSet(member, SessionState.minimumCorrectAnswers, SessionState.pageSize)))
+                } catch {
+                  case e:Exception => println("exception: %s\r\n%s".format(e.getMessage,e.getStackTraceString))
+                }
+                SetHtml(contentAreaId, generateCurrentPageNodeSeq)
               }
-              SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+              case Left(e) => {
+                showModalError(?("error-title"), ?(e.getMessage))
+              }
             }
-            case Left(e) => {
-              showModalError(?("error-title"), ?(e.getMessage))
-            }
+            case false => showModalError(?("error-title-invalid-data"), ?("invalid-nembership-number-provided"))
           }
-          case false => showModalError(?("error-title-invalid-data"), ?("invalid-nembership-number-provided"))
-        }
-      }).getOrElse(showModalError(?("error-title-missing-data"), ?("no-membership-number-provided")))
+        }).getOrElse(showModalError(?("error-title-missing-data"), ?("no-membership-number-provided")))
+      }
     })
     ).apply(t)
   }).openOr(NodeSeq.Empty)
@@ -178,7 +182,7 @@ class singlePageApp extends Logger with DetectScheme {
         }} &
         ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"),(_s:String) => {
           if (factSet.getHasChosen){
-             showModalError(?("error-title"),?("already-chosen")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+             showModalError(?("error-title"),?("workflow-already-chosen")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
           } else {
             currentChoice.map(choice => {
               factSet.setChoice(choice)
