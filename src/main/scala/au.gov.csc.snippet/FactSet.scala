@@ -3,6 +3,7 @@ package au.gov.csc.snippet
 import java.util.Date
 
 import scala.xml.{NodeSeq,Text}
+import net.liftweb.util.Helpers._
 
 trait FactProvider {
 
@@ -23,7 +24,7 @@ class MockFactProvider extends FactProvider {
 }
 
 trait FactSet{
-
+  val factSetId:String = nextFuncName
   def getHasChosen:Boolean
   def getChoices: Seq[WorkflowTypeChoice.Value]
   def setChoice(choice:WorkflowTypeChoice.Value)

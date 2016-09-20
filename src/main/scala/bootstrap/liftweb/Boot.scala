@@ -7,6 +7,8 @@ import net.liftweb.sitemap.{Menu, SiteMap}
 
 import scala.collection.immutable.::
 
+import au.gov.csc.comet.{PushActorManager,TokenMessage}
+
 class Boot {
 
   def boot {
@@ -19,6 +21,13 @@ class Boot {
       JE.JsRaw("$('input[type=\"submit\"]').prop('disabled', true);").cmd)
     LiftRules.ajaxEnd = Full( () => LiftRules.jsArtifacts.hide("ajax-spinner").cmd &
       JE.JsRaw("$('input[type=\"submit\"]').prop('disabled', false);").cmd)
+
+    LiftRules.statelessDispatch.append {
+      case r@Req("token" :: sessionIdentifier :: token :: Nil,_,_) => () => {
+        PushActorManager ! TokenMessage(sessionIdentifier,token) 
+        Full(PlainTextResponse("token received"))
+      }
+    }
 
     // Map params to a pretty URL
     LiftRules.statelessRewrite.append {

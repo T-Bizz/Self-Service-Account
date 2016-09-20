@@ -18,8 +18,7 @@ object currentFactSet extends SessionVar[Option[FactSet]](None)
 object currentAccountDetails extends SessionVar[Option[AccountDefinition]](None)
 object currentStage extends SessionVar[Option[StageTypeChoice]](None)
 
-class singlePageApp extends Logger with DetectScheme {
-
+trait SinglePageAppView extends DetectScheme {
   protected def ?(key: String): String = {
     // get configured string for scheme or use the default configured string
     var out = S ? "%s%s".format(key, Scheme.is.map(s => "-%s".format(s._1)).getOrElse(""))
@@ -61,8 +60,11 @@ class singlePageApp extends Logger with DetectScheme {
     }).openOr(NodeSeq.Empty)
   }
 
+  def safetyForJs(input:String):String = {
+    encJs(input)
+  }
   def showModalError(errorTitle: String, errorMessage: String): JsCmd = {
-    JsRaw("jQuery('.modal-error .modal-title-text').html('%s'); jQuery('.modal-error .modal-text').html('%s'); jQuery('.modal-error').modal('show');".format(errorTitle, errorMessage))
+    JsRaw("jQuery('.modal-error .modal-title-text').html('%s'); jQuery('.modal-error .modal-text').html('%s'); jQuery('.modal-error').modal('show');".format(safetyForJs(errorTitle), safetyForJs(errorMessage)))
   }
 
   def askForMemberNumber: NodeSeq = Templates(List("ajax-templates-hidden","AskForMemberNumber")).map(t => {
@@ -243,7 +245,7 @@ class singlePageApp extends Logger with DetectScheme {
                 }
               }
               val askQuestionFunc = (_unused:String) => {
-                question.ask
+                question.ask(factSet)
                 showModalError(?("token-sent-title"), ?("token-sent-description"))
               }
               val questionTemplate = question match {
@@ -335,7 +337,9 @@ class singlePageApp extends Logger with DetectScheme {
       RedirectTo(redirect)
     })
   }
+}
 
+class singlePageApp extends Logger with SinglePageAppView {
   def render = {
     "#%s *".format(contentAreaId) #> {generateCurrentPageNodeSeq}
   }

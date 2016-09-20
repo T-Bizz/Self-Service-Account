@@ -48,19 +48,40 @@ trait SHelpers {
 }
 
 class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHelpers {
-  def createFixture(members:Map[String,Member]):FactProvider = {
+  def createFactSetFixture(members:Map[String,Member] = Map("1" -> Member(Person("testSurname",
+                                                               "testFirstName",
+                                                               new Date(),
+                                                               27,
+                                                               "testFullName",
+                                                               Some("Senor"),
+                                                               Some("77929555")),
+                                                               Nil,
+                                                               Nil))):FactProvider = {
     new MockFactProvider(){
       override val mockMemberProvider = new MockMemberProvider(){
         override val memberFacts = members
 
       }
     }
-
   }
+  def createTokenQuestionFixture(tokenGenerate:()=>String,onTokenGenerate:String=>Unit):Tuple2[FactSet,TokenQuestion] = {
+    (new MemberBackedFactSet(createFactSetFixture().getFacts("1").right.get,1,1),new TokenQuestion(QuestionSetType.TokenEmail,NodeSeq.Empty,NodeSeq.Empty,"","",false,0,Left(EmailAddress("","test@test",true,new Date(),new Date(),None))){
+      override protected val tokenGenerator = new TokenGenerator(){
+        override def generateToken:String = tokenGenerate()
+      }
+      override protected val tokenSender = new MockTokenSender(){
+        override def send(target:Either[EmailAddress,PhoneNumber],token:String,factSet:FactSet):Option[Exception] = {
+          onTokenGenerate(token)
+          super.send(target,token,factSet)
+}
+      }
+    })
+  }
+
   "memberBackedFactSet" should {
     "accept a member" in {
       inSession({
-        val fp = createFixture(Map("77929555" -> Member(Person("testSurname",
+        val fp = createFactSetFixture(Map("77929555" -> Member(Person("testSurname",
                                                                "testFirstName",
                                                                new Date(),
                                                                27,
@@ -81,7 +102,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
 
     "remove an answered question" in {
       inSession({
-        val fp = createFixture(Map("1" -> Member(Person("testSurname",
+        val fp = createFactSetFixture(Map("1" -> Member(Person("testSurname",
                                                         "testFirstName",
                                                         new Date(),
                                                         27,
@@ -100,7 +121,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
     }
     "accept a correct answer to a questionSet which requires only 1 answer, and mark as completed successfully" in {
       inSession({
-        val fp = createFixture(Map("1" -> Member(Person("testSurname",
+        val fp = createFactSetFixture(Map("1" -> Member(Person("testSurname",
                                                         "testFirstName",
                                                         new Date(),
                                                         27,
@@ -121,7 +142,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
     }
     "not accept a second correct answer to a question already answered incorrectly" in {
       inSession({
-        val fp = createFixture(Map("1" -> Member(Person("testSurname",
+        val fp = createFactSetFixture(Map("1" -> Member(Person("testSurname",
                                                         "testFirstName",
                                                         new Date(),
                                                         27,
@@ -144,7 +165,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
 
     "show two questions when set with a 2 question pagesize" in {
       inSession({
-        val fp = createFixture(Map("1" -> Member(Person("testSurname",
+        val fp = createFactSetFixture(Map("1" -> Member(Person("testSurname",
                                                         "testFirstName",
                                                         new Date(),
                                                         27,
@@ -164,7 +185,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
 
     "mark as completed when 2 questions have been correctly answered, and 2 correct answers are required" in {
       inSession({
-        val fp = createFixture(Map("1" -> Member(Person("testSurname",
+        val fp = createFactSetFixture(Map("1" -> Member(Person("testSurname",
                                                         "testFirstName",
                                                         new Date(),
                                                         27,
@@ -193,7 +214,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
 
     "not mark as complete, when 2 questions have been answered, and 2 correct answers are required, but the answers were not both correct" in {
       inSession({
-        val fp = createFixture(Map("1" -> Member(Person("testSurname",
+        val fp = createFactSetFixture(Map("1" -> Member(Person("testSurname",
           "testFirstName",
           new Date(),
           27,
@@ -216,7 +237,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
 
     "no SMS token option when member has no mobile number" in {
       inSession({
-        val fp = createFixture(Map("1" -> Member(
+        val fp = createFactSetFixture(Map("1" -> Member(
           Person("testSurname",
                  "testFirstName",
                  new Date(),
@@ -262,7 +283,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
 
     "include SMS token option question when member has a mobile number" in {
       inSession({
-        val fp = createFixture(Map("1" -> Member(
+        val fp = createFactSetFixture(Map("1" -> Member(
           Person("testSurname",
             "testFirstName",
             new Date(),
@@ -308,7 +329,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
 
     "for a given factSet, a choice should only be allowed to be made once" in {
        inSession({
-        val fp = createFixture(Map("1" -> Member(
+        val fp = createFactSetFixture(Map("1" -> Member(
           Person("testSurname",
                  "testFirstName",
                  new Date(),
@@ -336,7 +357,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
 
     "no Email token option when member has no Email Address" in {
       inSession({
-        val fp = createFixture(Map("1" -> Member(
+        val fp = createFactSetFixture(Map("1" -> Member(
           Person("testSurname",
                  "testFirstName",
                  new Date(),
@@ -381,48 +402,43 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
 
   }
   "TokenQuestion" should {
-    def createFixture(tokenGenerate:()=>String,onTokenGenerate:String=>Unit) = {
-      new TokenQuestion(QuestionSetType.TokenEmail,NodeSeq.Empty,NodeSeq.Empty,"","",false,0,Left(EmailAddress("","test@test",true,new Date(),new Date(),None))){
-        override protected val tokenGenerator = new TokenGenerator(){
-          override def generateToken:String = tokenGenerate()
-        }
-        override protected val tokenSender = new MockTokenSender(){
-          override def send(target:Either[EmailAddress,PhoneNumber],token:String):Option[Exception] = {
-            onTokenGenerate(token)
-            super.send(target,token)
-  }
-        }
-      }
-    }
     "generate a token when asked" in {
-      var sentToken = ""
-      val tq = createFixture(() => "testToken",(t:String) => sentToken = t)
-      val firstState = sentToken
-      tq.ask
-      firstState == "" && sentToken == "testToken"
+      inSession({
+        var sentToken = ""
+        val (fs,tq) = createTokenQuestionFixture(() => "testToken",(t:String) => sentToken = t)
+        val firstState = sentToken
+        tq.ask(fs)
+        firstState == "" && sentToken == "testToken"
+      })
     }
     "fail to check when not asked" in {
-      val tq = createFixture(() => "testToken",(t:String) => {})
-      !tq.check(Answer("testToken",tq))
+      inSession({
+        val (fs,tq) = createTokenQuestionFixture(() => "testToken",(t:String) => {})
+        !tq.check(Answer("testToken",tq))
+      })
     }
     "check successfully against the generated token" in {
-      var sentToken = ""
-      val tq = createFixture(() => "testToken",(t:String) => sentToken = t)
-      tq.ask
-      tq.check(Answer(sentToken,tq))
+      inSession({
+        var sentToken = ""
+        val (fs,tq) = createTokenQuestionFixture(() => "testToken",(t:String) => sentToken = t)
+        tq.ask(fs)
+        tq.check(Answer(sentToken,tq))
+      })
     }
     "fail check when a previous token is provided to answer" in {
-      var sentToken = ""
-      var tokenCount = 0
-      val tq = createFixture(() => {
-        tokenCount += 1
-        "testToken_%s".format(tokenCount)
-      },(t:String) => sentToken = t)
-      tq.ask
-      val firstState = sentToken
-      tq.ask
-      val secondState = sentToken
-      !tq.check(Answer(firstState,tq)) && tq.check(Answer(secondState,tq))
+      inSession({
+        var sentToken = ""
+        var tokenCount = 0
+        val (fs,tq) = createTokenQuestionFixture(() => {
+          tokenCount += 1
+          "testToken_%s".format(tokenCount)
+        },(t:String) => sentToken = t)
+        tq.ask(fs)
+        val firstState = sentToken
+        tq.ask(fs)
+        val secondState = sentToken
+        !tq.check(Answer(firstState,tq)) && tq.check(Answer(secondState,tq))
+      })
     }
   }
 }

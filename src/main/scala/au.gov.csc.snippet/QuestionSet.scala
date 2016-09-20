@@ -19,7 +19,7 @@ class QuestionBase(val category: QuestionSetType.Value,
                    val order: Int) {
 
   def getValidationErrors(answer: String): Seq[String] = Nil
-  def ask:Unit = {}
+  def ask(factSet:FactSet):Unit = {}
   def check(answer: Answer):Boolean = false
 }
 
@@ -133,10 +133,10 @@ class TokenQuestion(override val category: QuestionSetType.Value,
   var correctAnswer:Option[String] = None
   protected val tokenSender = SessionState.tokenSender
   protected val tokenGenerator:TokenGenerator = TokenGenerator
-  override def ask:Unit = {
+  override def ask(fs:FactSet):Unit = {
     var ca = tokenGenerator.generateToken
     correctAnswer = Some(ca)
-    tokenSender.send(target,ca)
+    tokenSender.send(target,ca,fs)
   }
 
   override def getValidationErrors(answer:String): Seq[String] = answer match {
