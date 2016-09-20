@@ -2,6 +2,7 @@ package au.gov.csc.snippet
 
 import java.util.Date
 import scala.xml.{NodeSeq,Text}
+import au.gov.csc.SessionState
 
 case class QuestionSet(category: QuestionSetType.Value,
                        title: NodeSeq,
@@ -18,7 +19,7 @@ class QuestionBase(val category: QuestionSetType.Value,
                    val order: Int) {
 
   def getValidationErrors(answer: String): Seq[String] = Nil
-
+  def ask:Unit = {}
   def check(answer: Answer):Boolean = false
 }
 
@@ -122,6 +123,10 @@ case class TokenQuestion(override val category: QuestionSetType.Value,
                        order) {
 
   val correctAnswer = TokenGenerator.generateToken
+  protected val tokenSender = SessionState.tokenSender
+  override def ask:Unit = {
+    tokenSender.send(target,correctAnswer)
+  }
 
   override def getValidationErrors(answer:String): Seq[String] = answer match {
     case s if s.length < 1 => List("answer cannot be empty")

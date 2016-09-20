@@ -29,7 +29,7 @@ class singlePageApp extends Logger with DetectScheme {
   }
 
   val contentAreaId = "step-form"
-  protected var factProvider = SessionState.userProvider
+  protected val factProvider = SessionState.userProvider
 
   def getCurrentStageJs(s:String): String = {
     "setStage($, '%s');".format(s)
