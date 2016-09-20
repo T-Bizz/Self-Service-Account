@@ -217,7 +217,7 @@ class singlePageApp extends Logger with DetectScheme {
     factSet.getNextQuestions match {
       case Some(questionSet) => {
         var potentialAnswers:List[Answer] = Nil
-        Templates(List("ajax-templates-hidden","QuestionSet")).map(qst => {(
+        Templates(List("ajax-templates-hidden", "QuestionSet")).map(qst => {(
           ".question-set-header *" #> questionSet.title &
             ".question-set-footer *" #> questionSet.footer &
             ".questions *" #> questionSet.questions.toList.foldLeft(NodeSeq.Empty)((acc, question) => {
@@ -256,8 +256,16 @@ class singlePageApp extends Logger with DetectScheme {
                   ).apply(qt))
               }).openOr(NodeSeq.Empty)
             }) &
-            ".question-set-heading-description *" #> Text(?("question-set-heading-description")) &
-            ".question-set-heading-contact-cic *" #> Text(?("question-set-heading-contact-cic")) &
+            (questionSet.category match {
+              case QuestionSetType.TokenEmail | QuestionSetType.TokenSMS => {
+                ".question-set-heading-description *" #> Text(?("question-set-token-heading-description")) &
+                  ".question-set-heading-contact-cic *" #> Text(?("question-set-token-heading-contact-cic"))
+              }
+              case _ => {
+                ".question-set-heading-description *" #> Text(?("question-set-heading-description")) &
+                  ".question-set-heading-contact-cic *" #> Text(?("question-set-heading-contact-cic"))
+              }
+            }) &
             ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
               factSet.answerQuestions(potentialAnswers)
               SetHtml(contentAreaId, generateCurrentPageNodeSeq)

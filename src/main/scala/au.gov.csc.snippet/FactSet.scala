@@ -53,9 +53,10 @@ class MemberBackedFactSet(member:Member,
 
   protected val questionSets: List[QuestionSet] = {
     List(
-      QuestionSet("personal",Text(?("hygine-questions-title")),
+      QuestionSet(QuestionSetType.Hygiene,
+                  Text(?("hygine-questions-title")),
         List(
-          StringQuestion("personal",
+          StringQuestion(QuestionSetType.Hygiene,
                          Text(?("hygine-first-name-question")),
                          Text(?("hygine-first-name-help-text")),
                          ?("hygine-first-name-placeholder"),
@@ -63,7 +64,7 @@ class MemberBackedFactSet(member:Member,
                          false,
                          0,
                          member.person.firstName),
-          StringQuestion("personal",
+          StringQuestion(QuestionSetType.Hygiene,
                          Text(?("hygine-surname-question")),
                          Text(?("hygine-surname-help-text")),
                          ?("hygine-surname-placeholder"),
@@ -71,7 +72,7 @@ class MemberBackedFactSet(member:Member,
                          false,
                          1,
                          member.person.surname),
-          NumberQuestion("personal",
+          NumberQuestion(QuestionSetType.Hygiene,
                          Text(?("hygine-age-question")),
                          Text(?("hygine-age-help-text")),
                          ?("hygine-age-placeholder"),
@@ -80,7 +81,7 @@ class MemberBackedFactSet(member:Member,
                          2,
                          member.person.age.toString)
         ) ::: member.person.tfn.toList.map(t =>
-          NumberQuestion("personal",
+          NumberQuestion(QuestionSetType.Hygiene,
                          Text(?("hygine-tfn-question")),
                          Text(?("hygine-tfn-help-text")),
                          ?("hygine-tfn-placeholder"),
@@ -92,13 +93,11 @@ class MemberBackedFactSet(member:Member,
       1,
       Some(Text(?("hygine-questions-footer"))))
     ) ::: member.memberships.toList.map(m => {
-      val mid = "membership_%s".format(m.membershipNumber)
-
-      QuestionSet(mid,
+      QuestionSet(QuestionSetType.CurrentMembership,
                   Text(?("membership-questions-title") + " %s".format(m.membershipNumber)),
                   List(
                     DateQuestion(
-                      mid,
+                      QuestionSetType.CurrentMembership,
                       Text(?("membership-join-date-help-text")),
                       Text(?("membership-join-date-question")),
                       ?("membership-join-date-placeholder"),
@@ -107,7 +106,7 @@ class MemberBackedFactSet(member:Member,
                       2,
                       m.joinDate),
                     StringQuestion(
-                      mid,
+                      QuestionSetType.CurrentMembership,
                       Text(?("membership-status-question")),
                       Text(?("membership-status-help-text")),
                       ?("membership-status-placeholder"),
@@ -117,7 +116,7 @@ class MemberBackedFactSet(member:Member,
                       m.status)
                   ) ::: m.exitDate.toList.map(ed => {
                     DateQuestion(
-                      mid,
+                      QuestionSetType.CurrentMembership,
                       Text(?("membership-exit-date-question")),
                       Text(?("membership-exit-help-text")),
                       ?("membership-exit-date-placeholder"),
@@ -130,11 +129,11 @@ class MemberBackedFactSet(member:Member,
       Some(Text(?("membership-questions-footer"))))
     }) ::: (member.contactDetails.toList.flatMap {
       case e: EmailAddress =>
-        List(QuestionSet("sendEmailToken",
+        List(QuestionSet(QuestionSetType.TokenEmail,
                          Text(?("token-email-title")),
                          List(
                            TokenQuestion(
-                             "sendEmailToken",
+                             QuestionSetType.TokenEmail,
                              Text(?("token-email-question")),
                              Text(?("token-email-help-text")),
                              ?("token-email-placeholder"),
@@ -146,11 +145,11 @@ class MemberBackedFactSet(member:Member,
                          0,
                          Some(Text(?("token-email-footer")))))
       case e: PhoneNumber if e.kind == "mobile" =>
-        List(QuestionSet("sendSMSToken",
+        List(QuestionSet(QuestionSetType.TokenSMS,
                          Text(?("token-sms-title")),
                          List(
                            TokenQuestion(
-                             "sendSMSToken",
+                             QuestionSetType.TokenSMS,
                              Text(?("token-sms-question")),
                              Text(?("token-sms-help-text")),
                              ?("token-sms-placeholder"),
@@ -164,13 +163,13 @@ class MemberBackedFactSet(member:Member,
       case _ => Nil
     }) ::: List(
       QuestionSet(
-        "contactDetails",
+        QuestionSetType.ContactDetails,
           Text(?("contact-details-questions-title")),
           member.contactDetails.flatMap{
             case cd:PhoneNumber => {
               List(
                 StringQuestion(
-                  "contactDetails",
+                  QuestionSetType.ContactDetails,
                   Text(?("contact-details-phone-number-question")),
                   Text(?("contact-details-phone-number-help-text")),
                   ?("contact-details-phone-number-placeholder"),
@@ -183,7 +182,7 @@ class MemberBackedFactSet(member:Member,
             case cd:Address => {
               List(
                 StringQuestion(
-                  "contactDetails",
+                  QuestionSetType.ContactDetails,
                   Text(?("contact-details-post-code-question")),
                   Text(?("Provide your postcode for your current address")),
                   ?("contact-details-post-code-placeholder"),
@@ -192,7 +191,7 @@ class MemberBackedFactSet(member:Member,
                   0,
                   cd.postCode),
                 StringQuestion(
-                  "contactDetails",
+                  QuestionSetType.ContactDetails,
                   Text(?("contact-details-suburb-question")),
                   Text(?("contact-details-suburb-help-text")),
                   ?("contact-details-suburb-placeholder"),
@@ -201,7 +200,7 @@ class MemberBackedFactSet(member:Member,
                   0,
                   cd.city),
                 StringQuestion(
-                  "contactDetails",
+                  QuestionSetType.ContactDetails,
                   Text(?("contact-details-state-question")),
                   Text(?("contact-details-state-help-text")),
                   ?("contact-details-state-placeholder"),
@@ -286,12 +285,12 @@ class MemberBackedFactSet(member:Member,
         qs => questionSets.find(_.category == kv._1).map(questionSet => questionSet.copy(questions = qs))
     ).filter(
       qs => qs.category match {
-        case "sendEmailToken" => chosenWorkflowType match
+        case QuestionSetType.TokenEmail => chosenWorkflowType match
         {
           case Some(EmailAndQuestions) => true
           case _ => false
         }
-        case "sendSMSToken" => chosenWorkflowType match
+        case QuestionSetType.TokenSMS => chosenWorkflowType match
         {
           case Some(SmsAndQuestions) => true
           case _ => false

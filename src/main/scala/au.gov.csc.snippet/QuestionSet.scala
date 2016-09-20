@@ -1,10 +1,15 @@
 package au.gov.csc.snippet
 
 import java.util.Date
-
 import scala.xml.{NodeSeq,Text}
 
-class QuestionBase(val category: String,
+case class QuestionSet(category: QuestionSetType.Value,
+                       title: NodeSeq,
+                       questions: Seq[QuestionBase],
+                       order: Int,
+                       footer: Option[NodeSeq])
+
+class QuestionBase(val category: QuestionSetType.Value,
                    val title: NodeSeq,
                    val helpText: NodeSeq,
                    val placeHolder: String,
@@ -20,13 +25,7 @@ class QuestionBase(val category: String,
 case class Answer(value: String,
                   question: QuestionBase)
 
-case class QuestionSet(category: String,
-                       title: NodeSeq,
-                       questions: Seq[QuestionBase],
-                       order: Int,
-                       footer: Option[NodeSeq])
-
-case class StringQuestion(override val category: String,
+case class StringQuestion(override val category: QuestionSetType.Value,
                           override val title: NodeSeq,
                           override val helpText: NodeSeq,
                           override val placeHolder: String,
@@ -51,7 +50,7 @@ case class StringQuestion(override val category: String,
     answer.value.toLowerCase == correctAnswer.toLowerCase
 }
 
-case class NumberQuestion(override val category: String,
+case class NumberQuestion(override val category: QuestionSetType.Value,
                           override val title: NodeSeq,
                           override val helpText: NodeSeq,
                           override val placeHolder: String,
@@ -76,7 +75,7 @@ case class NumberQuestion(override val category: String,
     answer.value == correctAnswer
 }
 
-case class EmailQuestion(override val category: String,
+case class EmailQuestion(override val category: QuestionSetType.Value,
                          override val title:NodeSeq,
                          override val helpText:NodeSeq,
                          override val placeHolder:String,
@@ -106,7 +105,7 @@ object TokenGenerator {
   }
 }
 
-case class TokenQuestion(override val category: String,
+case class TokenQuestion(override val category: QuestionSetType.Value,
                          override val title:NodeSeq,
                          override val helpText:NodeSeq,
                          override val placeHolder:String,
@@ -133,7 +132,7 @@ case class TokenQuestion(override val category: String,
     answer.value.toLowerCase == correctAnswer.toLowerCase
 }
 
-case class DateQuestion(override val category: String,
+case class DateQuestion(override val category: QuestionSetType.Value,
                         override val title: NodeSeq,
                         override val helpText: NodeSeq,
                         override val placeHolder: String,
