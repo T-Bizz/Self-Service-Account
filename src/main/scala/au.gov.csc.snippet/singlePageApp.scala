@@ -61,10 +61,15 @@ trait SinglePageAppView extends DetectScheme {
   }
 
   def safetyForJs(input:String):String = {
-    encJs(input)
+    input.replace('"', '\'')
   }
-  def showModalError(errorTitle: String, errorMessage: String): JsCmd = {
-    JsRaw("jQuery('.modal-error .modal-title-text').html('%s'); jQuery('.modal-error .modal-text').html('%s'); jQuery('.modal-error').modal('show');".format(safetyForJs(errorTitle), safetyForJs(errorMessage)))
+
+  def showModalError(title: String, message: String): JsCmd = {
+    JsRaw("jQuery(\".modal-error .modal-title-text\").html(\"%s\"); jQuery(\".modal-error .modal-text\").html(\"%s\"); jQuery(\".modal-error\").modal(\"show\");".format(safetyForJs(title), safetyForJs(message)))
+  }
+
+  def showModal(title: String, message: String): JsCmd = {
+    JsRaw("jQuery(\".modal-general .modal-title-text\").html(\"%s\"); jQuery(\".modal-general .modal-text\").html(\"%s\"); jQuery(\".modal-general\").modal(\"show\");".format(safetyForJs(title), safetyForJs(message)))
   }
 
   def askForMemberNumber: NodeSeq = Templates(List("ajax-templates-hidden","AskForMemberNumber")).map(t => {
@@ -246,7 +251,7 @@ trait SinglePageAppView extends DetectScheme {
               }
               val askQuestionFunc = (_unused:String) => {
                 question.ask(factSet)
-                showModalError(?("token-sent-title"), ?("token-sent-description"))
+                showModal(?("token-sent-title"), ?("token-sent-description"))
               }
               val questionTemplate = question match {
                 case d: DateQuestion => Templates(List("ajax-templates-hidden", "DateQuestion"))
