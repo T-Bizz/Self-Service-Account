@@ -71,6 +71,10 @@ trait SinglePageAppView extends DetectScheme {
     JsRaw("jQuery(\".modal-general .modal-title-text\").html(\"%s\"); jQuery(\".modal-general .modal-text\").html(\"%s\"); jQuery(\".modal-general\").modal(\"show\");".format(safetyForJs(title), safetyForJs(message)))
   }
 
+  def focusFirstInputField: JsCmd = {
+    JsRaw("jQuery(\"#%s\").find('*').filter(':input:visible:first');".format(contentAreaId))
+  }
+
   def askForMemberNumber: NodeSeq = Templates(List("ajax-templates-hidden", "AskForMemberNumber")).map(t => {
     currentStage(Some(Identify))
     (".header-title *" #> ?("identify-header") &
@@ -326,7 +330,7 @@ trait SinglePageAppView extends DetectScheme {
       ".btn-login-text *" #> ?("btn-login-text") &
       startOver(".btn-restart [onclick]", "/") &
       startOver()).apply(node)
-  } ++ Script(setCurrentStage)
+  } ++ Script(setCurrentStage) ++ Script(focusFirstInputField)
 
   def startOver(
     csssel: String = ".btn-reset [onclick]",
