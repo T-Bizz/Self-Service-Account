@@ -1,47 +1,35 @@
 <configuration>
 	<tokenProvider>
-		<!--
-		<stableMockTokenProvider token="01235"/>
-		<nextFuncNameTokenProvider/>
--->
+		<!--<stableMockTokenProvider token="01235"/><nextFuncNameTokenProvider/>-->
 		<randomStringTokenProvider length="8" permittedChars="012356789abcdef"/>
 	</tokenProvider>
 	<tokenSender>
 		<mockTokenSender/>
-		<!--
-		<compoundProvider>
-			<telstraAnyNet host="" username="" password=""/>
-			<smtpServer sendingAddress="" host="" port="" tls="true" username="" password="" />
-		</compoundProvider>
-		-->
+		<!--<compoundProvider><telstraAnyNet host="" username="" password=""/><smtpServer sendingAddress="" host="" port="" tls="true" username="" password="" /></compoundProvider>-->
 	</tokenSender>
 	<factProvider>
-<!--
-		<hardcodedMockFactProvider/>
--->
+		<!--<hardcodedMockFactProvider/>-->
 		<mockFactProvider>
 			<member id="77929555" password="testPassword" scheme="testScheme">
-				<person firstname="John" surname="Smith" fullName="Johnny Smith" dob="1995-09-21" age="21" gender="Male" title="Mr" tfn="87654321"/>
-				<membership externalId="75431657" scheme="CSS" status="Preserved" joinDate="2005-09-21"/>
-				<membership externalId="77929555" scheme="CSS" status="Subsumed" joinDate="2005-09-21" exitDate="2015-09-21"/>
-				<phoneNumber kind="mobile" countryCode="000000" areaCode="11111111" phoneNumber="22222222" isValid="true"/>
-				<emailAddress kind="internet" address="tom@tom.com" isValid="true"/>
-				<address kind="Residential" line1="Unit 4, Chandler St Belconnen" line2="" line3="" city="Canberra" state="ACT" country="Australia" postCode="2917" isValid="true"/>
+				<person age="21" dob="1995-09-21" firstname="John" fullName="Johnny Smith" gender="Male" surname="Smith" tfn="87654321" title="Mr"/>
+				<membership externalId="75431657" joinDate="2005-09-21" scheme="CSS" status="Preserved"/>
+				<membership exitDate="2015-09-21" externalId="77929555" joinDate="2005-09-21" scheme="CSS" status="Subsumed"/>
+				<phoneNumber areaCode="11111111" countryCode="000000" isValid="true" kind="mobile" phoneNumber="22222222"/>
+				<emailAddress address="tom@tom.com" isValid="true" kind="internet"/>
+				<address city="Canberra" country="Australia" isValid="true" kind="Residential" line1="Unit 4, Chandler St Belconnen" line2="" line3="" postCode="2917" state="ACT"/>
 			</member>
 			<member id="75431657" password="testPassword" scheme="testScheme">
-				<person firstname="John" surname="Smith" fullName="Johnny Smith" dob="1995-09-21" age="21" gender="Male" title="Mr" tfn="87654321"/>
-				<membership externalId="75431657" scheme="CSS" status="Preserved" joinDate="2005-09-21"/>
-				<membership externalId="77929555" scheme="CSS" status="Subsumed" joinDate="2005-09-21" exitDate="2015-09-21"/>
-				<phoneNumber kind="mobile" countryCode="000000" areaCode="11111111" phoneNumber="22222222" isValid="true"/>
-				<emailAddress kind="internet" address="tom@tom.com" isValid="true"/>
-				<address kind="Residential" line1="Unit 4, Chandler St Belconnen" line2="" line3="" city="Canberra" state="ACT" country="Australia" postCode="2917" isValid="true"/>
+				<person age="21" dob="1995-09-21" firstname="John" fullName="Johnny Smith" gender="Male" surname="Smith" tfn="87654321" title="Mr"/>
+				<membership externalId="75431657" joinDate="2005-09-21" scheme="CSS" status="Preserved"/>
+				<membership exitDate="2015-09-21" externalId="77929555" joinDate="2005-09-21" scheme="CSS" status="Subsumed"/>
+				<phoneNumber areaCode="11111111" countryCode="000000" isValid="true" kind="mobile" phoneNumber="22222222"/>
+				<emailAddress address="tom@tom.com" isValid="true" kind="internet"/>
+				<address city="Canberra" country="Australia" isValid="true" kind="Residential" line1="Unit 4, Chandler St Belconnen" line2="" line3="" postCode="2917" state="ACT"/>
 			</member>
 		</mockFactProvider>
 	</factProvider>
 	<clusteringProvider>
-<!--
-		<googlePubSub host=""/>
--->
-		<mockClusteringProvider />
+		<!--<googlePubSub host=""/>-->
+		<mockClusteringProvider/>
 	</clusteringProvider>
 </configuration>
