@@ -2,7 +2,7 @@ package au.gov.csc.snippet
 
 import java.util.Date
 
-import scala.xml.{NodeSeq,Text}
+import scala.xml.{ NodeSeq, Text }
 
 object WorkflowTypeChoice extends Enumeration {
 

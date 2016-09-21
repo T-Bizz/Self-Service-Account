@@ -1,6 +1,6 @@
 package au.gov.csc
 
-import au.gov.csc.snippet.{MockFactProvider,MockTokenSender}
+import au.gov.csc.snippet.{ MockFactProvider, MockTokenSender }
 import net.liftweb.http.SessionVar
 
 object SessionState {
@@ -9,7 +9,7 @@ object SessionState {
   var pageSize = 2
 
   object userState extends SessionVar[Option[String]](None)
-  val userProvider = new MockFactProvider()//new MockUserProvider()
+  val userProvider = new MockFactProvider() //new MockUserProvider()
   val tokenSender = new MockTokenSender()
 
   // user state during their workflow

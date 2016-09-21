@@ -2,56 +2,67 @@ package au.gov.csc.snippet
 
 import java.util.Date
 
-import scala.xml.{NodeSeq,Text}
+import scala.xml.{ NodeSeq, Text }
 
+case class Member(
+  person: Person,
+  memberships: Seq[Membership],
+  contactDetails: Seq[ContactDetail]
+)
 
-case class Member(person: Person,
-                  memberships: Seq[Membership],
-                  contactDetails: Seq[ContactDetail])
+case class Person(
+  surname: String,
+  givenNames: String,
+  birthDate: Date,
+  age: Int,
+  fullName: String,
+  gender: String,
+  title: Option[String],
+  taxFileNumber: Option[String]
+)
 
-case class Person(surname: String,
-                  givenNames: String,
-                  birthDate: Date,
-                  age: Int,
-                  fullName: String,
-                  gender: String,
-                  title: Option[String],
-                  taxFileNumber: Option[String])
-
-case class Membership(external_id: String,
-                      scheme: String,
-                      status: String,
-                      joinDate: Date,
-                      exitDate: Option[Date])
+case class Membership(
+  external_id: String,
+  scheme: String,
+  status: String,
+  joinDate: Date,
+  exitDate: Option[Date]
+)
 
 trait ContactDetail
 
-case class PhoneNumber(kind: String,
-                       countryCode: String,
-                       areaCode: String,
-                       phoneNumber: String,
-                       isValid: Boolean)
-  extends ContactDetail
+case class PhoneNumber(
+  kind: String,
+  countryCode: String,
+  areaCode: String,
+  phoneNumber: String,
+  isValid: Boolean
+)
+    extends ContactDetail
 
-case class EmailAddress(kind: String,
-                        address: String,
-                        isValid: Boolean)
-  extends ContactDetail
+case class EmailAddress(
+  kind: String,
+  address: String,
+  isValid: Boolean
+)
+    extends ContactDetail
 
-case class Address(kind: String,
-                   line1: String,
-                   line2: String,
-                   line3: String,
-                   city: String,
-                   state: String,
-                   country: String,
-                   postCode: String,
-                   isValid: Boolean)
-  extends ContactDetail
+case class Address(
+  kind: String,
+  line1: String,
+  line2: String,
+  line3: String,
+  city: String,
+  state: String,
+  country: String,
+  postCode: String,
+  isValid: Boolean
+)
+    extends ContactDetail
 
 trait MemberProvider {
 
-  def getMember(memberNumber:String):Either[Exception,Member]
+  def getMember(memberNumber: String): Either[Exception, Member]
 }
 
 class MockMemberProvider extends MemberProvider {
@@ -70,16 +81,20 @@ class MockMemberProvider extends MemberProvider {
         Some("87654321")
       ),
       List(
-        Membership("75431657",
+        Membership(
+          "75431657",
           "CSS",
           "Preserved",
           new Date(),
-          None),
-        Membership("77929551",
+          None
+        ),
+        Membership(
+          "77929551",
           "CSS",
           "Subsumed",
           new Date(),
-          Some(new Date()))
+          Some(new Date())
+        )
       ),
       List(
         PhoneNumber(
@@ -87,11 +102,13 @@ class MockMemberProvider extends MemberProvider {
           "00000000",
           "11111111",
           "22222222",
-          true),
+          true
+        ),
         EmailAddress(
           "internet",
           "tom@tom.com",
-          true),
+          true
+        ),
         Address(
           "Residential",
           "Unit 4, Chandler St Belconnen",
@@ -101,7 +118,8 @@ class MockMemberProvider extends MemberProvider {
           "ACT",
           "Australia",
           "2917",
-          true)
+          true
+        )
       )
     ),
     "77929555" -> Member(
@@ -116,16 +134,20 @@ class MockMemberProvider extends MemberProvider {
         Some("87654321")
       ),
       List(
-        Membership("77929555",
+        Membership(
+          "77929555",
           "CSS",
           "Preserved",
           new Date(),
-          None),
-        Membership("77929551",
+          None
+        ),
+        Membership(
+          "77929551",
           "CSS",
           "Subsumed",
           new Date(),
-          Some(new Date()))
+          Some(new Date())
+        )
       ),
       List(
         PhoneNumber(
@@ -133,11 +155,13 @@ class MockMemberProvider extends MemberProvider {
           "00000000",
           "11111111",
           "22222222",
-          true),
+          true
+        ),
         EmailAddress(
           "internet",
           "tom@tom.com",
-          true),
+          true
+        ),
         Address(
           "Residential",
           "Unit 4, Chandler St Belconnen",
@@ -147,13 +171,14 @@ class MockMemberProvider extends MemberProvider {
           "ACT",
           "Australia",
           "2917",
-          true)
+          true
+        )
       )
     )
   )
 
-  override def getMember(memberNumber:String):Either[Exception,Member] = memberFacts.get(memberNumber) match {
+  override def getMember(memberNumber: String): Either[Exception, Member] = memberFacts.get(memberNumber) match {
     case Some(m) => Right(m)
-    case None => Left(MemberNotFoundException)
+    case None    => Left(MemberNotFoundException)
   }
 }

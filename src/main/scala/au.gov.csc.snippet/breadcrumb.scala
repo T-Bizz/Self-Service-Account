@@ -10,8 +10,8 @@ class breadcrumb {
 
   @scala.annotation.tailrec
   private def intersperse[T](list: List[T], co: T, acc: List[T] = Nil): List[T] = list match {
-    case Nil => Nil
-    case one :: Nil => (one :: acc).reverse
+    case Nil                => Nil
+    case one :: Nil         => (one :: acc).reverse
     case one :: two :: rest => intersperse(two :: rest, co, co :: one :: acc)
   }
 
@@ -27,7 +27,8 @@ class breadcrumb {
         else
           <li><a href={ href }>{ text }</a></li>
       },
-      Text(""))).openOr(NodeSeq.Empty)
+      Text("")
+    )).openOr(NodeSeq.Empty)
 
   def generic = "*" #> S.location.map(loc =>
     intersperse(
@@ -36,11 +37,11 @@ class breadcrumb {
         val href = loc.createDefaultLink.getOrElse(NodeSeq.Empty)
         val text = loc.linkText.openOr(NodeSeq.Empty)
 
-        if (loc == S.location.openOr(NodeSeq.Empty))
-          { text }
+        if (loc == S.location.openOr(NodeSeq.Empty)) { text }
         else
 
           <a href={ href }>{ text }</a>
       },
-      Text(" / "))).openOr(NodeSeq.Empty)
+      Text(" / ")
+    )).openOr(NodeSeq.Empty)
 }

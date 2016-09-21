@@ -5,7 +5,7 @@ import net.liftweb.common.Loggable
 import scala.xml.NodeSeq
 import net.liftweb.util.Helpers._
 import net.liftweb.http.SHtml._
-import net.liftweb.http.js.{JsCmd, JsCmds}
+import net.liftweb.http.js.{ JsCmd, JsCmds }
 import net.liftweb.http.js.JsCmds.SetHtml
 import xml.Text
 import scala.util.Random
@@ -16,10 +16,10 @@ object step extends Loggable {
 
     "#step-form" #> route &
       "#li-step-1 [class]" #> step1state &
-        "#li-step-2 [class]" #> step2state &
-          "#li-step-3 [class]" #> step3state &
-            "#submit" #> ajaxOnSubmit(process) &
-              "#reset" #> ajaxOnSubmit(reset)
+      "#li-step-2 [class]" #> step2state &
+      "#li-step-3 [class]" #> step3state &
+      "#submit" #> ajaxOnSubmit(process) &
+      "#reset" #> ajaxOnSubmit(reset)
   }
 
   def reset(): JsCmd = {
@@ -32,9 +32,9 @@ object step extends Loggable {
 
     SetHtml("step-form", route) &
       JsCmds.Run("jQuery('#li-step-1').removeClass('disabled').removeClass('active').addClass('" + step1state + "')") &
-        JsCmds.Run("jQuery('#li-step-2').removeClass('disabled').removeClass('active').addClass('" + step2state + "')") &
-          JsCmds.Run("jQuery('#li-step-3').removeClass('disabled').removeClass('active').addClass('" + step3state + "')") &
-            SetHtml("verify-step-number", Text(verifyStepTitle))
+      JsCmds.Run("jQuery('#li-step-2').removeClass('disabled').removeClass('active').addClass('" + step2state + "')") &
+      JsCmds.Run("jQuery('#li-step-3').removeClass('disabled').removeClass('active').addClass('" + step3state + "')") &
+      SetHtml("verify-step-number", Text(verifyStepTitle))
   }
 
   def process(): JsCmd = {
@@ -137,7 +137,7 @@ object step extends Loggable {
 
     routeNumber.is match {
       case 0 => if (skipTwoFactorStep.is & currentStep.is == 4) {
-          currentStep(6)
+        currentStep(6)
         if (!skipTwoFactorStep.is & currentStep.is == 2)
           currentStep(4)
       }

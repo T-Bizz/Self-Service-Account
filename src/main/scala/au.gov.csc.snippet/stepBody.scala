@@ -12,23 +12,23 @@ object stepBody extends Loggable {
   val provider = userProvider
   def render = {
 
-    def twoFactorSelected(): JsCmd = {
-      currentStep(3)
-      skipTwoFactorStep(false)
-      Thread.sleep(500)
-    }
+      def twoFactorSelected(): JsCmd = {
+        currentStep(3)
+        skipTwoFactorStep(false)
+        Thread.sleep(500)
+      }
 
-    def notTwoFactorSelected(): JsCmd = {
-      currentStep(1)
-      skipTwoFactorStep(true)
-      Thread.sleep(500)
-    }
+      def notTwoFactorSelected(): JsCmd = {
+        currentStep(1)
+        skipTwoFactorStep(true)
+        Thread.sleep(500)
+      }
 
     "#header-title" #> header &
       "#footer-title" #> footer &
-        "#btn-other" #> ajaxOnSubmit(notTwoFactorSelected) &
-          "#btn-phone" #> ajaxOnSubmit(twoFactorSelected) &
-            "#btn-email" #> ajaxOnSubmit(twoFactorSelected)
+      "#btn-other" #> ajaxOnSubmit(notTwoFactorSelected) &
+      "#btn-phone" #> ajaxOnSubmit(twoFactorSelected) &
+      "#btn-email" #> ajaxOnSubmit(twoFactorSelected)
   }
 
   def header: NodeSeq = routeNumber.is match {

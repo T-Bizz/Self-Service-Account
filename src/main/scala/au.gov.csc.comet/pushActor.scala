@@ -18,7 +18,7 @@ object PushActorManager extends LiftActor with ListenerManager {
   override def createUpdate = Nil
   override def lowPriority = {
     case tm @ TokenMessage(sid, t) => sendListenersMessage(tm)
-    case _ => {}
+    case _                         => {}
   }
 }
 
@@ -40,7 +40,7 @@ class PushActor extends CometActor with CometListener with SinglePageAppView {
       } yield {
         fs.answerQuestions(List(Answer(t, q)))
         val jsCmd: JsCmd = fs.canComplete match {
-          case true => showModal(?("token-received-title"), ?("token-received-successfully")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+          case true  => showModal(?("token-received-title"), ?("token-received-successfully")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
           case false => showModalError(?("token-received-title"), ?("token-received-error")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
         }
         partialUpdate(jsCmd)
