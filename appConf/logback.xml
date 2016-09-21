@@ -4,7 +4,7 @@
       <Pattern>LOG %d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
     </encoder>
 	</appender>
-  <logger name="au.gov.csc.snippet.MockTokenSender" level="TRACE"/>
+  <logger name="au.gov.csc.model.MockTokenSender" level="TRACE"/>
 	<!--<logger name="net.liftweb.util.TimeHelpers" level="WARN"/>-->
   <root level="INFO">
     <appender-ref ref="STDOUT"/>
