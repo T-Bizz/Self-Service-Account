@@ -7,14 +7,18 @@ import net.liftweb.util._
 import net.liftweb.util.Helpers._
 import net.liftweb.common._
 
+object Globals {
+  var userProvider: FactProvider = new MockFactProvider()
+  var tokenSender: TokenSender = new MockTokenSender()
+  var tokenGenerator: TokenGenerator = new NextFuncNameTokenProvider()
+}
+
 object SessionState {
 
   var minimumCorrectAnswers = 3
   var pageSize = 2
 
   object userState extends SessionVar[Option[String]](None)
-  val userProvider = new MockFactProvider() //new MockUserProvider()
-  val tokenSender = new MockTokenSender()
 
   // user state during their workflow
   object currentStep extends SessionVar[Int](0)

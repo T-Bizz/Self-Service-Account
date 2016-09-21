@@ -26,7 +26,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   val contentAreaId = "step-form"
-  protected val factProvider = SessionState.userProvider
+  protected val factProvider = Globals.userProvider
 
   def getCurrentStageJs(s: String): String = {
     "setStage($, '%s');".format(s)

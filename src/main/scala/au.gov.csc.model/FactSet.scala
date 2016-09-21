@@ -25,6 +25,15 @@ class MockFactProvider extends FactProvider {
     mockAccountProvider.getAccount(memberNumber)
 }
 
+class DataDrivenMockFactProvider(facts: List[Tuple3[String, Member, AccountDefinition]]) extends MockFactProvider {
+  override val mockMemberProvider = new MockMemberProvider() {
+    override val memberFacts = Map(facts.map(f => (f._1, f._2)): _*)
+  }
+  override val mockAccountProvider = new MockAccountProvider() {
+    override val accounts = Map(facts.map(f => (f._1, f._3)): _*)
+  }
+}
+
 trait FactSet {
   val factSetId: String = nextFuncName
   def getHasChosen: Boolean

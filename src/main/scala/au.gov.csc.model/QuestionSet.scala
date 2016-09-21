@@ -106,15 +106,6 @@ case class EmailQuestion(
     answer.value.toLowerCase == correctAnswer.toLowerCase
 }
 
-object TokenGenerator extends TokenGenerator
-class TokenGenerator {
-  import net.liftweb.util.Helpers._
-  def generateToken: String = {
-    //nextFuncName
-    "012345"
-  }
-}
-
 object TokenQuestion {
   def apply(
     category: QuestionSetType.Value,
@@ -154,8 +145,8 @@ class TokenQuestion(
     ) {
 
   var correctAnswer: Option[String] = None
-  protected val tokenSender = SessionState.tokenSender
-  protected val tokenGenerator: TokenGenerator = TokenGenerator
+  protected val tokenSender = Globals.tokenSender
+  protected val tokenGenerator: TokenGenerator = Globals.tokenGenerator
   override def ask(fs: FactSet): Unit = {
     var ca = tokenGenerator.generateToken
     correctAnswer = Some(ca)

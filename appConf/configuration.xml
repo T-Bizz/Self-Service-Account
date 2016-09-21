@@ -1,21 +1,43 @@
 <configuration>
 	<tokenProvider>
+		<!--
 		<stableMockTokenProvider token="01235"/>
-		<!--
 		<nextFuncNameTokenProvider/>
-		<randomStringTokenProvider length="6" permittedChars="012356789abcdef"/>
 -->
+		<randomStringTokenProvider length="8" permittedChars="012356789abcdef"/>
 	</tokenProvider>
-	<smsProvider>
-		<!--<telstraAnyNet host="" username="" password=""/>-->
-		<mockSmsProvider />
-	</smsProvider>
-	<emailProvider>
+	<tokenSender>
+		<mockTokenSender/>
 		<!--
-		<smtpServer sendingAddress="" host="" port="" tls="true" username="" password="" />
+		<compoundProvider>
+			<telstraAnyNet host="" username="" password=""/>
+			<smtpServer sendingAddress="" host="" port="" tls="true" username="" password="" />
+		</compoundProvider>
+		-->
+	</tokenSender>
+	<factProvider>
+<!--
+		<hardcodedMockFactProvider/>
 -->
-		<mockEmailProvider />
-	</emailProvider>
+		<mockFactProvider>
+			<member id="77929555" password="testPassword" scheme="testScheme">
+				<person firstname="John" surname="Smith" fullName="Johnny Smith" dob="1995-09-21" age="21" gender="Male" title="Mr" tfn="87654321"/>
+				<membership externalId="75431657" scheme="CSS" status="Preserved" joinDate="2005-09-21"/>
+				<membership externalId="77929555" scheme="CSS" status="Subsumed" joinDate="2005-09-21" exitDate="2015-09-21"/>
+				<phoneNumber kind="mobile" countryCode="000000" areaCode="11111111" phoneNumber="22222222" isValid="true"/>
+				<emailAddress kind="internet" address="tom@tom.com" isValid="true"/>
+				<address kind="Residential" line1="Unit 4, Chandler St Belconnen" line2="" line3="" city="Canberra" state="ACT" country="Australia" postCode="2917" isValid="true"/>
+			</member>
+			<member id="75431657" password="testPassword" scheme="testScheme">
+				<person firstname="John" surname="Smith" fullName="Johnny Smith" dob="1995-09-21" age="21" gender="Male" title="Mr" tfn="87654321"/>
+				<membership externalId="75431657" scheme="CSS" status="Preserved" joinDate="2005-09-21"/>
+				<membership externalId="77929555" scheme="CSS" status="Subsumed" joinDate="2005-09-21" exitDate="2015-09-21"/>
+				<phoneNumber kind="mobile" countryCode="000000" areaCode="11111111" phoneNumber="22222222" isValid="true"/>
+				<emailAddress kind="internet" address="tom@tom.com" isValid="true"/>
+				<address kind="Residential" line1="Unit 4, Chandler St Belconnen" line2="" line3="" city="Canberra" state="ACT" country="Australia" postCode="2917" isValid="true"/>
+			</member>
+		</mockFactProvider>
+	</factProvider>
 	<clusteringProvider>
 <!--
 		<googlePubSub host=""/>
