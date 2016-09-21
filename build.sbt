@@ -23,7 +23,8 @@ libraryDependencies ++= {
     "org.eclipse.jetty" % "jetty-webapp"        % "8.1.17.v20150415"    % "container,test",
     "org.eclipse.jetty" % "jetty-plus"          % "8.1.17.v20150415"    % "container,test", // For Jetty Config
     "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" % "container,test" artifacts Artifact("javax.servlet", "jar", "jar"),
-    "commons-codec" % "commons-codec" % "1.10"
+    "commons-codec" % "commons-codec" % "1.10",
+    "org.scalariform" %% "scalariform" % "0.1.8"
   )
 }
 
