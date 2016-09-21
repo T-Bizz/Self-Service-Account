@@ -1,9 +1,11 @@
-package au.gov.csc.snippet
+package au.gov.csc.model
 
 import java.util.Date
 
 import scala.xml.{ NodeSeq, Text }
 import net.liftweb.util.Helpers._
+
+import au.gov.csc.model.SessionState._
 
 trait FactProvider {
 

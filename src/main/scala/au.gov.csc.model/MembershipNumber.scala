@@ -1,4 +1,4 @@
-package au.gov.csc.snippet
+package au.gov.csc.model
 
 trait MembershipNumber {
   val prefix: String

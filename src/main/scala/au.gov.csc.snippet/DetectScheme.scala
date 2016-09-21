@@ -1,8 +1,7 @@
 package au.gov.csc.snippet
 
 import net.liftweb.http.{ RequestVar, S }
-
-object Scheme extends RequestVar[Option[Tuple3[String, String, String]]](None)
+import au.gov.csc.model.SessionState.Scheme
 
 trait DetectScheme {
   def getScheme: Option[Tuple3[String, String, String]] = {

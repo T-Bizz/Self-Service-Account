@@ -10,7 +10,9 @@ import scala.xml.{ NodeSeq, Text }
 import net.liftweb.http.SHtml._
 import net.liftweb.util.Helpers._
 
-import au.gov.csc.snippet._
+import au.gov.csc.model._
+import au.gov.csc.snippet.SinglePageAppView
+import au.gov.csc.model.SessionState._
 
 case class TokenMessage(sessionId: String, token: String)
 

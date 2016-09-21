@@ -1,8 +1,7 @@
-package au.gov.csc.snippet
+package au.gov.csc.model
 
 import java.util.Date
 import scala.xml.{ NodeSeq, Text }
-import au.gov.csc.SessionState
 
 case class QuestionSet(
   category: QuestionSetType.Value,

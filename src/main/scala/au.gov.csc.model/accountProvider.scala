@@ -1,4 +1,4 @@
-package au.gov.csc.snippet
+package au.gov.csc.model
 
 import java.util.Date
 

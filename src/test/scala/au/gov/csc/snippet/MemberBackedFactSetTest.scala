@@ -53,7 +53,7 @@ trait SHelpers {
 }
 
 class MemberBackedFactSetTest
-  extends org.specs2.mutable.Specification with SHelpers {
+    extends org.specs2.mutable.Specification with SHelpers {
 
   def createFactSetFixture(members: Map[String, Member] = Map("1" -> Member(
     Person(

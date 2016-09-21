@@ -1,7 +1,11 @@
-package au.gov.csc
+package au.gov.csc.model
 
-import au.gov.csc.snippet.{ MockFactProvider, MockTokenSender }
 import net.liftweb.http.SessionVar
+
+import net.liftweb.http._
+import net.liftweb.util._
+import net.liftweb.util.Helpers._
+import net.liftweb.common._
 
 object SessionState {
 
@@ -18,6 +22,13 @@ object SessionState {
   object numberOfQuestionsPerPage extends SessionVar[Int](3)
   object routeNumber extends SessionVar[Int](0)
   object skipTwoFactorStep extends SessionVar[Boolean](true)
-  object serviceNumber extends SessionVar[String]("")
+  //object serviceNumber extends SessionVar[String]("")
   object title extends SessionVar[String]("")
+
+  object Scheme extends RequestVar[Option[Tuple3[String, String, String]]](None)
+
+  object serviceNumber extends SessionVar[Option[String]](None)
+  object currentFactSet extends SessionVar[Option[FactSet]](None)
+  object currentAccountDetails extends SessionVar[Option[AccountDefinition]](None)
+  object currentStage extends SessionVar[Option[StageTypeChoice.Value]](None)
 }

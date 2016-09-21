@@ -1,5 +1,7 @@
 package au.gov.csc.snippet
 
+import au.gov.csc.model._
+
 import net.liftweb.http.{ SessionVar, Templates }
 import net.liftweb.http._
 import net.liftweb.common._
@@ -7,16 +9,12 @@ import net.liftweb.util.Helpers._
 import net.liftweb.http.SHtml._
 import net.liftweb.http.js.{ JsCmd, JsCmds }
 import net.liftweb.http.js.JsCmds._
-import au.gov.csc._
 import net.liftweb.http.js.JE.{ JsRaw }
 import net.liftweb.util.CssSel
 import scala.xml._
 import StageTypeChoice._
 
-object serviceNumber extends SessionVar[Option[String]](None)
-object currentFactSet extends SessionVar[Option[FactSet]](None)
-object currentAccountDetails extends SessionVar[Option[AccountDefinition]](None)
-object currentStage extends SessionVar[Option[StageTypeChoice]](None)
+import au.gov.csc.model.SessionState.{ serviceNumber, Scheme, currentFactSet, currentAccountDetails, currentStage }
 
 trait SinglePageAppView extends DetectScheme with Logger {
   protected def ?(key: String): String = {

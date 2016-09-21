@@ -62,6 +62,6 @@ class Boot {
     LiftRules.htmlProperties.default.set((r: Req) =>
       new Html5Properties(r.userAgent))
 
-    au.gov.csc.SessionState
+    au.gov.csc.model.SessionState
   }
 }
