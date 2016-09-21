@@ -1,6 +1,7 @@
 <configuration>
 	<tokenProvider>
-		<stableMockTokenProvider token="01235"/><nextFuncNameTokenProvider/>
+		<stableMockTokenProvider token="012345"/>
+		<!--<nextFuncNameTokenProvider/>-->
 		<!--<randomStringTokenProvider length="8" permittedChars="012356789abcdef"/>-->
 	</tokenProvider>
 	<tokenSender>
@@ -11,20 +12,36 @@
 		<!--<hardcodedMockFactProvider/>-->
 		<mockFactProvider>
 			<member id="77929555" password="testPassword" scheme="testScheme">
-				<person age="21" dob="1995-09-21" firstname="John" fullName="Johnny Smith" gender="Male" surname="Smith" tfn="87654321" title="Mr"/>
-				<membership externalId="75431657" joinDate="2005-09-21" scheme="CSS" status="Preserved"/>
-				<membership exitDate="2015-09-21" externalId="77929555" joinDate="2005-09-21" scheme="CSS" status="Subsumed"/>
-				<phoneNumber areaCode="11111111" countryCode="000000" isValid="true" kind="mobile" phoneNumber="22222222"/>
-				<emailAddress address="tom@tom.com" isValid="true" kind="internet"/>
-				<address city="Canberra" country="Australia" isValid="true" kind="Residential" line1="Unit 4, Chandler St Belconnen" line2="" line3="" postCode="2917" state="ACT"/>
+				<person age="21" dob="1995-09-21" firstname="John" fullName="John Smith" gender="Male" surname="Smith" taxFileNumber="87654321" title="Mr"/>
+				<memberships>
+					<membership externalId="75431657" joinDate="2005-09-21" scheme="CSS" status="Preserved"/>
+					<membership externalId="77929555" joinDate="2005-09-21" scheme="CSS" status="Subsumed" exitDate="2015-09-21" />
+				</memberships>
+				<phoneNumbers>
+					<phoneNumber areaCode="11111111" countryCode="000000" isValid="true" kind="mobile" phoneNumber="22222222"/>
+				</phoneNumbers>
+				<emailAddresses>
+					<emailAddress address="tom@tom.com" isValid="true" kind="internet"/>
+				</emailAddresses>
+				<addresses>
+					<address city="Canberra" country="Australia" isValid="true" kind="Residential" line1="Unit 4, Chandler St Belconnen" line2="" line3="" postCode="2917" state="ACT"/>
+				</addresses>
 			</member>
 			<member id="75431657" password="testPassword" scheme="testScheme">
-				<person age="21" dob="1995-09-21" firstname="John" fullName="Johnny Smith" gender="Male" surname="Smith" tfn="87654321" title="Mr"/>
-				<membership externalId="75431657" joinDate="2005-09-21" scheme="CSS" status="Preserved"/>
-				<membership exitDate="2015-09-21" externalId="77929555" joinDate="2005-09-21" scheme="CSS" status="Subsumed"/>
-				<phoneNumber areaCode="11111111" countryCode="000000" isValid="true" kind="mobile" phoneNumber="22222222"/>
-				<emailAddress address="tom@tom.com" isValid="true" kind="internet"/>
-				<address city="Canberra" country="Australia" isValid="true" kind="Residential" line1="Unit 4, Chandler St Belconnen" line2="" line3="" postCode="2917" state="ACT"/>
+				<person age="21" dob="1995-09-21" firstname="John" fullName="John Smith" gender="Male" surname="Smith" taxFileNumber="87654321" title="Mr"/>
+				<memberships>
+					<membership externalId="75431657" joinDate="2005-09-21" scheme="CSS" status="Preserved"/>
+					<membership externalId="77929555" joinDate="2005-09-21" scheme="CSS" status="Subsumed" exitDate="2015-09-21" />
+				</memberships>
+				<phoneNumbers>
+					<phoneNumber areaCode="11111111" countryCode="000000" isValid="true" kind="mobile" phoneNumber="22222222"/>
+				</phoneNumbers>
+				<emailAddresses>
+					<emailAddress address="tom@tom.com" isValid="true" kind="internet"/>
+				</emailAddresses>
+				<addresses>
+					<address city="Canberra" country="Australia" isValid="true" kind="Residential" line1="Unit 4, Chandler St Belconnen" line2="" line3="" postCode="2917" state="ACT"/>
+				</addresses>
 			</member>
 		</mockFactProvider>
 	</factProvider>

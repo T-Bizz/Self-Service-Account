@@ -6,6 +6,7 @@ import net.liftweb.http.js.JE
 import net.liftweb.sitemap.{ Menu, SiteMap }
 import scala.collection.immutable.::
 import au.gov.csc.comet.{ PushActorManager, TokenMessage }
+import au.gov.csc.model._
 
 class Boot {
 
@@ -62,7 +63,7 @@ class Boot {
     LiftRules.htmlProperties.default.set((r: Req) =>
       new Html5Properties(r.userAgent))
 
-    au.gov.csc.model.Configuration.configure
-
+    // Load configuration from external file
+    Globals.init(Configuration.getConfiguation)
   }
 }

@@ -11,6 +11,12 @@ object Globals {
   var userProvider: FactProvider = new MockFactProvider()
   var tokenSender: TokenSender = new MockTokenSender()
   var tokenGenerator: TokenGenerator = new NextFuncNameTokenProvider()
+
+  def init(in: Tuple3[FactProvider, TokenSender, TokenGenerator]) = {
+    userProvider = in._1
+    tokenSender = in._2
+    tokenGenerator = in._3
+  }
 }
 
 object SessionState {
