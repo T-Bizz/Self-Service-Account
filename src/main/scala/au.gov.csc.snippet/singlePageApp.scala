@@ -55,7 +55,7 @@ trait SinglePageAppView extends DetectScheme {
     currentStage(Some(Result))
     Templates(List("ajax-templates-hidden", "Error")).map(t => {
       (".error-text *" #> Text(errorMessage) &
-        startOver(".btn-reset [onclick]", "/")
+        startOver(".btn-restart [onclick]", "/")
       ).apply(t)
     }).openOr(NodeSeq.Empty)
   }
@@ -198,8 +198,7 @@ trait SinglePageAppView extends DetectScheme {
               showModalError(?("error-title"), ?("no-verification-method-chosen"))
             })
           }
-        }) &
-        startOver(".btn-reset [onclick]", "/")
+        })
       ).apply(template)
     }).openOr(NodeSeq.Empty)
   }
@@ -216,8 +215,7 @@ trait SinglePageAppView extends DetectScheme {
             ".footer-title *" #> ?("result-footer") &
             ".membership-number *" #> accountDefinition.memberNumber  &
             ".password *" #> accountDefinition.password &
-            ".scheme-value *" #> accountDefinition.scheme &
-            startOver(".btn-reset [onclick]", "/")
+            ".scheme-value *" #> accountDefinition.scheme
           ).apply(template)
         }
         case Left(e) => {
@@ -296,8 +294,7 @@ trait SinglePageAppView extends DetectScheme {
             ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
               factSet.answerQuestions(potentialAnswers)
               SetHtml(contentAreaId, generateCurrentPageNodeSeq)
-            }) &
-            startOver(".btn-reset [onclick]", "/")
+            })
           ).apply(qst)
         }).openOr(NodeSeq.Empty)
       }
