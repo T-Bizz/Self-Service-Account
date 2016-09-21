@@ -6,8 +6,7 @@
 	</appender>
   <logger name="au.gov.csc.snippet.MockTokenSender" level="TRACE"/>
 	<!--<logger name="net.liftweb.util.TimeHelpers" level="WARN"/>-->
-	<!--<root level="INFO">-->
-  <root level="ALL">
+  <root level="INFO">
     <appender-ref ref="STDOUT"/>
   </root>
 </configuration>

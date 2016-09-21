@@ -21,15 +21,17 @@ class Boot {
       JE.JsRaw("$('input[type=\"submit\"]').prop('disabled', false);").cmd)
 
     LiftRules.statelessDispatch.append {
-      case r @ Req("token" :: sessionIdentifier :: token :: Nil, _, _) => () => {
+      case req @ Req("token" :: sessionIdentifier :: token :: Nil, _, _) => () => {
         PushActorManager ! TokenMessage(sessionIdentifier, token)
-
         for {
           session <- S.session
-          req <- S.request
           template = Templates("tokenReceived" :: Nil)
           response <- session.processTemplate(template, req, req.path, 200)
         } yield response
+      }
+      case Req("serverStatus" :: Nil, _, _) => () => {
+        // perform a sanity check against mandatory upstream dependencies, and return something other than a 200 in that case.
+        Full(PlainTextResponse("OK"))
       }
     }
 
