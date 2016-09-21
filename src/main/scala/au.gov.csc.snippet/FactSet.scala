@@ -65,7 +65,7 @@ class MemberBackedFactSet(member:Member,
                          ?("hygine-first-name-icon"),
                          false,
                          0,
-                         member.person.firstName),
+                         member.person.givenNames),
           StringQuestion(QuestionSetType.Hygiene,
                          Text(?("hygine-surname-question")),
                          Text(?("hygine-surname-help-text")),
@@ -82,7 +82,7 @@ class MemberBackedFactSet(member:Member,
                          false,
                          2,
                          member.person.age.toString)
-        ) ::: member.person.tfn.toList.map(t =>
+        ) ::: member.person.taxFileNumber.toList.map(t =>
           NumberQuestion(QuestionSetType.Hygiene,
                          Text(?("hygine-tfn-question")),
                          Text(?("hygine-tfn-help-text")),
@@ -97,7 +97,7 @@ class MemberBackedFactSet(member:Member,
     ) ::: member.memberships.toList.map(m => {
       QuestionSet(
         QuestionSetType.CurrentMembership,
-        Text(?("membership-questions-title") + " %s".format(m.membershipNumber)),
+        Text(?("membership-questions-title") + " %s".format(m.external_id)),
         List(
           DateQuestion(
             QuestionSetType.CurrentMembership,
@@ -323,7 +323,7 @@ Some(Text(?("token-sms-footer")))))
       case p:EmailAddress if p.kind.toLowerCase == "internet" => true
       case _ => false
     }).map(p => p match {
-      case p:EmailAddress => p.emailAddress
+      case p:EmailAddress => p.address
     }).headOption.getOrElse("unknown")
   }
 

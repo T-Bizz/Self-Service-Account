@@ -10,37 +10,32 @@ case class Member(person: Person,
                   contactDetails: Seq[ContactDetail])
 
 case class Person(surname: String,
-                  firstName: String,
-                  dob: Date,
+                  givenNames: String,
+                  birthDate: Date,
                   age: Int,
-                  fullname: String,
+                  fullName: String,
+                  gender: String,
                   title: Option[String],
-                  tfn: Option[String])
+                  taxFileNumber: Option[String])
 
-case class Membership(membershipNumber: String,
+case class Membership(external_id: String,
                       scheme: String,
                       status: String,
                       joinDate: Date,
-                      exitDate: Option[Date],
-                      effectDate: Option[Date])
+                      exitDate: Option[Date])
 
 trait ContactDetail
 
 case class PhoneNumber(kind: String,
+                       countryCode: String,
                        areaCode: String,
                        phoneNumber: String,
-                       isValid: Boolean,
-                       effectDate: Date,
-                       startDate: Date,
-                       endDate: Option[Date])
+                       isValid: Boolean)
   extends ContactDetail
 
 case class EmailAddress(kind: String,
-                        emailAddress: String,
-                        isValid: Boolean,
-                        effectDate: Date,
-                        startDate: Date,
-                        endDate: Option[Date])
+                        address: String,
+                        isValid: Boolean)
   extends ContactDetail
 
 case class Address(kind: String,
@@ -70,6 +65,7 @@ class MockMemberProvider extends MemberProvider {
         new Date(),
         21,
         "John Smith",
+        "Male",
         Some("Mr"),
         Some("87654321")
       ),
@@ -78,32 +74,24 @@ class MockMemberProvider extends MemberProvider {
           "CSS",
           "Preserved",
           new Date(),
-          None,
-          Some(new Date())),
+          None),
         Membership("77929551",
           "CSS",
           "Subsumed",
           new Date(),
-          Some(new Date()),
           Some(new Date()))
       ),
       List(
         PhoneNumber(
           "mobile",
+          "00000000",
           "11111111",
           "22222222",
-          true,
-          new Date(),
-          new Date(),
-          Some(new Date())
-        ),
+          true),
         EmailAddress(
           "internet",
           "tom@tom.com",
-          true,
-          new Date(),
-          new Date(),
-          Some(new Date())),
+          true),
         Address(
           "Residential",
           "Unit 4, Chandler St Belconnen",
@@ -116,7 +104,6 @@ class MockMemberProvider extends MemberProvider {
           true)
       )
     ),
-
     "77929555" -> Member(
       Person(
         "Smith",
@@ -124,6 +111,7 @@ class MockMemberProvider extends MemberProvider {
         new Date(),
         21,
         "John Smith",
+        "Male",
         Some("Mr"),
         Some("87654321")
       ),
@@ -132,32 +120,24 @@ class MockMemberProvider extends MemberProvider {
           "CSS",
           "Preserved",
           new Date(),
-          None,
-          Some(new Date())),
+          None),
         Membership("77929551",
           "CSS",
           "Subsumed",
           new Date(),
-          Some(new Date()),
           Some(new Date()))
       ),
       List(
         PhoneNumber(
           "mobile",
+          "00000000",
           "11111111",
           "22222222",
-          true,
-          new Date(),
-          new Date(),
-          Some(new Date())
-        ),
+          true),
         EmailAddress(
           "internet",
           "tom@tom.com",
-          true,
-          new Date(),
-          new Date(),
-          Some(new Date())),
+          true),
         Address(
           "Residential",
           "Unit 4, Chandler St Belconnen",
