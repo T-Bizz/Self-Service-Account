@@ -1,7 +1,7 @@
 <configuration>
 	<tokenProvider>
-		<!--<stableMockTokenProvider token="01235"/><nextFuncNameTokenProvider/>-->
-		<randomStringTokenProvider length="8" permittedChars="012356789abcdef"/>
+		<stableMockTokenProvider token="01235"/><nextFuncNameTokenProvider/>
+		<!--<randomStringTokenProvider length="8" permittedChars="012356789abcdef"/>-->
 	</tokenProvider>
 	<tokenSender>
 		<mockTokenSender/>
