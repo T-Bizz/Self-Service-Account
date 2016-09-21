@@ -25,7 +25,7 @@ object Customised extends Logger {
             ("#originalReq *" #> Text(resp.toString)).apply(t)
           } else {
             val errorId = "error_%s_%s".format(status, nextFuncName)
-            println("exception on http router: %s - %s".format(errorId, resp.toString))
+            error("exception on http router: %s - %s".format(errorId, resp.toString))
             ("#originalReq *" #> Text(errorId)).apply(t)
           }
         } else {

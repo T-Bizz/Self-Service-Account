@@ -18,7 +18,7 @@ object currentFactSet extends SessionVar[Option[FactSet]](None)
 object currentAccountDetails extends SessionVar[Option[AccountDefinition]](None)
 object currentStage extends SessionVar[Option[StageTypeChoice]](None)
 
-trait SinglePageAppView extends DetectScheme {
+trait SinglePageAppView extends DetectScheme with Logger {
   protected def ?(key: String): String = {
     // get configured string for scheme or use the default configured string
     var out = S ? "%s%s".format(key, Scheme.is.map(s => "-%s".format(s._1)).getOrElse(""))
@@ -99,7 +99,7 @@ trait SinglePageAppView extends DetectScheme {
                   try {
                     currentFactSet(Some(new MemberBackedFactSet(member, SessionState.minimumCorrectAnswers, SessionState.pageSize)))
                   } catch {
-                    case e: Exception => println("exception: %s\r\n%s".format(e.getMessage, e.getStackTraceString))
+                    case e: Exception => error("exception: %s\r\n%s".format(e.getMessage, e.getStackTraceString))
                   }
                   SetHtml(contentAreaId, generateCurrentPageNodeSeq)
                 }

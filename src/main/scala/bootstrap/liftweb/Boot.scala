@@ -48,7 +48,6 @@ class Boot {
     LiftRules.setSiteMap(SiteMap(
       Menu.i("Create Account") / "singlePageApp",
       Menu.i("Account Management") / "index",
-      Menu.i("Account Management") / "alt",
       Menu.i("IE6 Comet test") / "ie6comet",
       Menu.i("IE6 Ajax test") / "ie6ajax",
       Menu.i("No scheme provided") / "noSchemeProvided"
