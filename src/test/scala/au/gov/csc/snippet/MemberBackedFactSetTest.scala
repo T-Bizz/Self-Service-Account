@@ -53,6 +53,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
                                                                new Date(),
                                                                27,
                                                                "testFullName",
+                                                               "Male",
                                                                Some("Senor"),
                                                                Some("77929555")),
                                                                Nil,
@@ -65,7 +66,10 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
     }
   }
   def createTokenQuestionFixture(tokenGenerate:()=>String,onTokenGenerate:String=>Unit):Tuple2[FactSet,TokenQuestion] = {
-    (new MemberBackedFactSet(createFactSetFixture().getFacts("1").right.get,1,1),new TokenQuestion(QuestionSetType.TokenEmail,NodeSeq.Empty,NodeSeq.Empty,"","",false,0,Left(EmailAddress("","test@test",true,new Date(),new Date(),None))){
+    (new MemberBackedFactSet(
+      createFactSetFixture().getFacts("1").right.get, 1, 1), new TokenQuestion(
+        QuestionSetType.TokenEmail, NodeSeq.Empty, NodeSeq.Empty, "", "", false, 0, Left(
+          EmailAddress("", "test@test", true))){
       override protected val tokenGenerator = new TokenGenerator(){
         override def generateToken:String = tokenGenerate()
       }
@@ -73,7 +77,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
         override def send(target:Either[EmailAddress,PhoneNumber],token:String,factSet:FactSet):Option[Exception] = {
           onTokenGenerate(token)
           super.send(target,token,factSet)
-}
+        }
       }
     })
   }
@@ -86,6 +90,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
                                                                new Date(),
                                                                27,
                                                                "testFullName",
+                                                               "Male",
                                                                Some("Senor"),
                                                                Some("77929555")),
                                                                Nil,
@@ -107,6 +112,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
                                                         new Date(),
                                                         27,
                                                         "testFullName",
+                                                        "Male",
                                                         Some("Senor"),
                                                         Some("87654321")),
                                                         Nil,
@@ -126,6 +132,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
                                                         new Date(),
                                                         27,
                                                         "testFullName",
+                                                        "Male",
                                                         Some("Senor"),
                                                         Some("87654321")),
                                                         Nil,
@@ -147,6 +154,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
                                                         new Date(),
                                                         27,
                                                         "testFullName",
+                                                        "Male",
                                                         Some("Senor"),
                                                         Some("87654321")),
                                                         Nil,
@@ -170,6 +178,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
                                                         new Date(),
                                                         27,
                                                         "testFullName",
+                                                        "Male",
                                                         Some("Senor"),
                                                         Some("87654321")),
                                                         Nil,
@@ -190,6 +199,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
                                                         new Date(),
                                                         27,
                                                         "testFullName",
+                                                        "Male",
                                                         Some("Senor"),
                                                         Some("87654321")),
                                                         Nil,
@@ -219,6 +229,7 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
           new Date(),
           27,
           "testFullName",
+          "Male",
           Some("Senor"),
           Some("87654321")),
           Nil,
@@ -243,15 +254,13 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
                  new Date(),
                  27,
                  "testFullName",
+                 "Male",
                  Some("Senor"),
                  Some("87654321")),
           Nil,
           List(EmailAddress("Internet",
                             "blah@blah.com",
-                            true,
-                            new Date(),
-                            new Date(),
-                            None)
+                            true)
           ))))
         val m = fp.getFacts("1")
         val fs: FactSet = new MemberBackedFactSet(m.right.get,2,4)
@@ -289,15 +298,13 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
             new Date(),
             27,
             "testFullName",
+            "Male",
             Some("Senor"),
             Some("87654321")),
           Nil,
           List(EmailAddress("Internet",
             "blah@blah.com",
-            true,
-            new Date(),
-            new Date(),
-            None)
+            true)
           ))))
         val m = fp.getFacts("1")
         val fs: FactSet = new MemberBackedFactSet(m.right.get,2,4)
@@ -335,15 +342,13 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
                  new Date(),
                  27,
                  "testFullName",
+                 "Male",
                  Some("Senor"),
                  Some("87654321")),
           Nil,
           List(EmailAddress("Internet",
                             "blah@blah.com",
-                            true,
-                            new Date(),
-                            new Date(),
-                            None)))))
+                            true)))))
         val m = fp.getFacts("1")
         val fs: FactSet = new MemberBackedFactSet(m.right.get,2,4)
 
@@ -363,15 +368,13 @@ class MemberBackedFactSetTest extends org.specs2.mutable.Specification with SHel
                  new Date(),
                  27,
                  "testFullName",
+                 "Male",
                  Some("Senor"),
                  Some("87654321")),
           Nil,
           List(EmailAddress("Internet",
                             "blah@blah.com",
-                            true,
-                            new Date(),
-                            new Date(),
-                            None)))))
+                            true)))))
         val m = fp.getFacts("1")
         val fs: FactSet = new MemberBackedFactSet(m.right.get,2,4)
 
