@@ -1,0 +1,25 @@
+<configuration>
+	<tokenProvider>
+		<stableMockTokenProvider token="01235"/>
+		<!--
+		<nextFuncNameTokenProvider/>
+		<randomStringTokenProvider length="6" permittedChars="012356789abcdef"/>
+-->
+	</tokenProvider>
+	<smsProvider>
+		<!--<telstraAnyNet host="" username="" password=""/>-->
+		<mockSmsProvider />
+	</smsProvider>
+	<emailProvider>
+		<!--
+		<smtpServer sendingAddress="" host="" port="" tls="true" username="" password="" />
+-->
+		<mockEmailProvider />
+	</emailProvider>
+	<clusteringProvider>
+<!--
+		<googlePubSub host=""/>
+-->
+		<mockClusteringProvider />
+	</clusteringProvider>
+</configuration>

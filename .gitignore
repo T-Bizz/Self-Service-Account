@@ -8,6 +8,9 @@ syntax: glob
 *.old
 .DS_Store
 
+# vim swap files
+*.swp
+
 #Published WAR files
 webapps
 
