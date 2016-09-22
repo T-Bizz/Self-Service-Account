@@ -16,22 +16,35 @@ import au.gov.csc.model.SessionState._
 
 case class TokenMessage(sessionId: String, token: String)
 
+case class NavigationMessage(sessionId: String, dataId: String, redirectPath: Option[String] = None)
+
 object PushActorManager extends LiftActor with ListenerManager {
   override def createUpdate = Nil
   override def lowPriority = {
-    case tm @ TokenMessage(sid, t) => sendListenersMessage(tm)
-    case _                         => {}
+    case tm @ TokenMessage(sid, t)       => sendListenersMessage(tm)
+    case nm @ NavigationMessage(i, t, s) => sendListenersMessage(nm)
+    case _                               => {}
   }
 }
 
 class PushActor extends CometActor with CometListener with SinglePageAppView {
+
   override def registerWith = PushActorManager
+
   override def render = NodeSeq.Empty
+
   protected def isTokenForMe(tm: TokenMessage): Boolean = {
     currentFactSet.is.map(fs => {
       fs.factSetId == tm.sessionId
     }).getOrElse(false)
   }
+
+  protected def isNavigationForMe(nm: NavigationMessage): Boolean = {
+    currentFactSet.is.map(fs => {
+      fs.factSetId == nm.sessionId
+    }).getOrElse(false)
+  }
+
   override def lowPriority = {
     case tm @ TokenMessage(sid, t) if isTokenForMe(tm) => {
       for {
@@ -46,6 +59,13 @@ class PushActor extends CometActor with CometListener with SinglePageAppView {
           case false => showModalError(?("token-received-title"), ?("token-received-error")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
         }
         partialUpdate(jsCmd)
+      }
+    }
+    case nm @ NavigationMessage(i, t, s) if isNavigationForMe(nm) => {
+      for {
+        fs <- currentFactSet.is
+      } yield {
+        partialUpdate(subUserAction(nm.dataId, nm.redirectPath))
       }
     }
     case _ => {}

@@ -1,7 +1,7 @@
 package au.gov.csc.snippet
 
 import au.gov.csc.model._
-
+import au.gov.csc.comet._
 import net.liftweb.http.{ SessionVar, Templates }
 import net.liftweb.http._
 import net.liftweb.common._
@@ -26,6 +26,8 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   val contentAreaId = "step-form"
+  val contentAreaDataAttr = "data-id"
+
   protected val factProvider = Globals.userProvider
 
   def getCurrentStageJs(s: String): String = {
@@ -73,6 +75,27 @@ trait SinglePageAppView extends DetectScheme with Logger {
     JsRaw("jQuery(\"#%s\").find('*').filter(':input:visible:first');".format(contentAreaId))
   }
 
+  def pushUserAction(id: String, redirectPath: Option[String] = None) = {
+    currentFactSet.is.map(fs => {
+      PushActorManager ! NavigationMessage(fs.factSetId, id, redirectPath)
+    })
+  }
+
+  def subUserAction(id: String, redirectPath: Option[String] = None): JsCmd = {
+    redirectPath match {
+      case Some(p) =>
+        ajaxCall(JsRaw("this"), (_s: String) => {
+          RedirectTo(p)
+        })
+      case None =>
+        ajaxCall(JsRaw("jQuery('#%s').attr('%s')".format(contentAreaId, contentAreaDataAttr)), (s: String) => {
+          if (s != id) {
+            SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+          }
+        })
+    }
+  }
+
   def askForMemberNumber: NodeSeq = Templates(List("ajax-templates-hidden", "AskForMemberNumber")).map(t => {
     currentStage(Some(Identify))
     (".header-title *" #> ?("identify-header") &
@@ -86,7 +109,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
           addValidationMarkup("form-group-serviceNumber", mn.isValid, mn.validate.headOption.getOrElse(""), "Membership Number ")
         }
       }) &
-      ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"), (_s: String) => {
+      ".btn-submit [onclick]" #> ajaxCall(JsRaw("jQuery('#%s').attr('%s')".format(contentAreaId, contentAreaDataAttr)), (s: String) => {
         if (currentFactSet.is.isDefined) {
           showModalError(?("error-title-invalid-data"), ?("membership-number-already-provided")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
         } else {
@@ -99,6 +122,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
                   } catch {
                     case e: Exception => error("exception: %s\r\n%s".format(e.getMessage, e.getStackTraceString))
                   }
+                  pushUserAction(s)
                   SetHtml(contentAreaId, generateCurrentPageNodeSeq)
                 }
                 case Left(e) => {
@@ -192,12 +216,14 @@ trait SinglePageAppView extends DetectScheme with Logger {
             }
           }
         } &
-        ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"), (_s: String) => {
+        ".btn-submit [onclick]" #> ajaxCall(JsRaw("jQuery('#%s').attr('%s')".format(contentAreaId, contentAreaDataAttr)), (s: String) => {
           if (factSet.getHasChosen) {
+            pushUserAction(s)
             showModalError(?("error-title"), ?("workflow-already-chosen")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
           } else {
             currentChoice.map(choice => {
               factSet.setChoice(choice)
+              pushUserAction(s)
               SetHtml(contentAreaId, generateCurrentPageNodeSeq)
             }).getOrElse({
               showModalError(?("error-title"), ?("no-verification-method-chosen"))
@@ -295,8 +321,9 @@ trait SinglePageAppView extends DetectScheme with Logger {
                   ".question-set-heading-contact-cic *" #> Text(?("question-set-heading-contact-cic"))
               }
             }) &
-            ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
+            ".btn-submit [onclick]" #> ajaxCall(JsRaw("jQuery('#%s').attr('%s')".format(contentAreaId, contentAreaDataAttr)), (s: String) => {
               factSet.answerQuestions(potentialAnswers)
+              pushUserAction(s)
               SetHtml(contentAreaId, generateCurrentPageNodeSeq)
             })
           ).apply(qst)
@@ -334,7 +361,8 @@ trait SinglePageAppView extends DetectScheme with Logger {
     csssel: String = ".btn-reset [onclick]",
     redirect: String = "/scheme/%s".format(getScheme.map(p => p._1).getOrElse(""))
   ): CssSel = {
-    csssel #> ajaxCall(JsRaw("this"), (s: String) => {
+    csssel #> ajaxCall(JsRaw("jQuery('#%s').attr('%s')".format(contentAreaId, contentAreaDataAttr)), (s: String) => {
+      pushUserAction(s, Some(redirect))
       S.session.foreach(s => {
         s.destroySession()
         s.httpSession.foreach(httpsession => {
@@ -348,6 +376,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
 
 class singlePageApp extends Logger with SinglePageAppView {
   def render = {
-    "#%s *".format(contentAreaId) #> { generateCurrentPageNodeSeq }
+    "#%s [data-id]".format(contentAreaId) #> nextFuncName &
+      "#%s *".format(contentAreaId) #> { generateCurrentPageNodeSeq }
   }
 }

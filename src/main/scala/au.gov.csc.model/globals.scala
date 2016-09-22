@@ -32,7 +32,6 @@ object SessionState {
   object numberOfQuestionsPerPage extends SessionVar[Int](3)
   object routeNumber extends SessionVar[Int](0)
   object skipTwoFactorStep extends SessionVar[Boolean](true)
-  //object serviceNumber extends SessionVar[String]("")
   object title extends SessionVar[String]("")
 
   object Scheme extends RequestVar[Option[Tuple3[String, String, String]]](None)
