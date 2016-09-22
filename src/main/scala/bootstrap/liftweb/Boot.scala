@@ -24,11 +24,17 @@ class Boot {
     LiftRules.statelessDispatch.append {
       case req @ Req("token" :: sessionIdentifier :: token :: Nil, _, _) => () => {
         PushActorManager ! TokenMessage(sessionIdentifier, token)
-        for {
-          session <- S.session
-          template = Templates("tokenReceived" :: Nil)
-          response <- session.processTemplate(template, req, req.path, 200)
-        } yield response
+        if (SessionState.currentFactSet.is.exists(_.factSetId == sessionIdentifier) && SessionState.Scheme.isDefined) {
+          SessionState.Scheme.is.map(s => {
+            RedirectResponse("/scheme/%s".format(s._1))
+          })
+        } else {
+          for {
+            session <- S.session
+            template = Templates("tokenReceived" :: Nil)
+            response <- session.processTemplate(template, req, req.path, 200)
+          } yield response
+        }
       }
       case Req("serverStatus" :: Nil, _, _) => () => {
         // perform a sanity check against mandatory upstream dependencies, and return something other than a 200 in that case.
@@ -48,12 +54,14 @@ class Boot {
       case resp             => resp
     }
 
+    LiftRules.noCometSessionCmd.default.set(net.liftweb.http.js.JsCmds.RedirectTo("/sessionTerminated"))
     LiftRules.setSiteMap(SiteMap(
       Menu.i("Create Account") / "singlePageApp",
       Menu.i("Account Management") / "index",
       Menu.i("IE6 Comet test") / "ie6comet",
       Menu.i("IE6 Ajax test") / "ie6ajax",
-      Menu.i("No scheme provided") / "noSchemeProvided"
+      Menu.i("No scheme provided") / "noSchemeProvided",
+      Menu.i("Session closed") / "sessionTerminated"
     ))
 
     // Force the request to be UTF-8

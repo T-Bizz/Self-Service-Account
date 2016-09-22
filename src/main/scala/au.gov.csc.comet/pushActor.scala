@@ -1,7 +1,8 @@
 package au.gov.csc.comet
 
+import net.liftweb.common._
 import net.liftweb.http.js.JsCmds._
-import net.liftweb.http.{ CometActor, CometListener, ListenerManager }
+import net.liftweb.http.{ S, CometActor, CometListener, ListenerManager }
 import net.liftweb.actor.LiftActor
 import net.liftweb.http.js.JsCmds.{ SetHtml }
 import net.liftweb.http.js.JsCmd
@@ -27,12 +28,27 @@ object PushActorManager extends LiftActor with ListenerManager {
   }
 }
 
-class PushActor extends CometActor with CometListener with SinglePageAppView {
+class PushActor extends CometActor with CometListener with SinglePageAppView with Logger {
 
   override def registerWith = PushActorManager
 
-  override def render = NodeSeq.Empty
+  protected var sId: Option[String] = None
+  override def render = {
+    "#%s *".format(contentAreaId) #> {
+      generateCurrentPageNodeSeq
+    }
+  }
 
+  override protected def localSetup = {
+    info("cometActor starting up: %s (%s) %s".format(this, currentFactSet.is.map(_.factSetId), pageId))
+    sId = Some(SessionState.sessionId.is)
+    super.localSetup
+  }
+  override protected def localShutdown = {
+    info("cometActor shutting down: %s (%s) %s".format(this, currentFactSet.is.map(_.factSetId), pageId))
+    partialUpdate(RedirectTo("/sessionTerminated"))
+    super.localShutdown
+  }
   protected def isTokenForMe(tm: TokenMessage): Boolean = {
     currentFactSet.is.map(fs => {
       fs.factSetId == tm.sessionId
@@ -40,9 +56,7 @@ class PushActor extends CometActor with CometListener with SinglePageAppView {
   }
 
   protected def isNavigationForMe(nm: NavigationMessage): Boolean = {
-    currentFactSet.is.map(fs => {
-      fs.factSetId == nm.sessionId
-    }).getOrElse(false)
+    sId.exists(_ == nm.sessionId) && nm.dataId != pageId
   }
 
   override def lowPriority = {
@@ -61,12 +75,9 @@ class PushActor extends CometActor with CometListener with SinglePageAppView {
         partialUpdate(jsCmd)
       }
     }
-    case nm @ NavigationMessage(i, t, s) if isNavigationForMe(nm) => {
-      for {
-        fs <- currentFactSet.is
-      } yield {
-        partialUpdate(subUserAction(nm.dataId, nm.redirectPath))
-      }
+    case nm @ NavigationMessage(factSetId, dataId, redirectPath) if isNavigationForMe(nm) => {
+      warn("receiving push: %s %s".format(pageId, nm))
+      partialUpdate(subUserAction(dataId, redirectPath))
     }
     case _ => {}
   }

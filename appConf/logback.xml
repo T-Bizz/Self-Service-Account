@@ -5,7 +5,7 @@
     </encoder>
 	</appender>
   <logger name="au.gov.csc.model.MockTokenSender" level="TRACE"/>
-	<!--<logger name="net.liftweb.util.TimeHelpers" level="WARN"/>-->
+	<logger name="net.liftweb.util.TimeHelpers" level="WARN"/>
   <root level="INFO">
     <appender-ref ref="STDOUT"/>
   </root>

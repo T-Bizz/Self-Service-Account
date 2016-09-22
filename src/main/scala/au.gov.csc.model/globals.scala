@@ -24,6 +24,7 @@ object SessionState {
   var minimumCorrectAnswers = 3
   var pageSize = 2
 
+  object sessionId extends SessionVar[String](nextFuncName)
   object userState extends SessionVar[Option[String]](None)
 
   // user state during their workflow
@@ -34,7 +35,7 @@ object SessionState {
   object skipTwoFactorStep extends SessionVar[Boolean](true)
   object title extends SessionVar[String]("")
 
-  object Scheme extends RequestVar[Option[Tuple3[String, String, String]]](None)
+  object Scheme extends SessionVar[Option[Tuple3[String, String, String]]](None)
 
   object serviceNumber extends SessionVar[Option[String]](None)
   object currentFactSet extends SessionVar[Option[FactSet]](None)
