@@ -3,10 +3,24 @@ package au.gov.csc.model
 import au.gov.csc._
 import scala.xml._
 import java.util.Date
+import net.liftweb.common.Logger
 
-object Configuration {
+object Configuration extends Logger {
 
-  protected val filePath = "appConf/configuration.xml"
+  def getProperty(name: String): Option[String] = {
+    try {
+      val result = System.getenv().get(name)
+      info("reading sys property: (%s) => (%s)".format(name,result))
+      Some(result)
+    } catch {
+      case e: Exception => {
+        error("exception when reading property: %s => %s\r\n%s".format(name, e.getMessage, e.getStackTraceString))
+        None
+      }
+    }
+  }
+
+  protected val filePath = getProperty("APP_CONFIG_FILE").getOrElse("appConf/configuration.xml")
   // get this from a systemVariable
   protected val xml = scala.xml.XML.load(filePath)
   protected val dateFormat = new java.text.SimpleDateFormat("YYYY-mm-DD")
