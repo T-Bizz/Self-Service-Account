@@ -98,16 +98,9 @@ trait SinglePageAppView extends DetectScheme with Logger {
     currentStage(Some(Identify))
     (".header-title *" #> ?("identify-header") &
       ".footer-title *" #> ?("identify-footer") &
-      "#serviceNumber" #> ajaxText(serviceNumber.is.getOrElse(""), s => {
+      ".btn-submit [onclick]" #> ajaxCall(JsRaw("jQuery('#serviceNumber').val()"), (s: String) => {
         serviceNumber(Some(s))
-        if (s == "") {
-          addValidationMarkup("form-group-serviceNumber", true, "", "")
-        } else {
-          val mn: MembershipNumber = new MshpNumber(s)
-          addValidationMarkup("form-group-serviceNumber", mn.isValid, mn.validate.headOption.getOrElse(""), "Membership Number ")
-        }
-      }) &
-      ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
+        val mn: MembershipNumber = new MshpNumber(s)
         if (currentFactSet.is.isDefined) {
           showModalError(?("error-title-invalid-data"), ?("membership-number-already-provided")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
         } else {
@@ -127,7 +120,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
                   showModalError(?("error-title"), ?(e.getMessage))
                 }
               }
-              case false => showModalError(?("error-title-invalid-data"), ?("invalid-nembership-number-provided"))
+              case false => showModalError(?("error-title-invalid-data"), ?("invalid-nembership-number-provided")) & addValidationMarkup("form-group-serviceNumber", mn.isValid, mn.validate.headOption.getOrElse(""), "Membership Number ")
             }
           }).getOrElse(showModalError(?("error-title-missing-data"), ?("no-membership-number-provided")))
         }
