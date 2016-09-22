@@ -6,4 +6,4 @@ COPY jettyConf/* /var/lib/jetty/start.d/
 COPY jettyConf/keystore /var/lib/jetty/etc/keystore
 RUN chmod go-rwx /var/lib/jetty/etc/keystore
 
-RUN java -jar "$JETTY_HOME/start.jar" -Dlogback.configurationFile="/appConf/logback.xml"
+CMD java -jar "$JETTY_HOME/start.jar" -Dlogback.configurationFile="/appConf/logback.xml"
