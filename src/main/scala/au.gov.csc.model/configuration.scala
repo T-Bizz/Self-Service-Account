@@ -10,7 +10,7 @@ object Configuration extends Logger {
   def getProperty(name: String): Option[String] = {
     try {
       val result = System.getenv().get(name)
-      info("reading sys property: (%s) => (%s)".format(name,result))
+      info("reading sys property: (%s) => (%s)".format(name, result))
       Some(result)
     } catch {
       case e: Exception => {
