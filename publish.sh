@@ -33,7 +33,7 @@ for file in target/scala-2.11/*.war; do
     mv "$file" "target/scala-2.11/root.war"
 done
 
-cp target/scala-2.11/*.war webapps/
+cp target/scala-2.11/root.war webapps/
 #Build the docker image.  This builds the project as well.
 docker build -t  $VERSION .
 #Tag the image
