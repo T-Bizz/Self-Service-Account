@@ -335,6 +335,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
     val node = currentFactSet.is match {
       case None => askForMemberNumber
       case Some(factSet) if !factSet.getHasChosen && factSet.getChoices.size == 1 => {
+        trace("%s has only one verification method, skipping the associated choice screen".format(serviceNumber.is.getOrElse("")))
         factSet.getChoices.map(choice => {
           factSet.setChoice(choice)
           pushUserAction()
@@ -342,6 +343,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
         generateCurrentPageNodeSeq
       }
       case Some(factSet) if !factSet.getHasChosen && factSet.getChoices.size == 0 => {
+        warn("%s has no verification methods available".format(serviceNumber.is.getOrElse("")))
         showError(?("call-cic"))
       }
       case Some(factSet) if !factSet.getHasChosen => {

@@ -40,12 +40,12 @@ class PushActor extends CometActor with CometListener with SinglePageAppView wit
   }
 
   override protected def localSetup = {
-    info("cometActor starting up: %s (%s) %s".format(this, currentFactSet.is.map(_.factSetId), pageId))
+    trace("cometActor starting up: %s (%s) %s".format(this, currentFactSet.is.map(_.factSetId), pageId))
     sId = Some(SessionState.sessionId.is)
     super.localSetup
   }
   override protected def localShutdown = {
-    info("cometActor shutting down: %s (%s) %s".format(this, currentFactSet.is.map(_.factSetId), pageId))
+    trace("cometActor shutting down: %s (%s) %s".format(this, currentFactSet.is.map(_.factSetId), pageId))
     partialUpdate(RedirectTo("/sessionTerminated"))
     super.localShutdown
   }
