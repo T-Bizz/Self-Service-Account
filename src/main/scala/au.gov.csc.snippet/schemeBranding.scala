@@ -7,7 +7,7 @@ import scala.xml._
 
 class schemeBranding extends Logger with DetectScheme {
   def render = {
-    info("req: %s".format(S.request))
+    trace("req: %s".format(S.request))
     detectScheme.map(s => {
       ".schemeName *" #> Text(s._1) &
         "body [class+]" #> Text("scheme%s".format(s._1.toUpperCase)) &

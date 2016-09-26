@@ -19,7 +19,7 @@ trait DetectScheme extends Logger {
         case _       => None
       }
     })
-    info("detectScheme returned: %s".format(scheme))
+    trace("detectScheme returned: %s".format(scheme))
     scheme
   }
 
@@ -28,7 +28,7 @@ trait DetectScheme extends Logger {
       Scheme(detectScheme)
       Scheme.is
     })
-    info("getScheme returned: %s".format(scheme))
+    trace("getScheme returned: %s".format(scheme))
     scheme
   }
 }

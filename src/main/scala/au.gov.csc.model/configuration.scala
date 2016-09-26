@@ -20,8 +20,7 @@ object Configuration extends Logger {
     }
   }
 
-  protected val filePath = getProperty("APP_CONFIG_FILE").getOrElse("appConf/configuration.xml")
-  // get this from a systemVariable
+  protected val filePath = Option(System.getProperty("APP_CONFIG_FILE")).getOrElse("appConf/configuration.xml")
   protected val xml = scala.xml.XML.load(filePath)
   protected val dateFormat = new java.text.SimpleDateFormat("YYYY-mm-DD")
 

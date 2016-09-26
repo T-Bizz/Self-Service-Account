@@ -17,6 +17,7 @@ import StageTypeChoice._
 import au.gov.csc.model.SessionState.{ serviceNumber, Scheme, currentFactSet, currentAccountDetails, currentStage }
 
 trait SinglePageAppView extends DetectScheme with Logger {
+
   protected def ?(key: String): String = {
     // get configured string for scheme or use the default configured string
     var out = S ? "%s%s".format(key, Scheme.is.map(s => "-%s".format(s._1)).getOrElse(""))
@@ -25,7 +26,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
     out
   }
 
-  val contentAreaId = "step-form"
+  protected val contentAreaId = "step-form"
 
   protected val factProvider = Globals.userProvider
 
@@ -164,7 +165,9 @@ trait SinglePageAppView extends DetectScheme with Logger {
         "#btn-phone" #> { (n: NodeSeq) =>
           {
             if (choices.contains(WorkflowTypeChoice.SmsAndQuestions)) {
+
               val mobileNumber = obfuscatePhoneNumber(factSet.getCurrentMobileNumber)
+
               (
                 ".btn-phone-value *" #> mobileNumber &
                 "#btn-phone [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
@@ -267,10 +270,12 @@ trait SinglePageAppView extends DetectScheme with Logger {
                   case o   => showModalError(?("error-title"), o.mkString)
                 }
               }
+
               val askQuestionFunc = (_unused: String) => {
                 question.ask(factSet)
                 showModal(?("token-sent-title"), ?("token-sent-description"))
               }
+
               val questionTemplate = question match {
                 case d: DateQuestion   => Templates(List("ajax-templates-hidden", "DateQuestion"))
                 case s: StringQuestion => Templates(List("ajax-templates-hidden", "StringQuestion"))
@@ -279,6 +284,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
                 case t: TokenQuestion  => Templates(List("ajax-templates-hidden", "TokenQuestion"))
                 case _                 => Empty
               }
+
               askQuestionFunc("")
               acc ++ questionTemplate.map(qt => {
                 ((
@@ -368,9 +374,8 @@ class singlePageApp extends Logger with SinglePageAppView {
   def comet = {
     val detectedScheme = detectScheme
     val oldScheme = getScheme
-    info("attempting to detect scheme change: %s => %s".format(oldScheme, detectedScheme))
     detectedScheme.filterNot(s => oldScheme.exists(_ == s)).foreach(s => {
-      info("detected scheme change: %s => %s".format(oldScheme, s))
+      trace("detected scheme change: %s => %s".format(oldScheme, s))
       Scheme(detectedScheme)
       pushUserAction(Some("/scheme/%s".format(s._1)))
     })
@@ -378,6 +383,7 @@ class singlePageApp extends Logger with SinglePageAppView {
     val cometActorName = "lift:comet?type=PushActor&name=%s".format(nextFuncName)
     ".app-root-elem [data-lift]" #> cometActorName
   }
+
   def render = {
     "#%s [data-id]".format(contentAreaId) #> pageId &
       "#%s *".format(contentAreaId) #> { generateCurrentPageNodeSeq }
