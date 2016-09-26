@@ -3,11 +3,11 @@ package au.gov.csc.comet
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.CometActor
 import net.liftweb.http.js.JsCmds.SetHtml
-
 import scala.xml.{ NodeSeq, Text }
 import net.liftweb.http.SHtml._
 import net.liftweb.util.Helpers._
 import net.liftweb.util.Schedule
+import scala.language.postfixOps
 
 case object Start
 case object Stop

@@ -112,7 +112,8 @@ trait SinglePageAppView extends DetectScheme with Logger {
                   try {
                     currentFactSet(Some(new MemberBackedFactSet(member, SessionState.minimumCorrectAnswers, SessionState.pageSize)))
                   } catch {
-                    case e: Exception => error("exception: %s\r\n%s".format(e.getMessage, e.getStackTraceString))
+                    case t: Throwable =>
+                      error("exception: %s\r\n%s".format(t.getMessage, t.getStackTrace))
                   }
                   pushUserAction()
                   SetHtml(contentAreaId, generateCurrentPageNodeSeq)
