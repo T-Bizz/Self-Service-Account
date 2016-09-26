@@ -334,6 +334,13 @@ trait SinglePageAppView extends DetectScheme with Logger {
   protected def generateCurrentPageNodeSeq: NodeSeq = {
     val node = currentFactSet.is match {
       case None => askForMemberNumber
+      case Some(factSet) if !factSet.getHasChosen && factSet.getChoices.size == 1 => {
+        factSet.getChoices.map(choice => {
+          factSet.setChoice(choice)
+          pushUserAction()
+        })
+        generateCurrentPageNodeSeq
+      }
       case Some(factSet) if !factSet.getHasChosen && factSet.getChoices.size == 0 => {
         showError(?("call-cic"))
       }
