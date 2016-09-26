@@ -13,10 +13,9 @@ object Configuration extends Logger {
       info("reading sys property: (%s) => (%s)".format(name, result))
       Some(result)
     } catch {
-      case e: Exception => {
-        error("exception when reading property: %s => %s\r\n%s".format(name, e.getMessage, e.getStackTraceString))
+      case t: Throwable =>
+        error("exception when reading property: %s => %s\r\n%s".format(name, t.getMessage, t.getStackTrace))
         None
-      }
     }
   }
 
