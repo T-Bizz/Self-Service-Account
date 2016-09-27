@@ -381,33 +381,48 @@ trait SinglePageAppView extends DetectScheme with Logger {
     val node = currentFactSet.is match {
       case None => askForMemberNumber
       case Some(factSet) if !factSet.getHasChosen && factSet.getChoices.size == 1 => {
-        trace("%s has only one verification method, skipping the associated choice screen".format(serviceNumber.is.getOrElse("")))
+        trace("%s has only one verification method, skipping the associated choice screen.".format(serviceNumber.is.getOrElse("")))
         factSet.getChoices.map(choice => {
           factSet.setChoice(choice)
-          pushUserAction()
         })
+        pushUserAction()
         generateCurrentPageNodeSeq
       }
       case Some(factSet) if !factSet.getHasChosen && factSet.getChoices.size == 0 => {
-        warn("%s has no verification methods available".format(serviceNumber.is.getOrElse("")))
+        warn("%s has no verification methods available.".format(serviceNumber.is.getOrElse("")))
+        showError(?("call-cic"))
+      }
+      case Some(factSet) if !factSet.canComplete => {
+        trace("%s does not have enough facts avialable to complete the process.".format(serviceNumber.is.getOrElse("")))
         showError(?("call-cic"))
       }
       case Some(factSet) if !factSet.getHasChosen => {
+        trace("%s has only one verification method, skipping the associated choice screen.".format(serviceNumber.is.getOrElse("")))
         provideVerificationMethodChoice(factSet)
       }
-      case Some(factSet) if !factSet.canComplete => showError(?("call-cic"))
       case Some(factSet) if factSet.isComplete && !factSet.getHasChosenEligibleAccount &&
-        factSet.getEligibleMemberships.size > 1 =>
+        factSet.getEligibleMemberships.size > 1 => {
 
+        trace("%s has more than one eligible account for registration / reset.".format(serviceNumber.is.getOrElse("")))
         provideAccountChoice
-      case Some(factSet) if factSet.isComplete && !factSet.getHasChosenEligibleAccount =>
+      }
+      case Some(factSet) if factSet.isComplete && !factSet.getHasChosenEligibleAccount &&
+        factSet.getEligibleMemberships.size == 1 => {
 
+        trace("%s has only one eligible account for registration / reset. Skipping choice.".format(serviceNumber.is.getOrElse("")))
         factSet.setEligibleAccountChoice(factSet.getEligibleMemberships)
         pushUserAction()
         provideAccountDetails
-      case Some(factSet) if factSet.isComplete && factSet.getHasChosenEligibleAccount =>
+      }
+      case Some(factSet) if factSet.isComplete && factSet.getHasChosenEligibleAccount => {
+
+        trace("%s has had eligible accounts registered / reset.".format(serviceNumber.is.getOrElse("")))
         provideAccountDetails
-      case Some(factSet) => challengeFactSet(factSet)
+      }
+      case Some(factSet) => {
+        trace("%s is being challenged to prove their identity.".format(serviceNumber.is.getOrElse("")))
+        challengeFactSet(factSet)
+      }
     }
     (".btn-get-started-text *" #> ?("btn-get-started-text") &
       ".btn-reset-text *" #> ?("btn-reset-text") &
