@@ -124,7 +124,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
     }
   }
 
-  protected def askForMembershipNumber: NodeSeq = Templates(List("ajax-templates-hidden", "AskForMemberNumber")).map(t => {
+  protected def askForMembershipNumber: NodeSeq = Templates(List("ajax-templates-hidden", "askForMembershipNumber")).map(t => {
     currentStage(Some(Identify))
     (".header-title *" #> ?("identify-header") &
       ".footer-title *" #> ?("identify-footer") &
@@ -164,7 +164,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
   protected def askForVerificationMethod(factSet: FactSet): NodeSeq = {
     currentStage(Some(Verify))
     (for {
-      template <- Templates(List("ajax-templates-hidden", "provideVerificationMethodChoice"))
+      template <- Templates(List("ajax-templates-hidden", "askForVerificationMethod"))
       memberNumber <- serviceNumber.is
     } yield {
       var currentChoice: Option[WorkflowTypeChoice.Value] = None
@@ -222,7 +222,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
     factSet.getNextQuestions match {
       case Some(questionSet) => {
         var potentialAnswers: List[Answer] = Nil
-        Templates(List("ajax-templates-hidden", "QuestionSet")).map(qst => {
+        Templates(List("ajax-templates-hidden", "askForProofOfIdentity")).map(qst => {
           (".question-set-header *" #> questionSet.title &
             ".question-set-footer *" #> questionSet.footer &
             ".questions *" #> questionSet.questions.toList.foldLeft(NodeSeq.Empty)((acc, question) => {
@@ -245,11 +245,11 @@ trait SinglePageAppView extends DetectScheme with Logger {
               }
 
               val questionTemplate = question match {
-                case d: DateQuestion   => Templates(List("ajax-templates-hidden", "DateQuestion"))
-                case s: StringQuestion => Templates(List("ajax-templates-hidden", "StringQuestion"))
-                case n: NumberQuestion => Templates(List("ajax-templates-hidden", "NumberQuestion"))
-                case e: EmailQuestion  => Templates(List("ajax-templates-hidden", "EmailQuestion"))
-                case t: TokenQuestion  => Templates(List("ajax-templates-hidden", "TokenQuestion"))
+                case d: DateQuestion   => Templates(List("ajax-templates-hidden", "questionDate"))
+                case s: StringQuestion => Templates(List("ajax-templates-hidden", "questionString"))
+                case n: NumberQuestion => Templates(List("ajax-templates-hidden", "questionNumber"))
+                case e: EmailQuestion  => Templates(List("ajax-templates-hidden", "questionEmail"))
+                case t: TokenQuestion  => Templates(List("ajax-templates-hidden", "questionToken"))
                 case _                 => Empty
               }
 
@@ -301,7 +301,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
   protected def askForAccounts: NodeSeq = {
     currentStage(Some(Result))
     (for {
-      template <- Templates(List("ajax-templates-hidden", "provideAccountChoice"))
+      template <- Templates(List("ajax-templates-hidden", "askForAccounts"))
       fs <- currentFactSet.is
     } yield {
       var currentChoice: Seq[Membership] = Seq()
@@ -346,7 +346,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
   protected def providePasswords: NodeSeq = {
     currentStage(Some(Result))
     (for {
-      template <- Templates(List("ajax-templates-hidden", "provideAccountNumber"))
+      template <- Templates(List("ajax-templates-hidden", "providePasswords"))
       memberNumber <- serviceNumber.is
       fs <- currentFactSet.is
     } yield {
@@ -368,7 +368,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
 
   protected def provideError(errorMessage: String): NodeSeq = {
     currentStage(Some(Result))
-    Templates(List("ajax-templates-hidden", "Error")).map(t => {
+    Templates(List("ajax-templates-hidden", "provideError")).map(t => {
       (".error-text *" #> Text(errorMessage) &
         startOver(".btn-restart [onclick]", "/")).apply(t)
     }).openOr(NodeSeq.Empty)
