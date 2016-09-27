@@ -7,9 +7,9 @@ import net.liftweb.common.Logger
 
 object Configuration extends Logger {
 
-  def getProperty(name: String): Option[String] = {
+  def getConfProperty(name: String): Option[String] = {
     try {
-      val result = System.getenv().get(name)
+      val result = sys.env(name)
       info("reading sys property: (%s) => (%s)".format(name, result))
       Some(result)
     } catch {
@@ -19,7 +19,7 @@ object Configuration extends Logger {
     }
   }
 
-  protected val filePath = Option(System.getProperty("APP_CONFIG_FILE")).getOrElse("appConf/configuration.xml")
+  protected val filePath = getConfProperty("APP_CONFIG_FILE").getOrElse("appConf/configuration.xml")
   protected val xml = scala.xml.XML.load(filePath)
   protected val dateFormat = new java.text.SimpleDateFormat("YYYY-mm-DD")
 

@@ -1,0 +1,27 @@
+<div class="animated fadeIn" aria-live="polite" aria-relevant="additions removals">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="text-center"><span class="fa fa-users fa-5x fa-fw text-muted"></span></div>
+			<div class="header-title lead text-center"></div>
+			<div class="sub-header-title lead text-center"></div>
+			<div class="list-group account-list"></div>
+			<div class="footer-title text-center"></div>
+		</div>
+	</div>
+	<div class="row">
+	    <div class="col-xs-6">
+	      <button type="submit" class="btn-reset btn btn-default btn-lg btn-block animated fadeIn" aria-controls="step-form"><span class="fa fa-repeat fa-fw"></span> <span class="btn-reset-text"></span></button>
+	    </div>
+	    <div class="col-xs-6">
+	      <button type="submit" class="btn-submit btn btn-primary btn-lg btn-block animated fadeIn" aria-controls="step-form"><span class="btn-next-text"></span> <span class="fa fa-chevron-right fa-fw"></span></button>
+	    </div>
+	</div>
+	<script type="text/javascript">
+		$(function () {
+	        $('.popover').hide();
+			$(".list-group-item").click(function () {
+			    $(this).toggleClass('active');
+			});
+		})
+	</script>
+</div>

@@ -232,19 +232,64 @@ trait SinglePageAppView extends DetectScheme with Logger {
     (for {
       template <- Templates(List("ajax-templates-hidden", "provideAccountNumber"))
       memberNumber <- serviceNumber.is
+      fs <- currentFactSet.is
     } yield {
-      factProvider.getAccount(memberNumber) match {
-        case Right(accountDefinition) => {
-          (".header-title *" #> ?("result-header") &
-            ".footer-title *" #> ?("result-footer") &
-            ".membership-number *" #> accountDefinition.memberNumber &
-            ".password *" #> accountDefinition.password &
-            ".scheme-value *" #> accountDefinition.scheme).apply(template)
+      (".header-title *" #> ?("result-header") &
+        ".footer-title *" #> ?("result-footer") &
+        ".account-list *" #> fs.getEligibleAccountChoice.toList.foldLeft(NodeSeq.Empty)((acc, mshp) => {
+          acc ++ (Templates(List("ajax-templates-hidden", "accountNumberResult")).map(t => {
+            (".account-id *" #> mshp.external_id &
+              ".account-scheme *" #> mshp.scheme &
+              ".account-status *" #> mshp.status &
+              ".account-password *" #> (factProvider.getAccount(mshp.external_id) match {
+                case Right(accountDefinition) => Text(accountDefinition.password)
+                case Left(e)                  => Text("Password could not be set")
+              })).apply(t)
+          })).openOr(NodeSeq.Empty)
+        })).apply(template)
+    }).openOr(NodeSeq.Empty)
+  }
+
+  def provideAccountChoice: NodeSeq = {
+    currentStage(Some(Result))
+    (for {
+      template <- Templates(List("ajax-templates-hidden", "provideAccountChoice"))
+      fs <- currentFactSet.is
+    } yield {
+      var currentChoice: Seq[Membership] = Seq()
+        def toggleChoice(in: Membership) = {
+          if (currentChoice.contains(in)) {
+            currentChoice = currentChoice.filterNot(c => {
+              c == in
+            })
+          } else {
+            currentChoice = (currentChoice :+ in)
+          }
         }
-        case Left(e) => {
-          showError(e.getMessage)
-        }
-      }
+      (".header-title *" #> ?("account-choice-header") &
+        ".sub-header-title *" #> ?("account-choice-sub-header") &
+        ".footer-title *" #> ?("account-choice-footer") &
+        ".account-list *" #> fs.getEligibleMemberships.toList.foldLeft(NodeSeq.Empty)((acc, mshp) => {
+
+          acc ++ (Templates(List("ajax-templates-hidden", "accountChoiceButton")).map(t => {
+            (".account-id *" #> mshp.external_id &
+              ".account-scheme *" #> mshp.scheme &
+              ".account-status *" #> mshp.status &
+              ".list-group-item [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
+                toggleChoice(mshp)
+                Noop
+              })).apply(t)
+          })).openOr(NodeSeq.Empty)
+        }) &
+        ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
+          if (currentChoice.size >= 1) {
+            fs.setEligibleAccountChoice(currentChoice)
+            pushUserAction()
+            SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+          } else {
+            showModalError(?("error-title-missing-data"), ?("no-account-chosen"))
+          }
+        })).apply(template)
     }).openOr(NodeSeq.Empty)
   }
 
@@ -351,14 +396,23 @@ trait SinglePageAppView extends DetectScheme with Logger {
         provideVerificationMethodChoice(factSet)
       }
       case Some(factSet) if !factSet.canComplete => showError(?("call-cic"))
-      case Some(factSet) if factSet.isComplete   => provideAccountDetails
-      case Some(factSet)                         => challengeFactSet(factSet)
+      case Some(factSet) if factSet.isComplete && !factSet.getHasChosenEligibleAccount &&
+        factSet.getEligibleMemberships.size > 1 =>
+
+        provideAccountChoice
+      case Some(factSet) if factSet.isComplete && !factSet.getHasChosenEligibleAccount =>
+
+        factSet.setEligibleAccountChoice(factSet.getEligibleMemberships)
+        pushUserAction()
+        provideAccountDetails
+      case Some(factSet) if factSet.isComplete && factSet.getHasChosenEligibleAccount =>
+        provideAccountDetails
+      case Some(factSet) => challengeFactSet(factSet)
     }
     (".btn-get-started-text *" #> ?("btn-get-started-text") &
       ".btn-reset-text *" #> ?("btn-reset-text") &
       ".btn-restart-text *" #> ?("btn-restart-text") &
       ".btn-next-text *" #> ?("btn-next-text") &
-      ".btn-login-text *" #> ?("btn-login-text") &
       startOver(".btn-restart [onclick]", "/") &
       startOver()).apply(node)
   } ++ Script(setCurrentStage) ++ Script(focusFirstInputField)

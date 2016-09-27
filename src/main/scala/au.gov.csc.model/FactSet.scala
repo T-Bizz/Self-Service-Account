@@ -9,6 +9,8 @@ import au.gov.csc.model.SessionState._
 
 trait FactProvider {
 
+  val EligibleMembershipsNotFoundException = new Exception("No eligible memberships found")
+
   def getFacts(memberNumber: String): Either[Exception, Member]
   def getAccount(memberNumber: String): Either[Exception, AccountDefinition]
 }
@@ -46,6 +48,10 @@ trait FactSet {
   def getCurrentEmail: String
   def getCurrentMobileNumber: String
   def getRemainingUnansweredQuestionCount: Int
+  def getEligibleMemberships: Seq[Membership]
+  def setEligibleAccountChoice(mshps: Seq[Membership])
+  def getHasChosenEligibleAccount: Boolean
+  def getEligibleAccountChoice: Seq[Membership]
 }
 
 class MemberBackedFactSet(
@@ -265,12 +271,14 @@ class MemberBackedFactSet(
   protected var correctAnswers: Int = 0
   protected var allMandatoryQuestionsCorrect: Boolean = true
   protected var chosenWorkflowType: Option[WorkflowTypeChoice.Value] = None
-  protected var hasChosen = false
+  protected var hasChosenVerificationMethod = false
+  protected var hasChosenEligibleAccounts = false
+  protected var eligibleMemberships: Seq[Membership] = Seq()
 
   def getRemainingUnansweredQuestionCount = unansweredQuestions.length
 
   def setChoice(choice: WorkflowTypeChoice.Value) = {
-    if (hasChosen == false) {
+    if (hasChosenVerificationMethod == false) {
       unansweredQuestions = choice match {
         case WorkflowTypeChoice.EmailAndQuestions => unansweredQuestions.filterNot {
           case p: TokenQuestion if p.target.isRight => true
@@ -286,13 +294,26 @@ class MemberBackedFactSet(
         }
       }
       chosenWorkflowType = Some(choice)
-      hasChosen = true;
+      hasChosenVerificationMethod = true;
     }
   }
 
   def getHasChosen: Boolean = {
-    hasChosen
+    hasChosenVerificationMethod
   }
+
+  def setEligibleAccountChoice(mshps: Seq[Membership]) = {
+    if (hasChosenEligibleAccounts == false) {
+      eligibleMemberships = mshps
+      hasChosenEligibleAccounts = true;
+    }
+  }
+
+  def getHasChosenEligibleAccount: Boolean = {
+    hasChosenEligibleAccounts
+  }
+
+  def getEligibleAccountChoice: Seq[Membership] = eligibleMemberships
 
   def getChoices: Seq[WorkflowTypeChoice.Value] = {
 
@@ -351,7 +372,7 @@ class MemberBackedFactSet(
   }
 
   override def canComplete: Boolean = {
-    (minimumNumberOfCorrectAnswers <= (correctAnswers + unansweredQuestions.length)) & allMandatoryQuestionsCorrect
+    (minimumNumberOfCorrectAnswers <= (correctAnswers + unansweredQuestions.length)) & allMandatoryQuestionsCorrect & (getEligibleMemberships.size >= 1)
   }
 
   def getCurrentEmail: String = {
@@ -371,4 +392,17 @@ class MemberBackedFactSet(
       case p: PhoneNumber => p.phoneNumber
     }).headOption.getOrElse("unknown")
   }
+
+  def getEligibleMemberships: Seq[Membership] = member.memberships.filter(mshp => {
+    mshp.status.toLowerCase match {
+      case "pensioner"               => true
+      case "contributory membership" => true
+      case "preserved membership"    => true
+      case "contributor"             => true
+      case "preserver"               => true
+      case "ancillary member"        => true
+      case "re-entered member"       => true
+      case _                         => false
+    }
+  }).groupBy(_.external_id).map(_._2.head).toList
 }
