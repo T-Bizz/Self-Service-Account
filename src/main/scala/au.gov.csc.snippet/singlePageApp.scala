@@ -109,10 +109,18 @@ trait SinglePageAppView extends DetectScheme with Logger {
     val validEmail = """^([a-zA-Z0-9.!#$%&’'*+/=?^_`{|}~-]+)@([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)$""".r
       def obscure(text: String) = "*" * text.length
 
-    (in.split("@").toList.head, in.split("@").toList.tail(0)) match {
-      case (shortMailbox(all), domain) => s"${obscure(all)}@$domain"
-      case (longMailbox(first, middle, last), domain) => s"$first${obscure(middle)}$last@$domain"
-      case _ => "*"
+    (in, in.split("@").toList.tail(0)) match {
+      case (validEmail, validDomain) => {
+        (in.split("@").toList.head, in.split("@").toList.tail(0)) match {
+          case (shortMailbox(all), domain) => s"${obscure(all)}@$domain"
+          case (longMailbox(first, middle, last), domain) => s"$first${obscure(middle)}$last@$domain"
+          case _ => "*"
+        }
+      }
+      case _ => {
+        warn("Email address %s is invalid.".format(in))
+        "*"
+      }
     }
   }
 
