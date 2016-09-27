@@ -77,7 +77,7 @@ class PushActor extends CometActor with CometListener with SinglePageAppView wit
     }
     case nm @ NavigationMessage(factSetId, dataId, redirectPath) if isNavigationForMe(nm) => {
       warn("receiving push: %s %s".format(pageId, nm))
-      partialUpdate(subUserAction(dataId, redirectPath))
+      partialUpdate(subscribeToUserAction(dataId, redirectPath))
     }
     case _ => {}
   }
