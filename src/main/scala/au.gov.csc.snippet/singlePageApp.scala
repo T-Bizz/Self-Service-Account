@@ -49,10 +49,10 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def ?(key: String): String =
-    S ? "%s%s".format(key.toLowerCase, Scheme.is.map(s => "-%s".format(s._1)).getOrElse("").toLowerCase) match {
+    S.?("%s%s".format(key.toLowerCase, Scheme.is.map(s => "-%s".format(s._1)).getOrElse("").toLowerCase)) match {
       case out if out == "%s%s".format(key.toLowerCase, Scheme.is.map(s => "-%s".format(s._1)).getOrElse("").toLowerCase) => {
         trace("Could not find text snippet with key %s. Replacing it with the key %s.".format(out, key))
-        S ? key
+        S.?(key)
       }
       case out => out
     }
@@ -105,13 +105,14 @@ trait SinglePageAppView extends DetectScheme with Logger {
   protected def obfuscateEmailAddress(in: String): String = {
     val shortMailbox = "(.{1,2})".r
     val longMailbox = "(.)(.*)(.)".r
-    val domain = in.split("@").toList.tail(0)
+    val validDomain = """^([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)$""".r
+    val validEmail = """^([a-zA-Z0-9.!#$%&’'*+/=?^_`{|}~-]+)@([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)$""".r
       def obscure(text: String) = "*" * text.length
 
-    in match {
-      case shortMailbox(address) => s"${obscure(address)}@$domain"
-      case longMailbox(firstLetter, middle, lastLetter) => s"$firstLetter${obscure(middle)}$lastLetter@$domain"
-      case _ => in
+    (in.split("@").toList.head, in.split("@").toList.tail(0)) match {
+      case (shortMailbox(all), domain) => s"${obscure(all)}@$domain"
+      case (longMailbox(first, middle, last), domain) => s"$first${obscure(middle)}$last@$domain"
+      case _ => "*"
     }
   }
 
@@ -121,11 +122,11 @@ trait SinglePageAppView extends DetectScheme with Logger {
       ".footer-title *" #> ?("identify-footer") &
       ".btn-submit [onclick]" #> ajaxCall(JsRaw("jQuery('#serviceNumber').val()"), (s: String) => {
         serviceNumber(Some(s))
-        val mn: MembershipNumber = new MshpNumber(s)
         if (currentFactSet.is.isDefined) {
           showModalError(?("error-title-invalid-data"), ?("membership-number-already-provided")) &
             SetHtml(contentAreaId, generateCurrentPageNodeSeq)
         } else {
+          val mn: MembershipNumber = new MshpNumber(s)
           serviceNumber.is.map(s => {
             new MshpNumber(serviceNumber.is.getOrElse("")).isValid match {
               case true => factProvider.getFacts(s) match {
@@ -158,57 +159,43 @@ trait SinglePageAppView extends DetectScheme with Logger {
       template <- Templates(List("ajax-templates-hidden", "provideVerificationMethodChoice"))
       memberNumber <- serviceNumber.is
     } yield {
-      var choices = factSet.getChoices
       var currentChoice: Option[WorkflowTypeChoice.Value] = None
       (".header-title *" #> ?("verification-method-choice-header") &
         ".sub-header-title *" #> ?("verification-method-choice-sub-header") &
         ".footer-title *" #> ?("verification-method-choice-footer") &
-        "#btn-phone" #> { (n: NodeSeq) =>
-          {
-            if (choices.contains(WorkflowTypeChoice.SmsAndQuestions)) {
-
-              (
-                ".btn-phone-value *" #> obfuscatePhoneNumber(factSet.getCurrentMobileNumber) &
-                "#btn-phone [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
-                  currentChoice = Some(WorkflowTypeChoice.SmsAndQuestions)
-                  Noop
-                })
-              ).apply(n)
-            } else {
-              NodeSeq.Empty
-            }
-          }
-        } &
-        "#btn-email" #> { (n: NodeSeq) =>
-          {
-            if (choices.contains(WorkflowTypeChoice.EmailAndQuestions)) {
-              (".btn-email-value *" #> obfuscateEmailAddress(factSet.getCurrentEmail) &
-                "#btn-email [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
-                  currentChoice = Some(WorkflowTypeChoice.EmailAndQuestions)
-                  Noop
-                })).apply(n)
-            } else {
-              NodeSeq.Empty
-            }
-          }
-        } &
-        "#btn-other" #> { (n: NodeSeq) =>
-          {
-            if (choices.contains(WorkflowTypeChoice.QuestionsOnly)) {
-              (
-                "#btn-other [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
-                  currentChoice = Some(WorkflowTypeChoice.QuestionsOnly)
-                  Noop
-                })
-              ).apply(n)
-            } else {
-              NodeSeq.Empty
-            }
-          }
-        } &
+        "#btn-phone" #> ((n: NodeSeq) => {
+          if (factSet.getChoices.contains(WorkflowTypeChoice.SmsAndQuestions))
+            (".btn-phone-value *" #> obfuscatePhoneNumber(factSet.getCurrentMobileNumber) &
+              "#btn-phone [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
+                currentChoice = Some(WorkflowTypeChoice.SmsAndQuestions)
+                Noop
+              })).apply(n)
+          else
+            NodeSeq.Empty
+        }) &
+        "#btn-email" #> ((n: NodeSeq) => {
+          if (factSet.getChoices.contains(WorkflowTypeChoice.EmailAndQuestions))
+            (".btn-email-value *" #> obfuscateEmailAddress(factSet.getCurrentEmail) &
+              "#btn-email [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
+                currentChoice = Some(WorkflowTypeChoice.EmailAndQuestions)
+                Noop
+              })).apply(n)
+          else
+            NodeSeq.Empty
+        }) &
+        "#btn-other" #> ((n: NodeSeq) => {
+          if (factSet.getChoices.contains(WorkflowTypeChoice.QuestionsOnly))
+            ("#btn-other [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
+              currentChoice = Some(WorkflowTypeChoice.QuestionsOnly)
+              Noop
+            })).apply(n)
+          else
+            NodeSeq.Empty
+        }) &
         ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
           if (factSet.getHasChosen) {
-            showModalError(?("error-title"), ?("workflow-already-chosen")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+            showModalError(?("error-title"), ?("workflow-already-chosen")) &
+              SetHtml(contentAreaId, generateCurrentPageNodeSeq)
           } else {
             currentChoice.map(choice => {
               factSet.setChoice(choice)
@@ -228,11 +215,9 @@ trait SinglePageAppView extends DetectScheme with Logger {
       case Some(questionSet) => {
         var potentialAnswers: List[Answer] = Nil
         Templates(List("ajax-templates-hidden", "QuestionSet")).map(qst => {
-          (
-            ".question-set-header *" #> questionSet.title &
+          (".question-set-header *" #> questionSet.title &
             ".question-set-footer *" #> questionSet.footer &
             ".questions *" #> questionSet.questions.toList.foldLeft(NodeSeq.Empty)((acc, question) => {
-              // every question that has been presented on the screen has been answered, this way users can skip questions
               potentialAnswers = Answer("", question) :: potentialAnswers
 
               val answerQuestionFunc = (answerString: String) => {
@@ -296,8 +281,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
               factSet.answerQuestions(potentialAnswers)
               pushUserAction()
               SetHtml(contentAreaId, generateCurrentPageNodeSeq)
-            })
-          ).apply(qst)
+            })).apply(qst)
         }).openOr(NodeSeq.Empty)
       }
       case None => {
