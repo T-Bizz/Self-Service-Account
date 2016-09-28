@@ -77,6 +77,20 @@ trait SinglePageAppView extends DetectScheme with Logger {
     }
   }
 
+  protected def initQuestion(template: NodeSeq, title: String, placeholder: String, helpText: String, icon: String, onChange: JsCmd, action: Option[JsCmd] = None, actionTitle: Option[String] = None): NodeSeq = {
+    (".question-title *" #> title &
+      ".question-input [title]" #> title &
+      ".question-input [placeholder]" #> placeholder &
+      ".question-help-text [data-content]" #> helpText &
+      ".question-help-text .sr-only *" #> helpText &
+      ".question-icon [class+]" #> icon &
+      ".question-input [onchange]" #> onChange &
+      ".action-group" #> {
+        ".question-ask-action [onclick]" #> action.getOrElse(Noop) &
+          ".question-ask-action-label *" #> actionTitle.getOrElse("")
+      }).apply(template)
+  }
+
   protected def startOver(
     csssel: String = ".btn-reset [onclick]",
     redirect: String = "/scheme/%s".format(getScheme.map(p => p._1).getOrElse(""))
@@ -169,37 +183,27 @@ trait SinglePageAppView extends DetectScheme with Logger {
       memberNumber <- serviceNumber.is
     } yield {
       var currentChoice: Option[WorkflowTypeChoice.Value] = None
+        def initButton(template: NodeSeq, option: WorkflowTypeChoice.Value, value: Option[String]): NodeSeq = {
+          factSet.getChoices.contains(option) match {
+            case true => (".btn-value *" #> value.getOrElse("") &
+              ".list-group-item [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
+                currentChoice = Some(option)
+                Noop
+              })).apply(template)
+            case false => NodeSeq.Empty
+          }
+        }
       (".header-title *" #> ?("verification-method-choice-header") &
         ".sub-header-title *" #> ?("verification-method-choice-sub-header") &
         ".footer-title *" #> ?("verification-method-choice-footer") &
         "#btn-phone" #> ((n: NodeSeq) => {
-          if (factSet.getChoices.contains(WorkflowTypeChoice.SmsAndQuestions))
-            (".btn-phone-value *" #> obfuscatePhoneNumber(factSet.getCurrentMobileNumber) &
-              "#btn-phone [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
-                currentChoice = Some(WorkflowTypeChoice.SmsAndQuestions)
-                Noop
-              })).apply(n)
-          else
-            NodeSeq.Empty
+          initButton(n, WorkflowTypeChoice.SmsAndQuestions, Some(obfuscatePhoneNumber(factSet.getCurrentMobileNumber)))
         }) &
         "#btn-email" #> ((n: NodeSeq) => {
-          if (factSet.getChoices.contains(WorkflowTypeChoice.EmailAndQuestions))
-            (".btn-email-value *" #> obfuscateEmailAddress(factSet.getCurrentEmail) &
-              "#btn-email [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
-                currentChoice = Some(WorkflowTypeChoice.EmailAndQuestions)
-                Noop
-              })).apply(n)
-          else
-            NodeSeq.Empty
+          initButton(n, WorkflowTypeChoice.EmailAndQuestions, Some(obfuscateEmailAddress(factSet.getCurrentEmail)))
         }) &
         "#btn-other" #> ((n: NodeSeq) => {
-          if (factSet.getChoices.contains(WorkflowTypeChoice.QuestionsOnly))
-            ("#btn-other [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
-              currentChoice = Some(WorkflowTypeChoice.QuestionsOnly)
-              Noop
-            })).apply(n)
-          else
-            NodeSeq.Empty
+          initButton(n, WorkflowTypeChoice.QuestionsOnly, None)
         }) &
         ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
           if (factSet.getHasChosen) {
@@ -256,24 +260,20 @@ trait SinglePageAppView extends DetectScheme with Logger {
 
               askQuestionFunc("")
               acc ++ questionTemplate.map(qt => {
-                ((
-                  ".question-title *" #> question.title &
-                  ".question-input [title]" #> question.title &
-                  ".question-input [onchange]" #> ajaxCall(JsRaw("this.value"), answerQuestionFunc) &
-                  ".question-input [placeholder]" #> question.placeHolder &
-                  ".question-help-text [data-content]" #> question.helpText &
-                  ".question-help-text .sr-only *" #> question.helpText &
-                  ".action-group" #> {
-                    ".question-ask-action [onclick]" #> ajaxCall(JsRaw("this.value"), askQuestionFunc) &
-                      ".question-ask-action-label *" #> {
-                        question match {
-                          case t: TokenQuestion if t.target.isLeft => Text(?("resend-token-to-email"))
-                          case t: TokenQuestion                    => Text(?("resend-token-to-mobile"))
-                        }
-                      }
-                  } &
-                  ".question-icon [class+]" #> question.icon
-                ).apply(qt))
+                initQuestion(
+                  qt,
+                  question.title.toString,
+                  question.placeHolder.toString,
+                  question.helpText.toString,
+                  question.icon.toString,
+                  ajaxCall(JsRaw("this.value"), answerQuestionFunc),
+                  Some(ajaxCall(JsRaw("this.value"), askQuestionFunc)),
+                  question match {
+                    case t: TokenQuestion if t.target.isLeft => Some(?("resend-token-to-email"))
+                    case t: TokenQuestion                    => Some(?("resend-token-to-mobile"))
+                    case _                                   => None
+                  }
+                )
               }).openOr(NodeSeq.Empty)
             }) &
             (questionSet.category match {
@@ -357,28 +357,30 @@ trait SinglePageAppView extends DetectScheme with Logger {
         ".footer-title *" #> ?("ask-for-password-footer") &
         ".questions *" #> (
           (Templates(List("ajax-templates-hidden", "questionPassword")).map(t => {
-            (".question-title *" #> ?("password-question") &
-              ".question-input [title]" #> ?("password-question") &
-              ".question-input [placeholder]" #> ?("password-placeholder") &
-              ".question-help-text [data-content]" #> ?("password-help-text") &
-              ".question-help-text .sr-only *" #> ?("password-help-text") &
-              ".question-icon [class+]" #> ?("password-icon") &
-              ".question-input [onchange]" #> ajaxCall(JsRaw("this.value"), (s: String) => {
+            initQuestion(
+              t,
+              ?("password-question"),
+              ?("password-placeholder"),
+              ?("password-help-text"),
+              ?("password-icon"),
+              ajaxCall(JsRaw("this.value"), (s: String) => {
                 password = s
                 Noop
-              })).apply(t)
+              })
+            )
           })).openOr(NodeSeq.Empty) ++
           (Templates(List("ajax-templates-hidden", "questionPassword")).map(t => {
-            (".question-title *" #> ?("password-confirmation-question") &
-              ".question-input [title]" #> ?("password-confirmation-question") &
-              ".question-input [placeholder]" #> ?("password-confirmation-placeholder") &
-              ".question-help-text [data-content]" #> ?("password-confirmation-help-text") &
-              ".question-help-text .sr-only *" #> ?("password-confirmation-help-text") &
-              ".question-icon [class+]" #> ?("password-confirmation-icon") &
-              ".question-input [onchange]" #> ajaxCall(JsRaw("this.value"), (s: String) => {
+            initQuestion(
+              t,
+              ?("password-confirmation-question"),
+              ?("password-confirmation-placeholder"),
+              ?("password-confirmation-help-text"),
+              ?("password-confirmation-icon"),
+              ajaxCall(JsRaw("this.value"), (s: String) => {
                 passwordConfirmation = s
                 Noop
-              })).apply(t)
+              })
+            )
           })).openOr(NodeSeq.Empty)
         ) &
           ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
