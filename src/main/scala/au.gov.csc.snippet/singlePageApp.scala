@@ -353,6 +353,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
       var password: String = ""
       var passwordConfirmation: String = ""
       (".header-title *" #> ?("ask-for-password-header") &
+        ".sub-header-title *" #> ?("ask-for-password-sub-header") &
         ".footer-title *" #> ?("ask-for-password-footer") &
         ".questions *" #> (
           (Templates(List("ajax-templates-hidden", "questionPassword")).map(t => {
