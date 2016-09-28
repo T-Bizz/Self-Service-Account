@@ -15,7 +15,7 @@ object StageTypeChoice extends Enumeration {
 
   type StageTypeChoice = Value
 
-  val Identify, Verify, Result = Value
+  val Identify, Verify, SetPassword, Summary = Value
 }
 
 object QuestionSetType extends Enumeration {

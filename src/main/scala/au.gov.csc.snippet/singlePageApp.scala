@@ -44,7 +44,8 @@ trait SinglePageAppView extends DetectScheme with Logger {
 
   protected def setCurrentStage: JsCmd = currentStage.is match {
     case Some(StageTypeChoice.Verify)                    => setCurrentStage("2")
-    case Some(StageTypeChoice.Result)                    => setCurrentStage("3")
+    case Some(StageTypeChoice.SetPassword)               => setCurrentStage("3")
+    case Some(StageTypeChoice.Summary)                   => setCurrentStage("4")
     case None | Some(_) | Some(StageTypeChoice.Identify) => setCurrentStage("1")
   }
 
@@ -299,7 +300,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def askForAccounts: NodeSeq = {
-    currentStage(Some(Result))
+    currentStage(Some(SetPassword))
     (for {
       template <- Templates(List("ajax-templates-hidden", "askForAccounts"))
       fs <- currentFactSet.is
@@ -344,7 +345,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def askForPassword: NodeSeq = {
-    currentStage(Some(Result))
+    currentStage(Some(SetPassword))
     (for {
       template <- Templates(List("ajax-templates-hidden", "askForPassword"))
       fs <- currentFactSet.is
@@ -392,7 +393,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def providePasswords: NodeSeq = {
-    currentStage(Some(Result))
+    currentStage(Some(Summary))
     (for {
       template <- Templates(List("ajax-templates-hidden", "providePasswords"))
       memberNumber <- serviceNumber.is
@@ -416,7 +417,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def provideError(errorMessage: String): NodeSeq = {
-    currentStage(Some(Result))
+    currentStage(Some(Summary))
     Templates(List("ajax-templates-hidden", "provideError")).map(t => {
       (".error-text *" #> Text(errorMessage) &
         startOver(".btn-restart [onclick]", "/")).apply(t)
