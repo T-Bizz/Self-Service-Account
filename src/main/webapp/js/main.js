@@ -20,14 +20,14 @@ function focusFirstInput($, id) {
 }(jQuery);
 
 function removeErrorMarkup($, id) {
-  $('#' + id).removeClass('has-error');
-  $('#' + id).find('.help-block').remove();
+  $(id).removeClass('has-error');
+  $(id).find('.help-block').remove();
 }(jQuery);
 
 function addErrorMarkup($, id, err) {
-  $('#' + id).addClass('has-error');
-  $('#' + id).find('.help-block').remove();
-  $('#' + id + ' .input-group').after('<span class="help-block" aria-live="assertive" aria-relevant="additions removals">' + err + '</span>');
+  $(id).addClass('has-error');
+  $(id).find('.help-block').remove();
+  $(id + ' .input-group').after('<span class="help-block" aria-live="assertive" aria-relevant="additions removals">' + err + '</span>');
 }(jQuery);
     
 function addValidationMarkup($, id, isValid, err) {
@@ -39,43 +39,52 @@ function addValidationMarkup($, id, isValid, err) {
 
 function displayPasswordStrength($) {
 	var pwd = $('.question-input:first').val();
-	var progressBar = $('#strengthBar');
-	var score = zxcvbn(pwd, user_inputs=[]).score
+	var progressBar = $('#strength-bar');
+	var warningText = $('#strength-warning');
+	var strength = zxcvbn(pwd, user_inputs=[]);
 	var pct = 0;
-	var colour = "progress-bar-danger";
+	var colour = "danger";
 	var status = "Very Weak";
 
-	switch (score) {
+	switch (strength.score) {
 		case 0:
 		  pct = 10;
-          colour = "progress-bar-danger";
+          colour = "danger";
           status = "Too guessable";
           break;
         case 1:
 		  pct = 25;
-          colour = "progress-bar-warning";
+          colour = "warning";
           status = "Very guessable";
           break;
         case 2:
 		  pct = 50;
-          colour = "progress-bar-info";
+          colour = "info";
           status = "Somewhat guessable";
           break;
         case 3:
 		  pct = 75;
-          colour = "progress-bar-primary";
+          colour = "primary";
           status = "Safely unguessable";
           break;
         case 4:
 		  pct = 100;
-          colour = "progress-bar-success";
+          colour = "success";
           status = "Very unguessable";
           break;
 	}
 
 	progressBar.removeClass();
-	progressBar.addClass('progress-bar').addClass(colour);
+	progressBar.addClass('progress-bar').addClass('progress-bar-' + colour);
     progressBar.attr('aria-valuenow', pct);
     progressBar.attr('style', 'width: ' + pct + '%; min-width: 40px;');
     progressBar.find('span').text(status);
+    warningText.removeClass();
+    warningText.addClass('text-center').addClass('text-' + colour)
+
+    var isValid = 'false';
+    if (pct >= 50)
+    	isValid = 'true';
+
+    addValidationMarkup($, '.form-group:first', isValid, strength.feedback.warning);
 }(jQuery);

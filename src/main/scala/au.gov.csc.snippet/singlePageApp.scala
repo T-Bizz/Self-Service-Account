@@ -165,11 +165,11 @@ trait SinglePageAppView extends DetectScheme with Logger {
                 }
                 case Left(e) => {
                   showModalError(?("error-title"), ?(e.getMessage)) &
-                    addValidationMarkup("form-group-serviceNumber", mn.isValid, mn.validate.headOption.getOrElse(""), "Membership Number ")
+                    addValidationMarkup("#form-group-serviceNumber", mn.isValid, mn.validate.headOption.getOrElse(""), "Membership Number ")
                 }
               }
               case false => showModalError(?("error-title-invalid-data"), ?("invalid-nembership-number-provided")) &
-                addValidationMarkup("form-group-serviceNumber", mn.isValid, mn.validate.headOption.getOrElse(""), "Membership Number ")
+                addValidationMarkup("#form-group-serviceNumber", mn.isValid, mn.validate.headOption.getOrElse(""), "Membership Number ")
             }
           }).getOrElse(showModalError(?("error-title-missing-data"), ?("no-membership-number-provided")))
         }
@@ -351,6 +351,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
       fs <- currentFactSet.is
     } yield {
       var password: String = ""
+      var score: String = ""
       var passwordConfirmation: String = ""
       (".header-title *" #> ?("ask-for-password-header") &
         ".sub-header-title *" #> ?("ask-for-password-sub-header") &
@@ -363,8 +364,9 @@ trait SinglePageAppView extends DetectScheme with Logger {
               ?("password-placeholder"),
               ?("password-help-text"),
               ?("password-icon"),
-              ajaxCall(JsRaw("this.value"), (s: String) => {
-                password = s
+              ajaxCall(JsRaw("zxcvbn($('.question-input:first').val(), user_inputs=[]).score + ':' + this.value"), (s: String) => {
+                password = s.split(':').toList.drop(1).mkString
+                score = s.split(':').toList.head
                 Noop
               })
             )
@@ -384,12 +386,17 @@ trait SinglePageAppView extends DetectScheme with Logger {
           })).openOr(NodeSeq.Empty)
         ) &
           ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
-            if (password == passwordConfirmation) {
-              SessionState.userPassword(Some(password))
-              pushUserAction()
-              SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+            // if password is of required complexity
+            if (List("2", "3", "4").contains(score)) {
+              if (password == passwordConfirmation) {
+                SessionState.userPassword(Some(password))
+                pushUserAction()
+                SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+              } else {
+                showModalError(?("error-title-invalid-data"), ?("passwords-do-not-match"))
+              }
             } else {
-              showModalError(?("error-title-invalid-data"), ?("passwords-do-not-match"))
+              showModalError(?("error-title-invalid-data"), ?("password-easily-guessable"))
             }
           })).apply(template)
     }).openOr(NodeSeq.Empty)
