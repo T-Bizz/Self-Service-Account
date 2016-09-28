@@ -111,9 +111,11 @@ trait SinglePageAppView extends DetectScheme with Logger {
     input.replace('"', '\'')
   }
 
+  protected def obscure(text: String) = "*" * text.length
+
   protected def obfuscatePhoneNumber(in: String): String = in match {
     case "unknown"         => in
-    case i if i.length > 2 => i.substring(i.length - 2)
+    case i if i.length > 2 => obscure(i.substring(0, i.length - 2)) + i.substring(i.length - 2)
     case i                 => i
   }
 
@@ -122,7 +124,6 @@ trait SinglePageAppView extends DetectScheme with Logger {
     val longMailbox = "(.)(.*)(.)".r
     val validDomain = """^([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)$""".r
     val validEmail = """^([a-zA-Z0-9.!#$%&’'*+/=?^_`{|}~-]+)@([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)$""".r
-      def obscure(text: String) = "*" * text.length
 
     (in, in.split("@").toList.tail(0)) match {
       case (validEmail, validDomain) => {
