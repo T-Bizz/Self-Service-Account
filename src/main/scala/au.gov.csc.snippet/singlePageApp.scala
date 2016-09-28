@@ -343,23 +343,72 @@ trait SinglePageAppView extends DetectScheme with Logger {
     }).openOr(NodeSeq.Empty)
   }
 
+  protected def askForPassword: NodeSeq = {
+    currentStage(Some(Result))
+    (for {
+      template <- Templates(List("ajax-templates-hidden", "askForPassword"))
+      fs <- currentFactSet.is
+    } yield {
+      var password: String = ""
+      var passwordConfirmation: String = ""
+      (".header-title *" #> ?("ask-for-password-header") &
+        ".footer-title *" #> ?("ask-for-password-footer") &
+        ".questions *" #> (
+          (Templates(List("ajax-templates-hidden", "questionPassword")).map(t => {
+            (".question-title *" #> ?("password-question") &
+              ".question-input [title]" #> ?("password-question") &
+              ".question-input [placeholder]" #> ?("password-placeholder") &
+              ".question-help-text [data-content]" #> ?("password-help-text") &
+              ".question-help-text .sr-only *" #> ?("password-help-text") &
+              ".question-icon [class+]" #> ?("password-icon") &
+              ".question-input [onchange]" #> ajaxCall(JsRaw("this.value"), (s: String) => {
+                password = s
+                Noop
+              })).apply(t)
+          })).openOr(NodeSeq.Empty) ++
+          (Templates(List("ajax-templates-hidden", "questionPassword")).map(t => {
+            (".question-title *" #> ?("password-confirmation-question") &
+              ".question-input [title]" #> ?("password-confirmation-question") &
+              ".question-input [placeholder]" #> ?("password-confirmation-placeholder") &
+              ".question-help-text [data-content]" #> ?("password-confirmation-help-text") &
+              ".question-help-text .sr-only *" #> ?("password-confirmation-help-text") &
+              ".question-icon [class+]" #> ?("password-confirmation-icon") &
+              ".question-input [onchange]" #> ajaxCall(JsRaw("this.value"), (s: String) => {
+                passwordConfirmation = s
+                Noop
+              })).apply(t)
+          })).openOr(NodeSeq.Empty)
+        ) &
+          ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
+            if (password == passwordConfirmation) {
+              SessionState.userPassword(Some(password))
+              pushUserAction()
+              SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+            } else {
+              showModalError(?("error-title-invalid-data"), ?("passwords-do-not-match"))
+            }
+          })).apply(template)
+    }).openOr(NodeSeq.Empty)
+  }
+
   protected def providePasswords: NodeSeq = {
     currentStage(Some(Result))
     (for {
       template <- Templates(List("ajax-templates-hidden", "providePasswords"))
       memberNumber <- serviceNumber.is
       fs <- currentFactSet.is
+      pw <- SessionState.userPassword.is
     } yield {
       (".header-title *" #> ?("result-header") &
         ".footer-title *" #> ?("result-footer") &
         ".account-list *" #> fs.getEligibleAccountChoice.toList.foldLeft(NodeSeq.Empty)((acc, mshp) => {
-          acc ++ (Templates(List("ajax-templates-hidden", "accountNumberResult")).map(t => {
+          acc ++ (Templates(List("ajax-templates-hidden", "passwordResult")).map(t => {
             (".account-id *" #> mshp.external_id &
               ".account-scheme *" #> mshp.scheme &
               ".account-status *" #> mshp.status &
-              ".account-password *" #> (factProvider.getAccount(mshp.external_id) match {
-                case Right(accountDefinition) => Text(accountDefinition.password)
-                case Left(e)                  => Text("Password could not be set")
+              ".account-result *" #> (factProvider.getAccount(mshp.external_id) match {
+                case Right(accountDefinition) => Text(?("account-reset"))
+                case Left(e)                  => Text(?("account-not-reset"))
               })).apply(t)
           })).openOr(NodeSeq.Empty)
         })).apply(template)
@@ -409,12 +458,18 @@ trait SinglePageAppView extends DetectScheme with Logger {
         trace("%s has only one eligible account for registration / reset. Skipping choice.".format(serviceNumber.is.getOrElse("")))
         factSet.setEligibleAccountChoice(factSet.getEligibleMemberships)
         pushUserAction()
+        askForPassword
+      }
+      case Some(factSet) if factSet.isComplete &&
+        factSet.getHasChosenEligibleAccount && (SessionState.userPassword.is.getOrElse("") != "") => {
+
+        trace("%s has had eligible accounts registered / reset.".format(serviceNumber.is.getOrElse("")))
         providePasswords
       }
       case Some(factSet) if factSet.isComplete && factSet.getHasChosenEligibleAccount => {
 
-        trace("%s has had eligible accounts registered / reset.".format(serviceNumber.is.getOrElse("")))
-        providePasswords
+        trace("%s is being prompted to setup a password.".format(serviceNumber.is.getOrElse("")))
+        askForPassword
       }
       case Some(factSet) => {
 

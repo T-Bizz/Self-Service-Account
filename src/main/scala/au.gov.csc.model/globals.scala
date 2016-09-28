@@ -26,6 +26,7 @@ object SessionState {
 
   object sessionId extends SessionVar[String](nextFuncName)
   object userState extends SessionVar[Option[String]](None)
+  object userPassword extends SessionVar[Option[String]](None)
 
   // user state during their workflow
   object currentStep extends SessionVar[Int](0)

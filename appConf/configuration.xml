@@ -14,7 +14,7 @@
 			<member id="77929555" password="testPassword" scheme="testScheme">
 				<person age="21" dob="1995-09-21" firstname="John" fullName="John Smith" gender="Male" surname="Smith" taxFileNumber="87654321" title="Mr"/>
 				<memberships>
-					<membership externalId="75431657" joinDate="2005-09-21" scheme="CSS" status="Preserver"/>
+					<membership externalId="75431657" joinDate="2005-09-21" scheme="PSS" status="Preserver"/>
 					<membership externalId="77929555" joinDate="2005-09-21" scheme="CSS" status="Subsumed" exitDate="2015-09-21" />
 				</memberships>
 				<phoneNumbers>
@@ -30,7 +30,7 @@
 			<member id="75431657" password="testPassword" scheme="testScheme">
 				<person age="21" dob="1995-09-21" firstname="John" fullName="John Smith" gender="Male" surname="Smith" taxFileNumber="87654321" title="Mr"/>
 				<memberships>
-					<membership externalId="75431657" joinDate="2005-09-21" scheme="CSS" status="Preserver"/>
+					<membership externalId="75431657" joinDate="2005-09-21" scheme="PSS" status="Preserver"/>
 					<membership externalId="77929555" joinDate="2005-09-21" scheme="CSS" status="Preserver" exitDate="2015-09-21" />
 				</memberships>
 				<addresses>
