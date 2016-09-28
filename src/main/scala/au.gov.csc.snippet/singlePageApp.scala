@@ -412,12 +412,15 @@ trait SinglePageAppView extends DetectScheme with Logger {
       pw <- SessionState.userPassword.is
     } yield {
       (".header-title *" #> ?("result-header") &
+        ".sub-header-title *" #> ?("result-sub-header") &
         ".footer-title *" #> ?("result-footer") &
         ".account-list *" #> fs.getEligibleAccountChoice.toList.foldLeft(NodeSeq.Empty)((acc, mshp) => {
           acc ++ (Templates(List("ajax-templates-hidden", "passwordResult")).map(t => {
             (".account-id *" #> mshp.external_id &
-              ".account-scheme *" #> mshp.scheme &
-              ".account-status *" #> mshp.status &
+              ".account-scheme *" #> (mshp.scheme match {
+                case "PENSION" => "%s %s".format(?("login-to"), ?("pso-login"))
+                case s         => "%s %s %s".format(?("login-to"), ?(s.toLowerCase), ?("mso-login"))
+              }) &
               ".account-result *" #> (factProvider.getAccount(mshp.external_id) match {
                 case Right(accountDefinition) => Text(?("account-reset"))
                 case Left(e)                  => Text(?("account-not-reset"))
