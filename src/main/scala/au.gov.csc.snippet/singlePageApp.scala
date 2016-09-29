@@ -195,7 +195,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
           }
         }
       (".header-title *" #> ?("verification-method-choice-header") &
-        ".sub-header-title *" #> ?("verification-method-choice-sub-header") &
+        ".sub-header-title *" #> "%s %s".format(?("verification-method-choice-sub-header"), memberNumber) &
         ".footer-title *" #> ?("verification-method-choice-footer") &
         "#btn-phone" #> ((n: NodeSeq) => {
           initButton(n, WorkflowTypeChoice.SmsAndQuestions, Some(obfuscatePhoneNumber(factSet.getCurrentMobileNumber)))

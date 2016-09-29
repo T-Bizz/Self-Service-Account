@@ -748,6 +748,36 @@ html {
 
 /* Bootstrap customizations
 -------------------------------------------------- */
+.progress {
+    background-color: #eee;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+}
+
+.progress-bar {
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+}
+
+.panel-no-border {
+    border: 0;
+}
+
+.panel-no-shadow {
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.panel-no-border > .panel-heading {
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+.panel-no-padding > .panel-body {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
 .input-group-addon {
     background-color: transparent;
     border: 0px;

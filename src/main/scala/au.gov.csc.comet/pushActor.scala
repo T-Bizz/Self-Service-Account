@@ -33,6 +33,7 @@ class PushActor extends CometActor with CometListener with SinglePageAppView wit
   override def registerWith = PushActorManager
 
   protected var sId: Option[String] = None
+
   override def render = {
     "#%s *".format(contentAreaId) #> {
       generateCurrentPageNodeSeq
@@ -44,11 +45,13 @@ class PushActor extends CometActor with CometListener with SinglePageAppView wit
     sId = Some(SessionState.sessionId.is)
     super.localSetup
   }
+
   override protected def localShutdown = {
     trace("cometActor shutting down: %s (%s) %s".format(this, currentFactSet.is.map(_.factSetId), pageId))
     partialUpdate(RedirectTo("/sessionTerminated"))
     super.localShutdown
   }
+
   protected def isTokenForMe(tm: TokenMessage): Boolean = {
     currentFactSet.is.map(fs => {
       fs.factSetId == tm.sessionId
