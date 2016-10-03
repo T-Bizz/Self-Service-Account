@@ -17,3 +17,10 @@ object StageTypeChoice extends Enumeration {
 
   val Identify, Verify, Result = Value
 }
+
+object QuestionSetType extends Enumeration {
+
+  type QuestionSetType = Value
+
+  val TokenEmail, TokenSMS, Hygiene, CurrentMembership, ContactDetails = Value
+}

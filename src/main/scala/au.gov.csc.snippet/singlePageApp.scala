@@ -27,6 +27,7 @@ class singlePageApp extends Logger with DetectScheme {
       out = S ? key
     out
   }
+
   val contentAreaId = "step-form"
   protected var factProvider = SessionState.userProvider
 
@@ -47,7 +48,7 @@ class singlePageApp extends Logger with DetectScheme {
     } else {
       JsCmds.Run("jQuery('#%s').addClass('has-error');".format(formGroupId) +
         "jQuery('#%s').find('.help-block').remove();".format(formGroupId) +
-        "jQuery('#%s .input-group').after('<span class=\"help-block\">%s</span>');".format(formGroupId, errorPrefix + error))
+        "jQuery('#%s .input-group').after('<span class=\"help-block\" aria-live=\"assertive\" aria-relevant=\"additions removals\">%s</span>');".format(formGroupId, errorPrefix + error))
     }
   }
 
@@ -55,7 +56,7 @@ class singlePageApp extends Logger with DetectScheme {
     currentStage(Some(Result))
     Templates(List("ajax-templates-hidden", "Error")).map(t => {
       (".error-text *" #> Text(errorMessage) &
-        startOver
+        startOver(".btn-reset [onclick]", "/")
       ).apply(t)
     }).openOr(NodeSeq.Empty)
   }
@@ -166,11 +167,11 @@ class singlePageApp extends Logger with DetectScheme {
         "#btn-other" #> {(n:NodeSeq) => {
           if (choices.contains(WorkflowTypeChoice.QuestionsOnly)){
             (
-                "#btn-other [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
-                  currentChoice = Some(WorkflowTypeChoice.QuestionsOnly)
-                  Noop
-                })
-              ).apply(n)
+              "#btn-other [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
+                currentChoice = Some(WorkflowTypeChoice.QuestionsOnly)
+                Noop
+              })
+            ).apply(n)
           } else {
             NodeSeq.Empty
           }
@@ -183,7 +184,7 @@ class singlePageApp extends Logger with DetectScheme {
             showModalError(?("error-title"), ?("no-verification-method-chosen"))
           })
         }) &
-        startOver
+        startOver(".btn-reset [onclick]", "/")
       ).apply(template)
     }).openOr(NodeSeq.Empty)
   }
@@ -197,12 +198,12 @@ class singlePageApp extends Logger with DetectScheme {
       factProvider.getAccount(memberNumber) match {
         case Right(accountDefinition) => {
           (".header-title *" #> ?("result-header") &
-              ".footer-title *" #> ?("result-footer") &
-              ".membership-number *" #> accountDefinition.memberNumber  &
-              ".password *" #> accountDefinition.password &
-              ".scheme-value *" #> accountDefinition.scheme &
-              startOver
-            ).apply(template)
+            ".footer-title *" #> ?("result-footer") &
+            ".membership-number *" #> accountDefinition.memberNumber  &
+            ".password *" #> accountDefinition.password &
+            ".scheme-value *" #> accountDefinition.scheme &
+            startOver(".btn-reset [onclick]", "/")
+          ).apply(template)
         }
         case Left(e) => {
           showError(e.getMessage)
@@ -216,7 +217,7 @@ class singlePageApp extends Logger with DetectScheme {
     factSet.getNextQuestions match {
       case Some(questionSet) => {
         var potentialAnswers:List[Answer] = Nil
-        Templates(List("ajax-templates-hidden","QuestionSet")).map(qst => {(
+        Templates(List("ajax-templates-hidden", "QuestionSet")).map(qst => {(
           ".question-set-header *" #> questionSet.title &
             ".question-set-footer *" #> questionSet.footer &
             ".questions *" #> questionSet.questions.toList.foldLeft(NodeSeq.Empty)((acc, question) => {
@@ -225,16 +226,11 @@ class singlePageApp extends Logger with DetectScheme {
 
               val answerQuestionFunc = (answerString: String) => {
                 potentialAnswers = potentialAnswers.filterNot(pa => {
-                  if (pa.question == question)
-                    true
-                  else
-                    false
+                  pa.question == question
                 })
                 potentialAnswers = Answer(answerString, question) :: potentialAnswers
                 question.getValidationErrors(answerString) match {
-                  case Nil => {
-                    Noop
-                  }
+                  case Nil =>  Noop
                   case o => showModalError(?("error-title"), o.mkString)
                 }
               }
@@ -255,17 +251,26 @@ class singlePageApp extends Logger with DetectScheme {
                     ".question-input [onchange]" #> ajaxCall(JsRaw("this.value"), answerQuestionFunc) &
                     ".question-input [placeholder]" #> question.placeHolder &
                     ".question-help-text [data-content]" #> question.helpText &
-                    ".question-help-text .sr-only *" #> question.helpText
+                    ".question-help-text .sr-only *" #> question.helpText &
+                    ".question-icon [class+]" #> question.icon
                   ).apply(qt))
               }).openOr(NodeSeq.Empty)
             }) &
-            ".question-set-heading-description *" #> Text(?("question-set-heading-description")) &
-            ".question-set-heading-contact-cic *" #> Text(?("question-set-heading-contact-cic")) &
+            (questionSet.category match {
+              case QuestionSetType.TokenEmail | QuestionSetType.TokenSMS => {
+                ".question-set-heading-description *" #> Text(?("question-set-token-heading-description")) &
+                  ".question-set-heading-contact-cic *" #> Text(?("question-set-token-heading-contact-cic"))
+              }
+              case _ => {
+                ".question-set-heading-description *" #> Text(?("question-set-heading-description")) &
+                  ".question-set-heading-contact-cic *" #> Text(?("question-set-heading-contact-cic"))
+              }
+            }) &
             ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"),(s:String) => {
               factSet.answerQuestions(potentialAnswers)
               SetHtml(contentAreaId, generateCurrentPageNodeSeq)
             }) &
-            startOver
+            startOver(".btn-reset [onclick]", "/")
           ).apply(qst)
         }).openOr(NodeSeq.Empty)
       }
@@ -290,20 +295,24 @@ class singlePageApp extends Logger with DetectScheme {
     }
     (".btn-get-started-text *" #> ?("btn-get-started-text") &
       ".btn-reset-text *" #> ?("btn-reset-text") &
+      ".btn-restart-text *" #> ?("btn-restart-text") &
       ".btn-next-text *" #> ?("btn-next-text") &
-      ".btn-login-text *" #> ?("btn-login-text")
+      ".btn-login-text *" #> ?("btn-login-text") &
+      startOver(".btn-restart [onclick]", "/") &
+      startOver()
     ).apply(node)
   } ++ Script(setCurrentStage)
 
-  def startOver: CssSel = {
-    ".btn-reset [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
+  def startOver(csssel: String = ".btn-reset [onclick]",
+                redirect: String = "/scheme/%s".format(getScheme.map(p => p._1).getOrElse(""))): CssSel = {
+    csssel #> ajaxCall(JsRaw("this"), (s: String) => {
       S.session.foreach(s => {
         s.destroySession()
         s.httpSession.foreach(httpsession => {
           httpsession.terminate
         })
       })
-      RedirectTo("/scheme/%s".format(getScheme.map(p => p._1).getOrElse("")))
+      RedirectTo(redirect)
     })
   }
 
@@ -311,5 +320,3 @@ class singlePageApp extends Logger with DetectScheme {
     "#%s *".format(contentAreaId) #> {generateCurrentPageNodeSeq}
   }
 }
-// here's a mechanim for putting a function into the javascript DOM.
-// Script(JsCrVar("fireError",AnonFunc(ajaxCall(JsRaw("this"),(s:String) => Noop))))

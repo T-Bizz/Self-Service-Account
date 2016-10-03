@@ -40,54 +40,180 @@ class MemberBackedFactSet(member:Member,
                           questionsPerPage: Int)
   extends FactSet {
 
+  import net.liftweb.http._
   import WorkflowTypeChoice._
+
+  protected def ?(key: String): String = {
+    // get configured string for scheme or use the default configured string
+    var out = S ? "%s%s".format(key, Scheme.is.map(s => "-%s".format(s._1)).getOrElse(""))
+    if (out == "%s%s".format(key, Scheme.is.map(s => "-%s".format(s._1)).getOrElse("")))
+      out = S ? key
+    out
+  }
 
   protected val questionSets: List[QuestionSet] = {
     List(
-      QuestionSet("personal",Text("Questions about yourself"),List(
-        StringQuestion("personal", Text("What is your first name?"),      Text("Provide your first name"), "John"    , false, 0, member.person.firstName),
-        StringQuestion("personal", Text("What is your surname?"),         Text("Provide your surname"),    "Smith"   , false, 1, member.person.surname),
-        NumberQuestion("personal", Text("What is your age?"),             Text("Provide your age"),        "21"      , false, 2, member.person.age.toString)
-      ) :::
-        member.person.title.toList.map(t =>
-          StringQuestion("personal", Text("What is your title?"),         Text("Provide your title"),      "Mr"      , false, 3, t)
-        )
-        ::: member.person.tfn.toList.map(t =>
-        NumberQuestion("personal", Text("What is your tax file number?"), Text("Provide your tax file number. This should be a 8 or 9 digit long numerical value."), "87654321", false, 4, t)
-      )
-        ,1,Some(Text("Click next to submit your answers")))
+      QuestionSet(QuestionSetType.Hygiene,
+                  Text(?("hygine-questions-title")),
+        List(
+          StringQuestion(QuestionSetType.Hygiene,
+                         Text(?("hygine-first-name-question")),
+                         Text(?("hygine-first-name-help-text")),
+                         ?("hygine-first-name-placeholder"),
+                         ?("hygine-first-name-icon"),
+                         false,
+                         0,
+                         member.person.firstName),
+          StringQuestion(QuestionSetType.Hygiene,
+                         Text(?("hygine-surname-question")),
+                         Text(?("hygine-surname-help-text")),
+                         ?("hygine-surname-placeholder"),
+                         ?("hygine-surname-icon"),
+                         false,
+                         1,
+                         member.person.surname),
+          NumberQuestion(QuestionSetType.Hygiene,
+                         Text(?("hygine-age-question")),
+                         Text(?("hygine-age-help-text")),
+                         ?("hygine-age-placeholder"),
+                         ?("hygine-age-icon"),
+                         false,
+                         2,
+                         member.person.age.toString)
+        ) ::: member.person.tfn.toList.map(t =>
+          NumberQuestion(QuestionSetType.Hygiene,
+                         Text(?("hygine-tfn-question")),
+                         Text(?("hygine-tfn-help-text")),
+                         ?("hygine-tfn-placeholder"),
+                         ?("hygine-tfn-icon"),
+                         false,
+                         4,
+                         t)
+        ),
+      1,
+      Some(Text(?("hygine-questions-footer"))))
     ) ::: member.memberships.toList.map(m => {
-      val mid = "membership_%s".format(m.membershipNumber)
-      QuestionSet(mid,Text("Questions about your membership with ID number %s".format(m.membershipNumber)),List(
-        StringQuestion(mid, Text("What is the name of the scheme?"), Text("Provide the name of your scheme"),           "PSS",         false, 1, m.scheme),
-        DateQuestion  (mid, Text("When did you join this scheme?"),  Text("Provide the date you entered this scheme"),  "21/6/1985",   false, 2, m.joinDate),
-        StringQuestion(mid, Text("What is your status?"),            Text("Provide your scheme status"),                "contributor", false, 3, m.status)
-      ) ::: m.exitDate.toList.map(ed => {
-        DateQuestion  (mid, Text("When did you exit this scheme?"),  Text("Provide the date you exited this scheme"),   "21/6/1985",   false, 4, ed)
-      }),2,Some(Text("Click next to submit your answers")))
+      QuestionSet(QuestionSetType.CurrentMembership,
+                  Text(?("membership-questions-title") + " %s".format(m.membershipNumber)),
+                  List(
+                    DateQuestion(
+                      QuestionSetType.CurrentMembership,
+                      Text(?("membership-join-date-help-text")),
+                      Text(?("membership-join-date-question")),
+                      ?("membership-join-date-placeholder"),
+                      ?("membership-join-date-icon"),
+                      false,
+                      2,
+                      m.joinDate),
+                    StringQuestion(
+                      QuestionSetType.CurrentMembership,
+                      Text(?("membership-status-question")),
+                      Text(?("membership-status-help-text")),
+                      ?("membership-status-placeholder"),
+                      ?("membership-status-icon"),
+                      false,
+                      3,
+                      m.status)
+                  ) ::: m.exitDate.toList.map(ed => {
+                    DateQuestion(
+                      QuestionSetType.CurrentMembership,
+                      Text(?("membership-exit-date-question")),
+                      Text(?("membership-exit-help-text")),
+                      ?("membership-exit-date-placeholder"),
+                      ?("membership-exit-date-icon"),
+                      false,
+                      4,
+                      ed)
+                  }),
+      2,
+      Some(Text(?("membership-questions-footer"))))
     }) ::: (member.contactDetails.toList.flatMap {
-      case e: EmailAddress => List(QuestionSet("sendEmailToken", Text("We're sending you a token to your email address"), List(
-        TokenQuestion("sendEmailToken", Text("Please enter the token you've received in your email"), Text("Provide the verification code you recieved"), "012345", true, 0, Left(e))
-      ), 0, Some(Text("If you don't recieve a verification code within the next 5 minutes, contact the CIC."))))
-      case e: PhoneNumber if e.kind == "mobile" => List(QuestionSet("sendSMSToken", Text("We're sending you a token to your mobile phone"), List(
-        TokenQuestion("sendSMSToken",   Text("Please enter the token you've received on your phone"), Text("Provide the verification code you recieved"), "012345", true, 0, Right(e))
-      ), 0, Some(Text("If you don't recieve a verification code within the next 5 minutes, contact the CIC."))))
+      case e: EmailAddress =>
+        List(QuestionSet(QuestionSetType.TokenEmail,
+                         Text(?("token-email-title")),
+                         List(
+                           TokenQuestion(
+                             QuestionSetType.TokenEmail,
+                             Text(?("token-email-question")),
+                             Text(?("token-email-help-text")),
+                             ?("token-email-placeholder"),
+                             ?("toekn-email-icon"),
+                             true,
+                             0,
+                             Left(e))
+                         ),
+                         0,
+                         Some(Text(?("token-email-footer")))))
+      case e: PhoneNumber if e.kind == "mobile" =>
+        List(QuestionSet(QuestionSetType.TokenSMS,
+                         Text(?("token-sms-title")),
+                         List(
+                           TokenQuestion(
+                             QuestionSetType.TokenSMS,
+                             Text(?("token-sms-question")),
+                             Text(?("token-sms-help-text")),
+                             ?("token-sms-placeholder"),
+                             ?("token-sms-icon"),
+                             true,
+                             0,
+                             Right(e))
+                         ),
+                         0,
+                         Some(Text(?("token-sms-footer")))))
       case _ => Nil
-    }) ::: List(QuestionSet("contactDetails", Text("Tell us about how we communicate with you"), member.contactDetails.flatMap{
-      case cd:PhoneNumber if cd.kind != "mobile" => {
-        List(
-          StringQuestion("contactDetails", Text("What is the area code of your phone number?"), Text("Provide the area code of your contact number"), "03", false, 0, cd.areaCode)
-        )
-      }
-      case cd:ComplexAddress => {
-        List(
-          StringQuestion("contactDetails", Text("What's your postcode?"), Text("Provide the post code for your current address"), "03", false, 0, cd.postCode),
-          StringQuestion("contactDetails", Text("What's your suburb?"),   Text("Provide the suburb for your current address"),    "03", false, 0, cd.city),
-          StringQuestion("contactDetails", Text("What's your state?"),    Text("Provide the state of your current address"),      "03", false, 0, cd.state)
-        )
-      }
-      case _ => Nil
-    }, 4, None))
+    }) ::: List(
+      QuestionSet(
+        QuestionSetType.ContactDetails,
+          Text(?("contact-details-questions-title")),
+          member.contactDetails.flatMap{
+            case cd:PhoneNumber => {
+              List(
+                StringQuestion(
+                  QuestionSetType.ContactDetails,
+                  Text(?("contact-details-phone-number-question")),
+                  Text(?("contact-details-phone-number-help-text")),
+                  ?("contact-details-phone-number-placeholder"),
+                  ?("contact-details-phone-number-icon"),
+                  false,
+                  0,
+                  cd.phoneNumber)
+              )
+            }
+            case cd:Address => {
+              List(
+                StringQuestion(
+                  QuestionSetType.ContactDetails,
+                  Text(?("contact-details-post-code-question")),
+                  Text(?("Provide your postcode for your current address")),
+                  ?("contact-details-post-code-placeholder"),
+                  ?("contact-details-post-code-icon"),
+                  false,
+                  0,
+                  cd.postCode),
+                StringQuestion(
+                  QuestionSetType.ContactDetails,
+                  Text(?("contact-details-suburb-question")),
+                  Text(?("contact-details-suburb-help-text")),
+                  ?("contact-details-suburb-placeholder"),
+                  ?("contact-details-suburb-icon"),
+                  false,
+                  0,
+                  cd.city),
+                StringQuestion(
+                  QuestionSetType.ContactDetails,
+                  Text(?("contact-details-state-question")),
+                  Text(?("contact-details-state-help-text")),
+                  ?("contact-details-state-placeholder"),
+                  ?("contact-details-state-icon"),
+                  false,
+                  0,
+                  cd.state)
+              )
+            }
+            case _ => Nil
+          },
+      4,
+      None))
   }
 
   protected var unansweredQuestions: List[QuestionBase] = questionSets.flatMap(_.questions)
@@ -159,12 +285,12 @@ class MemberBackedFactSet(member:Member,
         qs => questionSets.find(_.category == kv._1).map(questionSet => questionSet.copy(questions = qs))
     ).filter(
       qs => qs.category match {
-        case "sendEmailToken" => chosenWorkflowType match
+        case QuestionSetType.TokenEmail => chosenWorkflowType match
         {
           case Some(EmailAndQuestions) => true
           case _ => false
         }
-        case "sendSMSToken" => chosenWorkflowType match
+        case QuestionSetType.TokenSMS => chosenWorkflowType match
         {
           case Some(SmsAndQuestions) => true
           case _ => false
