@@ -1,4 +1,4 @@
-package au.gov.csc.snippet
+package au.gov.csc.model
 
 trait MembershipNumber {
   val prefix: String
@@ -41,28 +41,28 @@ case class MshpNumber(number: String, prefix: String = "", pensionCode: String =
         "does not contain a valid pension code suffix. Valid codes include " + schemes.mkString(", ") + "."
     }
 
-    def validSchemeCodeForSource(id: String): Option[String] = {
-      schemes.contains(patternScheme.findFirstIn(id).getOrElse("CS")) match {
-        case true => None
-        case false => id.matches(MembershipNumberPattern.regex) match {
-          case true => id match {
-            case MembershipNumberPattern(prefix, number, pension, suffix) =>
-              prefix match {
-                case "A" | "N" | "R" => pension match {
-                  case "CS" | "PS" | "PG" | "OS" => None
-                  case _ => Some("Military Service Numbers cannot have a civilian pension code suffix.")
+      def validSchemeCodeForSource(id: String): Option[String] = {
+        schemes.contains(patternScheme.findFirstIn(id).getOrElse("CS")) match {
+          case true => None
+          case false => id.matches(MembershipNumberPattern.regex) match {
+            case true => id match {
+              case MembershipNumberPattern(prefix, number, pension, suffix) =>
+                prefix match {
+                  case "A" | "N" | "R" => pension match {
+                    case "CS" | "PS" | "PG" | "OS" => None
+                    case _                         => Some("Military Service Numbers cannot have a civilian pension code suffix.")
+                  }
+                  case "Z" | "P" => pension match {
+                    case "MS" | "DF" | "DB" | "AD" => None
+                    case _                         => Some("Australian Government Service Numbers cannot have a military pension code suffix.")
+                  }
+                  case _ => None
                 }
-                case "Z" | "P" => pension match {
-                  case "MS" | "DF" | "DB" | "AD" => None
-                  case _ => Some("Australian Government Service Numbers cannot have a military pension code suffix.")
-                }
-                case _ => None
-              }
+            }
+            case false => None
           }
-          case false => None
         }
       }
-    }
 
     val isInvalidSchemeCodeForSource: PartialFunction[String, String] = {
       case x if validSchemeCodeForSource(x).getOrElse("None") != "None" =>
@@ -74,30 +74,30 @@ case class MshpNumber(number: String, prefix: String = "", pensionCode: String =
         "is not a valid Australian Government Service (AGS) or Military Service Number."
     }
 
-    def isInvalidAGSFormatModulo(id: String): Option[String] = {
-      if (List(id).collect(isInvalidFormat).isEmpty) {
-        id match {
-          case MembershipNumberPattern(prefix, number, pension, suffix) =>
-            prefix match {
-              case "A" | "N" | "R" | "P" | "Z" => None
-              case _ =>
-                if (number.length() != agsLength) {
-                  Some(f"must contain $agsLength%1d digits to be a valid Australian Government Service Number")
-                } else {
-                  var result: Int = 0
-                  val multiplyBy: List[Int] = List(7, 9, 10, 5, 8, 4, 2, 1)
-                  (number.toList.map(x => x.asDigit), multiplyBy).zipped.foreach((x, y) => result += x * y)
-                  result % 11 match {
-                    case 0 => None
-                    case _ => Some("is not a valid Australian Government Service (AGS) Number")
+      def isInvalidAGSFormatModulo(id: String): Option[String] = {
+        if (List(id).collect(isInvalidFormat).isEmpty) {
+          id match {
+            case MembershipNumberPattern(prefix, number, pension, suffix) =>
+              prefix match {
+                case "A" | "N" | "R" | "P" | "Z" => None
+                case _ =>
+                  if (number.length() != agsLength) {
+                    Some(f"must contain $agsLength%1d digits to be a valid Australian Government Service Number")
+                  } else {
+                    var result: Int = 0
+                    val multiplyBy: List[Int] = List(7, 9, 10, 5, 8, 4, 2, 1)
+                    (number.toList.map(x => x.asDigit), multiplyBy).zipped.foreach((x, y) => result += x * y)
+                    result % 11 match {
+                      case 0 => None
+                      case _ => Some("is not a valid Australian Government Service (AGS) Number")
+                    }
                   }
-                }
-            }
+              }
+          }
+        } else {
+          None
         }
-      } else {
-        None
       }
-    }
 
     val isInvalidAGSFormat: PartialFunction[String, String] = {
       case x if isInvalidAGSFormatModulo(x).getOrElse("None") != "None" =>

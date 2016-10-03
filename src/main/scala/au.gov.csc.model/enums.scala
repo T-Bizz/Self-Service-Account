@@ -1,8 +1,8 @@
-package au.gov.csc.snippet
+package au.gov.csc.model
 
 import java.util.Date
 
-import scala.xml.{NodeSeq,Text}
+import scala.xml.{ NodeSeq, Text }
 
 object WorkflowTypeChoice extends Enumeration {
 
@@ -15,7 +15,7 @@ object StageTypeChoice extends Enumeration {
 
   type StageTypeChoice = Value
 
-  val Identify, Verify, Result = Value
+  val Identify, Verify, SetPassword, Summary = Value
 }
 
 object QuestionSetType extends Enumeration {

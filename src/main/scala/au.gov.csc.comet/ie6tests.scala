@@ -3,29 +3,29 @@ package au.gov.csc.comet
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.CometActor
 import net.liftweb.http.js.JsCmds.SetHtml
-
-import scala.xml.{NodeSeq, Text}
+import scala.xml.{ NodeSeq, Text }
 import net.liftweb.http.SHtml._
 import net.liftweb.util.Helpers._
 import net.liftweb.util.Schedule
+import scala.language.postfixOps
 
 case object Start
 case object Stop
 case object Ping
 
 class cometTest extends CometActor {
-  protected var currentResponse:Option[String] = None
+  protected var currentResponse: Option[String] = None
   override def render = {
     "#startButton" #> NodeSeq.Empty &
       "#stopButton" #> NodeSeq.Empty &
       "#cometResponse *" #> currentResponse
   }
   override def fixedRender = {
-    "#startButton" #> ajaxButton("start",() => {
+    "#startButton" #> ajaxButton("start", () => {
       this ! Start
       Noop
     }) &
-      "#stopButton" #> ajaxButton("stop",() => {
+      "#stopButton" #> ajaxButton("stop", () => {
         this ! Stop
         Noop
       }) &
@@ -46,7 +46,7 @@ class cometTest extends CometActor {
       if (isRunning) {
         currentResponse = Some(new java.util.Date().toString)
         currentResponse.map(cp => partialUpdate(SetHtml("cometResponse", Text(cp))))
-        Schedule.schedule(this,Ping,5 seconds)
+        Schedule.schedule(this, Ping, 5 seconds)
       }
     }
     case _ => {}

@@ -23,9 +23,10 @@
     <![endif]-->
     <div class="container" style="margin-top:60px;">
       <div class="container">
+				<!--<div class="lift:comet?type=PushActor"></div>-->
         <div class="row">
             <div class="col-xs-7 col-sm-6 col-md-6 margin-bottom-lg">
-            <a href="/index.html">
+            <a href="#">
                 <img src="/img/logo.svg" onerror="this.src='/img/logo.gif'; this.onerror=null;" alt="Commonwealth Superannuation Corporation Website">
             </a>
           </div>
@@ -38,19 +39,19 @@
           </div>
         </div>
         <div class="row">
-          <div class="panel panel-default animated fadeIn margin-top-md">
+          <div class="panel panel-default panel-no-border panel-no-shadow panel-no-padding animated fadeIn margin-top-md">
             <div class="panel-heading background-csc">
               <div class="row">
+                <div class="col-xs-8">
+                  <h1 class="text-brand">Register / Reset Account</h1>
+                </div>
                 <div class="col-xs-2">
                   <div data-lift="embed?what=/ajax-templates-hidden/spinner"></div>
-                </div>
-                <div class="col-xs-8">
-                  <h1 class="text-brand text-center">Register / Reset Account</h1>
                 </div>
               </div>
             </div>
             <div class="panel-body">
-              <div data-lift="singlePageApp">
+              <div data-lift="lift:singlePageApp.comet" class="app-root-elem" ><!-- singlePageApp">-->
                 <div id="step-wizzard" class="padding-bottom-md">
                   <ul class="nav nav-pills nav-justified setup-panel">
                     <li class="step-heading active" id="li-step-1"><a href="#">
@@ -58,39 +59,60 @@
                       <p class="list-group-item-text">1. Identify <span class="sr-only">step</span></p>
                     </a></li>
                     <li class="step-heading disabled" id="li-step-2"><a href="#">
-                      <p class="list-group-item-heading"><span class="fa fa-check-circle-o fa-2x"></span></p>
+                      <p class="list-group-item-heading"><span class="fa fa-user fa-2x"></span></p>
                       <p class="list-group-item-text">2. Verify <span class="sr-only">step</span></p>
                     </a></li>
                     <li class="step-heading disabled" id="li-step-3"><a href="#">
+                      <p class="list-group-item-heading"><span class="fa fa-key fa-2x"></span></p>
+                      <p class="list-group-item-text">3. Set Password <span class="sr-only">step</span></p>
+                    </a></li>
+                    <li class="step-heading disabled" id="li-step-4"><a href="#">
                       <p class="list-group-item-heading"><span class="fa fa-list-alt fa-2x"></span></p>
-                      <p class="list-group-item-text">3. Outcome <span class="sr-only">step</span></p>
+                      <p class="list-group-item-text">4. Summary <span class="sr-only">step</span></p>
                     </a></li>
                   </ul>
                 </div>
-                <div id="step-form"></div>
+                <div id="step-form" data-id=""></div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="modal fade modal-error" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h2 class="modal-title text-danger text-center"><span class="fa fa-exclamation-triangle"></span>  <span class="modal-title-text">Error</span></h2>
-      </div>
-      <div class="modal-body text-center text-danger">
-        <p class="modal-text"></p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary btn-block" data-dismiss="modal">Close</button>
+    <div class="modal fade modal-general" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h2 class="modal-title text-info"><span class="fa fa-info-circle"></span> <span class="modal-title-text">Heads Up</span></h2>
+          </div>
+          <div class="modal-body text-primary">
+            <p class="modal-text"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary btn-block" data-dismiss="modal">Close</button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-    <script src="/js/plugins.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
+    <div class="modal fade modal-error" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h2 class="modal-title text-danger"><span class="fa fa-exclamation-triangle"></span>  <span class="modal-title-text">Error</span></h2>
+          </div>
+          <div class="modal-body text-danger">
+            <p class="modal-text"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary btn-block" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" src="/js/plugins.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/zxcvbn.min.js"></script>
   </body>
 </html>
