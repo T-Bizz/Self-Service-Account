@@ -37,6 +37,30 @@
 					<address city="Canberra" country="Australia" isValid="true" kind="Residential" line1="Unit 4, Chandler St Belconnen" line2="" line3="" postCode="2917" state="ACT"/>
 				</addresses>
 			</member>
+			<member id="73324516" password="testPassword" scheme="testScheme">
+				<person age="21" dob="1995-09-21" firstname="John" fullName="John Smith" gender="Male" surname="Smith" taxFileNumber="87654321" title="Mr"/>
+				<memberships>
+					<membership externalId="73324516" joinDate="2005-09-21" scheme="PSS" status="Preserver"/>
+				</memberships>
+				<phoneNumbers>
+					<phoneNumber areaCode="11111111" countryCode="000000" isValid="true" kind="mobile" phoneNumber="22222222"/>
+				</phoneNumbers>
+				<addresses>
+					<address city="Canberra" country="Australia" isValid="true" kind="Residential" line1="Unit 4, Chandler St Belconnen" line2="" line3="" postCode="2917" state="ACT"/>
+				</addresses>
+			</member>
+			<member id="N140109" password="testPassword" scheme="testScheme">
+				<person age="21" dob="1995-09-21" firstname="John" fullName="John Smith" gender="Male" surname="Smith" taxFileNumber="87654321" title="Mr"/>
+				<memberships>
+					<membership externalId="N140109" joinDate="2005-09-21" scheme="PSS" status="Preserver"/>
+				</memberships>
+				<emailAddresses>
+					<emailAddress address="tom@tom.com" isValid="true" kind="internet"/>
+				</emailAddresses>
+				<addresses>
+					<address city="Canberra" country="Australia" isValid="true" kind="Residential" line1="Unit 4, Chandler St Belconnen" line2="" line3="" postCode="2917" state="ACT"/>
+				</addresses>
+			</member>
 		</mockFactProvider>
 	</factProvider>
 	<clusteringProvider>
