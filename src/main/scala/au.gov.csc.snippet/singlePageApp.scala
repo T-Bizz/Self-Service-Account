@@ -95,6 +95,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
     csssel: String = ".btn-reset [onclick]",
     redirect: String = "/scheme/%s".format(getScheme.map(p => p._1).getOrElse(""))
   ): CssSel = {
+    trace("Destroying session at users request")
     csssel #> ajaxCall(JsRaw("this"), (_s: String) => {
       S.session.foreach(s => {
         //s.destroySession()
@@ -141,6 +142,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def askForMembershipNumber: NodeSeq = Templates(List("ajax-templates-hidden", "askForMembershipNumber")).map(t => {
+    trace("Generating page askForMembershipNumber")
     currentStage(Some(Identify))
     (".header-title *" #> ?("identify-header") &
       ".footer-title *" #> ?("identify-footer") &
@@ -178,6 +180,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }).openOr(NodeSeq.Empty)
 
   protected def askForVerificationMethod(factSet: FactSet): NodeSeq = {
+    trace("Generating page askForVerificationMethod for %s".format(serviceNumber.is))
     currentStage(Some(Verify))
     (for {
       template <- Templates(List("ajax-templates-hidden", "askForVerificationMethod"))
@@ -224,6 +227,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def askForProofOfIdentity(factSet: FactSet): NodeSeq = {
+    trace("Generating page askForProofOfIdentity for %s".format(serviceNumber.is))
     currentStage(Some(Verify))
     factSet.getNextQuestions match {
       case Some(questionSet) => {
@@ -301,6 +305,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def askForAccounts: NodeSeq = {
+    trace("Generating page askForAccounts for %s".format(serviceNumber.is))
     currentStage(Some(SetPassword))
     (for {
       template <- Templates(List("ajax-templates-hidden", "askForAccounts"))
@@ -346,6 +351,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def askForPassword: NodeSeq = {
+    trace("Generating page askForPassword for %s".format(serviceNumber.is))
     currentStage(Some(SetPassword))
     (for {
       template <- Templates(List("ajax-templates-hidden", "askForPassword"))
@@ -404,6 +410,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def providePasswords: NodeSeq = {
+    trace("Generating page providePasswords for %s".format(serviceNumber.is))
     currentStage(Some(Summary))
     (for {
       template <- Templates(List("ajax-templates-hidden", "providePasswords"))
@@ -431,6 +438,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def provideError(errorMessage: String): NodeSeq = {
+    trace("Generating page provideError for %s".format(serviceNumber.is))
     currentStage(Some(Summary))
     Templates(List("ajax-templates-hidden", "provideError")).map(t => {
       (".error-text *" #> Text(errorMessage) &

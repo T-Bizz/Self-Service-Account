@@ -764,7 +764,7 @@ body {
 
 .lead {
     font-weight: 400;
-    margin-bottom: 20px;
+    margin-bottom: 0px;
 }
 
 .progress {
