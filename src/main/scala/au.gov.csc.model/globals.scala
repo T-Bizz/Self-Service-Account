@@ -7,22 +7,30 @@ import net.liftweb.util._
 import net.liftweb.util.Helpers._
 import net.liftweb.common._
 
+class globalConstants {
+  var minimumCorrectTwoFactorAnswers = 2
+  var minimumCorrectNonTwoFactorAnswers = 3
+  var questionsPerPage = 2
+}
+
 object Globals {
   var userProvider: FactProvider = new MockFactProvider()
   var tokenSender: TokenSender = new MockTokenSender()
   var tokenGenerator: TokenGenerator = new NextFuncNameTokenProvider()
+  var constants: globalConstants = new globalConstants()
 
-  def init(in: Tuple3[FactProvider, TokenSender, TokenGenerator]) = {
+  def init(in: Tuple4[FactProvider, TokenSender, TokenGenerator, globalConstants]) = {
     userProvider = in._1
     tokenSender = in._2
     tokenGenerator = in._3
+    constants = in._4
   }
 }
 
 object SessionState {
 
-  var minimumCorrectAnswers = 3
-  var pageSize = 2
+  var minimumCorrectAnswers = Globals.constants.minimumCorrectNonTwoFactorAnswers
+  var questionsPerPage = Globals.constants.questionsPerPage
 
   object sessionId extends SessionVar[String](nextFuncName)
   object userState extends SessionVar[Option[String]](None)

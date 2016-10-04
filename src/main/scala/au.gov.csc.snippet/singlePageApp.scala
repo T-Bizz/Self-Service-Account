@@ -165,7 +165,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
               case true => factProvider.getFacts(s) match {
                 case Right(member) => {
                   try {
-                    currentFactSet(Some(new MemberBackedFactSet(member, SessionState.minimumCorrectAnswers, SessionState.pageSize)))
+                    currentFactSet(Some(new MemberBackedFactSet(member)))
                   } catch {
                     case t: Throwable =>
                       error("exception: %s\r\n%s".format(t.getMessage, t.getStackTrace))

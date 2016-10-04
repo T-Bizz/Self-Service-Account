@@ -1,4 +1,7 @@
 <configuration>
+	<globals>
+		<questions maximumPerPage="2" minimumCorrectTwoFactor="3" minimumCorrectNonTwoFactor="4" />
+	</globals>
 	<tokenProvider>
 		<stableMockTokenProvider token="012345"/>
 		<!--<nextFuncNameTokenProvider/>-->

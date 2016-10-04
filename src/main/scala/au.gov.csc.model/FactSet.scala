@@ -1,7 +1,7 @@
 package au.gov.csc.model
 
 import java.util.Date
-
+import net.liftweb.common._
 import scala.xml.{ NodeSeq, Text }
 import net.liftweb.util.Helpers._
 
@@ -55,11 +55,9 @@ trait FactSet {
 }
 
 class MemberBackedFactSet(
-  member: Member,
-  minimumNumberOfCorrectAnswers: Int,
-  questionsPerPage: Int
+  member: Member
 )
-    extends FactSet {
+    extends FactSet with Logger {
 
   import net.liftweb.http._
   import WorkflowTypeChoice._
@@ -280,18 +278,24 @@ class MemberBackedFactSet(
   def setChoice(choice: WorkflowTypeChoice.Value) = {
     if (hasChosenVerificationMethod == false) {
       unansweredQuestions = choice match {
-        case WorkflowTypeChoice.EmailAndQuestions => unansweredQuestions.filterNot {
-          case p: TokenQuestion if p.target.isRight => true
-          case _                                    => false
-        }
-        case WorkflowTypeChoice.SmsAndQuestions => unansweredQuestions.filterNot {
-          case p: TokenQuestion if p.target.isLeft => true
-          case _                                   => false
-        }
-        case WorkflowTypeChoice.QuestionsOnly => unansweredQuestions.filterNot {
-          case p: TokenQuestion => true
-          case _                => false
-        }
+        case WorkflowTypeChoice.EmailAndQuestions =>
+          SessionState.minimumCorrectAnswers = Globals.constants.minimumCorrectTwoFactorAnswers
+          unansweredQuestions.filterNot {
+            case p: TokenQuestion if p.target.isRight => true
+            case _                                    => false
+          }
+        case WorkflowTypeChoice.SmsAndQuestions =>
+          SessionState.minimumCorrectAnswers = Globals.constants.minimumCorrectTwoFactorAnswers
+          unansweredQuestions.filterNot {
+            case p: TokenQuestion if p.target.isLeft => true
+            case _                                   => false
+          }
+        case WorkflowTypeChoice.QuestionsOnly =>
+          SessionState.minimumCorrectAnswers = Globals.constants.minimumCorrectNonTwoFactorAnswers
+          unansweredQuestions.filterNot {
+            case p: TokenQuestion => true
+            case _                => false
+          }
       }
       chosenWorkflowType = Some(choice)
       hasChosenVerificationMethod = true;
@@ -319,16 +323,16 @@ class MemberBackedFactSet(
 
     var options: Seq[WorkflowTypeChoice.Value] = Nil
     member.contactDetails.foreach {
-      case e: EmailAddress if (questionSets.size >= 2) => {
+      case e: EmailAddress if (questionSets.size >= Globals.constants.minimumCorrectTwoFactorAnswers) => {
         options = options :+ EmailAndQuestions
       }
-      case m: PhoneNumber if ((m.kind.toLowerCase == "mobile") & (questionSets.size >= 2)) => {
+      case m: PhoneNumber if ((m.kind.toLowerCase == "mobile") & (questionSets.size >= Globals.constants.minimumCorrectTwoFactorAnswers)) => {
         options = options :+ SmsAndQuestions
       }
       case _ => {}
     }
 
-    if (questionSets.size >= 3) {
+    if (questionSets.size >= Globals.constants.minimumCorrectNonTwoFactorAnswers) {
       options = options :+ QuestionsOnly
     }
 
@@ -349,7 +353,7 @@ class MemberBackedFactSet(
 
   override def getNextQuestions: Option[QuestionSet] = {
     unansweredQuestions.groupBy(_.category).flatMap(
-      kv => kv._2.grouped(questionsPerPage).toList.flatMap(
+      kv => kv._2.grouped(SessionState.questionsPerPage).toList.flatMap(
         qs => questionSets.find(_.category == kv._1).map(questionSet => questionSet.copy(questions = qs))
       ).filter(
           qs => qs.category match {
@@ -368,11 +372,12 @@ class MemberBackedFactSet(
   }
 
   override def isComplete: Boolean = {
-    (minimumNumberOfCorrectAnswers <= correctAnswers) & allMandatoryQuestionsCorrect
+    info("%s questions answered correctly (%s required)".format(correctAnswers, SessionState.minimumCorrectAnswers))
+    (SessionState.minimumCorrectAnswers <= correctAnswers) & allMandatoryQuestionsCorrect
   }
 
   override def canComplete: Boolean = {
-    (minimumNumberOfCorrectAnswers <= (correctAnswers + unansweredQuestions.length)) & allMandatoryQuestionsCorrect & (getEligibleMemberships.size >= 1)
+    (SessionState.minimumCorrectAnswers <= (correctAnswers + unansweredQuestions.length)) & allMandatoryQuestionsCorrect & (getEligibleMemberships.size >= 1)
   }
 
   def getCurrentEmail: String = {
