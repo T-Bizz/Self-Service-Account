@@ -320,10 +320,10 @@ class MemberBackedFactSet(
     var options: Seq[WorkflowTypeChoice.Value] = Nil
     member.contactDetails.foreach {
       case e: EmailAddress if (questionSets.size >= 2) => {
-        options = options :+ SmsAndQuestions
+        options = options :+ EmailAndQuestions
       }
       case m: PhoneNumber if ((m.kind.toLowerCase == "mobile") & (questionSets.size >= 2)) => {
-        options = options :+ EmailAndQuestions
+        options = options :+ SmsAndQuestions
       }
       case _ => {}
     }

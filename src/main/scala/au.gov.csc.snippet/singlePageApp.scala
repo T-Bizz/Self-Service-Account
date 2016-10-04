@@ -66,10 +66,12 @@ trait SinglePageAppView extends DetectScheme with Logger {
     if (id != pageId) {
       redirectPath match {
         case Some(p) =>
+          trace("Redirecting to (%s) for %s".format(p, serviceNumber.is))
           ajaxCall(JsRaw("this"), (_s: String) => {
             RedirectTo(p)
           })
         case None =>
+          trace("Redirecting to current page for %s".format(serviceNumber.is))
           ajaxCall(JsRaw("this"), (s: String) => {
             SetHtml(contentAreaId, generateCurrentPageNodeSeq)
           })
@@ -78,6 +80,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def initQuestion(template: NodeSeq, title: String, placeholder: String, helpText: String, icon: String, onChange: JsCmd, action: Option[JsCmd] = None, actionTitle: Option[String] = None): NodeSeq = {
+    trace("Displaying question (%s) for %s".format(title, serviceNumber.is))
     (".question-title *" #> title &
       ".question-input [title]" #> title &
       ".question-input [placeholder]" #> placeholder &
@@ -95,7 +98,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
     csssel: String = ".btn-reset [onclick]",
     redirect: String = "/scheme/%s".format(getScheme.map(p => p._1).getOrElse(""))
   ): CssSel = {
-    trace("Destroying session at users request")
+    trace("Destroying session at users request for %s".format(serviceNumber.is))
     csssel #> ajaxCall(JsRaw("this"), (_s: String) => {
       S.session.foreach(s => {
         //s.destroySession()
@@ -126,18 +129,22 @@ trait SinglePageAppView extends DetectScheme with Logger {
     val validDomain = """^([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)$""".r
     val validEmail = """^([a-zA-Z0-9.!#$%&’'*+/=?^_`{|}~-]+)@([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)$""".r
 
-    (in, in.split("@").toList.tail(0)) match {
-      case (validEmail, validDomain) => {
-        (in.split("@").toList.head, in.split("@").toList.tail(0)) match {
-          case (shortMailbox(all), domain) => s"${obscure(all)}@$domain"
-          case (longMailbox(first, middle, last), domain) => s"$first${obscure(middle)}$last@$domain"
-          case _ => "*"
+    if (in.split("@").toList.size >= 2) {
+      (in, in.split("@").toList.tail(0)) match {
+        case (validEmail, validDomain) => {
+          (in.split("@").toList.head, in.split("@").toList.tail(0)) match {
+            case (shortMailbox(all), domain) => s"${obscure(all)}@$domain"
+            case (longMailbox(first, middle, last), domain) => s"$first${obscure(middle)}$last@$domain"
+            case _ => "*"
+          }
+        }
+        case _ => {
+          warn("Email address %s is invalid.".format(in))
+          "*"
         }
       }
-      case _ => {
-        warn("Email address %s is invalid.".format(in))
-        "*"
-      }
+    } else {
+      "unknown"
     }
   }
 
