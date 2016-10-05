@@ -48,8 +48,37 @@ object Configuration extends Logger {
     elems
   }
 
-  def getConfiguation: Tuple3[FactProvider, TokenSender, TokenGenerator] = {
-    Tuple3(getUserProvider, getTokenSender, getTokenGenerator)
+  def getConfiguation: Tuple4[FactProvider, TokenSender, TokenGenerator, globalConstants] = {
+    Tuple4(getUserProvider, getTokenSender, getTokenGenerator, getGlobalConstants)
+  }
+
+  protected def getGlobalConstants = {
+    var gc = new globalConstants
+    trace("get globals")
+    getChildElems((xml \\ "globals")) match {
+
+      case List(mfp: Elem) if mfp.label == "questions" => {
+
+        trace("get questions")
+        for {
+          pp <- (mfp \\ "@maximumPerPage").headOption.map(_.text)
+          tf <- (mfp \\ "@minimumCorrectTwoFactor").headOption.map(_.text)
+          ntf <- (mfp \\ "@minimumCorrectNonTwoFactor").headOption.map(_.text)
+        } yield {
+
+          trace("pp %s".format(pp))
+          trace("tf %s".format(tf))
+          trace("ntf %s".format(ntf))
+          gc.questionsPerPage = pp.toInt
+          gc.minimumCorrectTwoFactorAnswers = tf.toInt
+          gc.minimumCorrectNonTwoFactorAnswers = ntf.toInt
+        }
+        gc
+      }
+
+      case Nil   => throw new Exception("no token provider configured")
+      case other => throw new Exception("too many token providers configured")
+    }
   }
 
   protected def getTokenGenerator = getChildElems((xml \\ "tokenProvider")) match {

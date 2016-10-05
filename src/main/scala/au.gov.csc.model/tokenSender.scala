@@ -8,7 +8,7 @@ trait TokenSender extends Logger {
 
 class MockTokenSender extends TokenSender {
   override def send(target: Either[EmailAddress, PhoneNumber], token: String, factSet: FactSet): Option[Exception] = {
-    trace("\\token\\%s\\%s".format(token, factSet.factSetId))
+    trace("/token/%s/%s".format(token, factSet.factSetId))
     None
   }
 }

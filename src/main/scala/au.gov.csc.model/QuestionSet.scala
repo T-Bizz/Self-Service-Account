@@ -196,7 +196,7 @@ case class DateQuestion(
   override val icon: String,
   override val mustBeCorrect: Boolean,
   override val order: Int,
-  correctAnswer: Date
+  val correctAnswer: Date
 )
     extends QuestionBase(
       category,
