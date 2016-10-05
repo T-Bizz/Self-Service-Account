@@ -18,9 +18,9 @@ object Globals {
   var tokenSender: TokenSender = new MockTokenSender()
   var tokenGenerator: TokenGenerator = new NextFuncNameTokenProvider()
   var constants: globalConstants = new globalConstants()
-  var schemeList: Map[String, Tuple4[String, String, String, String]] = Map()
+  var schemeList: Map[String, SchemeDefinition] = Map()
 
-  def init(in: Tuple5[FactProvider, TokenSender, TokenGenerator, globalConstants, Map[String, Tuple4[String, String, String, String]]]) = {
+  def init(in: Tuple5[FactProvider, TokenSender, TokenGenerator, globalConstants, Map[String, SchemeDefinition]]) = {
     userProvider = in._1
     tokenSender = in._2
     tokenGenerator = in._3
@@ -46,7 +46,7 @@ object SessionState {
   object skipTwoFactorStep extends SessionVar[Boolean](true)
   object title extends SessionVar[String]("")
 
-  object Scheme extends SessionVar[Option[Tuple4[String, String, String, String]]](None)
+  object Scheme extends SessionVar[Option[SchemeDefinition]](None)
 
   object serviceNumber extends SessionVar[Option[String]](None)
   object currentFactSet extends SessionVar[Option[FactSet]](None)

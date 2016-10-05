@@ -26,7 +26,7 @@ class Boot {
         PushActorManager ! TokenMessage(sessionIdentifier, token)
         if (SessionState.currentFactSet.is.exists(_.factSetId == sessionIdentifier) && SessionState.Scheme.isDefined) {
           SessionState.Scheme.is.map(s => {
-            RedirectResponse("/scheme/%s".format(s._1))
+            RedirectResponse("/scheme/%s".format(s.shortCode.toUpperCase))
           })
         } else {
           for {

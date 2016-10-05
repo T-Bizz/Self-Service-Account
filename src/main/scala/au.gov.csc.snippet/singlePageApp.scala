@@ -50,8 +50,8 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def ?(key: String): String =
-    S.?("%s%s".format(key.toLowerCase, Scheme.is.map(s => "-%s".format(s._1)).getOrElse("").toLowerCase)) match {
-      case out if out == "%s%s".format(key.toLowerCase, Scheme.is.map(s => "-%s".format(s._1)).getOrElse("").toLowerCase) => {
+    S.?("%s%s".format(key.toLowerCase, Scheme.is.map(s => "-%s".format(s.shortCode)).getOrElse("").toLowerCase)) match {
+      case out if out == "%s%s".format(key.toLowerCase, Scheme.is.map(s => "-%s".format(s.shortCode)).getOrElse("").toLowerCase) => {
         trace("Could not find text snippet with key %s. Replacing it with the key %s.".format(out, key))
         S.?(key)
       }
@@ -97,7 +97,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
 
   protected def startOver(
     csssel: String = ".btn-reset [onclick]",
-    redirect: String = "/scheme/%s".format(getScheme.map(p => p._1).getOrElse(""))
+    redirect: String = "/scheme/%s".format(getScheme.map(p => p.shortCode).getOrElse("").toUpperCase)
   ): CssSel = {
     trace("Destroying session at users request for %s".format(serviceNumber.is))
     csssel #> ajaxCall(JsRaw("this"), (_s: String) => {
@@ -431,7 +431,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
         ".footer-title *" #> ?("result-footer") &
         ".account-list *" #> fs.getEligibleAccountChoice.toList.foldLeft(NodeSeq.Empty)((acc, mshp) => {
           acc ++ (Templates(List("ajax-templates-hidden", "passwordResult")).map(t => {
-            (".list-group-item [href]" #> Scheme.is.map(s => s._4).getOrElse("") &
+            (".list-group-item [href]" #> Scheme.is.map(s => s.loginScreen).getOrElse("") &
               ".account-id *" #> mshp.external_id &
               ".account-scheme *" #> (mshp.scheme match {
                 case "PENSION" => "%s %s".format(?("login-to"), ?("pso-login"))
@@ -525,7 +525,7 @@ class singlePageApp extends Logger with SinglePageAppView {
     detectedScheme.filterNot(s => oldScheme.exists(_ == s)).foreach(s => {
       trace("detected scheme change: %s => %s".format(oldScheme, s))
       Scheme(detectedScheme)
-      pushUserAction(Some("/scheme/%s".format(s._1)))
+      pushUserAction(Some("/scheme/%s".format(s.shortCode.toUpperCase)))
     })
 
     val cometActorName = "lift:comet?type=PushActor&name=%s".format(nextFuncName)

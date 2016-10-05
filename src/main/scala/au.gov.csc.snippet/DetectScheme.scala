@@ -6,10 +6,10 @@ import net.liftweb.common.Logger
 
 trait DetectScheme extends Logger {
 
-  def detectScheme: Option[Tuple4[String, String, String, String]] = {
+  def detectScheme: Option[SchemeDefinition] = {
     Globals.schemeList.get(S.param("scheme").openOr("").toString.toUpperCase) match {
       case Some(m) => {
-        trace("detectScheme returned: %s".format(m._1))
+        trace("detectScheme returned: %s".format(m.shortCode))
         Some(m)
       }
       case None => {
@@ -19,7 +19,7 @@ trait DetectScheme extends Logger {
     }
   }
 
-  def getScheme: Option[Tuple4[String, String, String, String]] = {
+  def getScheme: Option[SchemeDefinition] = {
     val scheme = Scheme.is.map(a => Some(a)).getOrElse({
       Scheme(detectScheme)
       Scheme.is

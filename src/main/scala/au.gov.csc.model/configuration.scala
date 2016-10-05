@@ -44,12 +44,12 @@ object Configuration extends Logger {
     elems
   }
 
-  def getConfiguation: Tuple5[FactProvider, TokenSender, TokenGenerator, globalConstants, Map[String, Tuple4[String, String, String, String]]] = {
+  def getConfiguation: Tuple5[FactProvider, TokenSender, TokenGenerator, globalConstants, Map[String, SchemeDefinition]] = {
     Tuple5(getUserProvider, getTokenSender, getTokenGenerator, getGlobalConstants, getSchemes)
   }
 
   protected def getSchemes = {
-    var schemeList: Map[String, Tuple4[String, String, String, String]] = Map()
+    var schemeList: Map[String, SchemeDefinition] = Map()
     getChildElems((xml \\ "schemeList")) match {
 
       case List(mfp: Elem) if mfp.label == "schemes" => {
@@ -62,7 +62,7 @@ object Configuration extends Logger {
               lg <- (p \\ "@logo").headOption.map(_.text)
               ls <- (p \\ "@loginScreen").headOption.map(_.text)
             } yield {
-              ky -> Tuple4(sc, pw, lg, ls)
+              ky -> new Scheme(ky, sc, pw, lg, ls)
             }
           })
         } yield {

@@ -64,8 +64,8 @@ class MemberBackedFactSet(
 
   protected def ?(key: String): String = {
     // get configured string for scheme or use the default configured string
-    var out = S ? "%s%s".format(key, Scheme.is.map(s => "-%s".format(s._1)).getOrElse(""))
-    if (out == "%s%s".format(key, Scheme.is.map(s => "-%s".format(s._1)).getOrElse("")))
+    var out = S ? "%s%s".format(key, Scheme.is.map(s => "-%s".format(s.shortCode)).getOrElse(""))
+    if (out == "%s%s".format(key, Scheme.is.map(s => "-%s".format(s.shortCode)).getOrElse("")))
       out = S ? key
     out
   }
