@@ -14,7 +14,7 @@ class SchemeBranding extends Logger with DetectScheme {
         ".scheme-site-link [href]" #> Text(s.publicWebsite) &
         ".scheme-site-logo [src]" #> Text(s.logo)
     }).getOrElse({
-      warn("redirecting to noscheme because detectScheme failed")
+      info("redirecting to noscheme because detectScheme failed")
       S.redirectTo("/noSchemeProvided")
     })
   }
