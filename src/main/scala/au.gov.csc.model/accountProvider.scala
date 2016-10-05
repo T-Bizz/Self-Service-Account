@@ -18,9 +18,7 @@ trait AccountProvider {
 class MockAccountProvider extends AccountProvider {
 
   val AccountNotFoundException = new Exception("account not found")
-  val accounts = Map(
-    "77929555" -> AccountDefinition("77929555", "testPassword", "testScheme")
-  )
+  val accounts: Map[String, AccountDefinition] = Map()
 
   override def getAccount(memberNumber: String): Either[Exception, AccountDefinition] =
     accounts.get(memberNumber) match {
