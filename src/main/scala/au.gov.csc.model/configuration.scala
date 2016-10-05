@@ -66,7 +66,6 @@ object Configuration extends Logger {
             }
           })
         } yield {
-          warn(scheme)
           schemeList += scheme
         }
       }

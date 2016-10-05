@@ -431,7 +431,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
         ".footer-title *" #> ?("result-footer") &
         ".account-list *" #> fs.getEligibleAccountChoice.toList.foldLeft(NodeSeq.Empty)((acc, mshp) => {
           acc ++ (Templates(List("ajax-templates-hidden", "passwordResult")).map(t => {
-            (".list-group-item [href]" #> Scheme.is.map(_4).getOrElse("") &
+            (".list-group-item [href]" #> Scheme.is.map(s => s._4).getOrElse("") &
               ".account-id *" #> mshp.external_id &
               ".account-scheme *" #> (mshp.scheme match {
                 case "PENSION" => "%s %s".format(?("login-to"), ?("pso-login"))
