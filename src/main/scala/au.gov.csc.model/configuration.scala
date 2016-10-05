@@ -39,10 +39,6 @@ object Configuration extends Logger {
         case elem: Elem => Some(elem)
         case _          => None
       }
-      case e: Elem => e.child.toList.flatMap {
-        case elem: Elem => Some(elem)
-        case _          => None
-      }
       case _ => Nil
     }
     elems
