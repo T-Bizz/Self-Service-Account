@@ -53,14 +53,14 @@ class TokenQuestionTest extends org.specs2.mutable.Specification with SHelpers {
         val (fs, tq) = createTokenQuestionFixture(() => "testToken", (t: String) => sentToken = t)
         val firstState = sentToken
         tq.ask(fs)
-        firstState == "" && sentToken == "testToken"
+        (firstState == "" && sentToken == "testToken") must beEqualTo(true)
       })
     }
 
     "fail to check when not asked" in {
       inSession({
         val (fs, tq) = createTokenQuestionFixture(() => "testToken", (t: String) => {})
-        !tq.check(Answer("testToken", tq))
+        tq.check(Answer("testToken", tq)) must beEqualTo(false)
       })
     }
 
@@ -69,7 +69,7 @@ class TokenQuestionTest extends org.specs2.mutable.Specification with SHelpers {
         var sentToken = ""
         val (fs, tq) = createTokenQuestionFixture(() => "testToken", (t: String) => sentToken = t)
         tq.ask(fs)
-        tq.check(Answer(sentToken, tq))
+        tq.check(Answer(sentToken, tq)) must beEqualTo(true)
       })
     }
 
@@ -85,7 +85,7 @@ class TokenQuestionTest extends org.specs2.mutable.Specification with SHelpers {
         val firstState = sentToken
         tq.ask(fs)
         val secondState = sentToken
-        !tq.check(Answer(firstState, tq)) && tq.check(Answer(secondState, tq))
+        (tq.check(Answer(firstState, tq)) && tq.check(Answer(secondState, tq))) must beEqualTo(false)
       })
     }
   }
