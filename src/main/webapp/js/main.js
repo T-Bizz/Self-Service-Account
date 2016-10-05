@@ -50,27 +50,27 @@ function displayPasswordStrength($, $item) {
 		case 0:
 		  pct = 10;
           colour = "danger";
-          status = "Too guessable";
+          status = "Very Weak";
           break;
         case 1:
 		  pct = 25;
           colour = "warning";
-          status = "Very guessable";
+          status = "Weak";
           break;
         case 2:
 		  pct = 50;
           colour = "info";
-          status = "Somewhat guessable";
+          status = "Fair";
           break;
         case 3:
 		  pct = 75;
           colour = "primary";
-          status = "Safely unguessable";
+          status = "Good";
           break;
         case 4:
 		  pct = 100;
           colour = "success";
-          status = "Very unguessable";
+          status = "Strong";
           break;
 	}
 
