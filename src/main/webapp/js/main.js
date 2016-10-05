@@ -39,12 +39,11 @@ function addValidationMarkup($, id, isValid, err) {
 
 function displayPasswordStrength($, $item) {
 	var formGroup = $item.parent().parent().parent();
-	var progressBar = formGroup.find('.progress-bar');
-	var warningText = formGroup.find('.strength-warning');
 	var strength = zxcvbn($item.val(), user_inputs=[]);
 	var pct = 0;
 	var colour = "danger";
 	var status = "Very Weak";
+    var isValid = 'false';
 
 	switch (strength.score) {
 		case 0:
@@ -74,15 +73,9 @@ function displayPasswordStrength($, $item) {
           break;
 	}
 
-	progressBar.removeClass();
-	progressBar.addClass('progress-bar').addClass('progress-bar-' + colour);
-    progressBar.attr('aria-valuenow', pct);
-    progressBar.attr('style', 'width: ' + pct + '%; min-width: 40px;');
-    progressBar.find('span').text(status);
-    warningText.removeClass();
-    warningText.addClass('text-center').addClass('text-' + colour)
+	formGroup.find('.progress-bar').removeClass().addClass('progress-bar').addClass('progress-bar-' + colour).attr('aria-valuenow', pct).attr('style', 'width: ' + pct + '%; min-width: 40px;').find('span').text(status);
+    formGroup.find('.strength-warning').removeClass().addClass('text-center').addClass('text-' + colour)
 
-    var isValid = 'false';
     if (pct >= 50)
     	isValid = 'true';
 
