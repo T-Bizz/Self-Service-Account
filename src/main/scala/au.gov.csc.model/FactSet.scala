@@ -372,12 +372,11 @@ class MemberBackedFactSet(
   }
 
   override def isComplete: Boolean = {
-    info("%s questions answered correctly (%s required)".format(correctAnswers, SessionState.minimumCorrectAnswers))
     (SessionState.minimumCorrectAnswers <= correctAnswers) & allMandatoryQuestionsCorrect
   }
 
   override def canComplete: Boolean = {
-    (SessionState.minimumCorrectAnswers <= (correctAnswers + unansweredQuestions.length)) & allMandatoryQuestionsCorrect & (getEligibleMemberships.size >= 1)
+    (SessionState.minimumCorrectAnswers <= (correctAnswers + getRemainingUnansweredQuestionCount)) & allMandatoryQuestionsCorrect & (getEligibleMemberships.size >= 1)
   }
 
   def getCurrentEmail: String = {

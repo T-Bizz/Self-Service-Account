@@ -4,54 +4,6 @@ import org.specs2._
 import java.util.Date
 import scala.xml._
 
-trait SHelpers {
-  import net.liftweb.http._
-  import net.liftweb.common._
-  import java.io.ByteArrayInputStream
-
-  def generateFakeSession: LiftSession = {
-    new LiftSession("test", "", Empty)
-  }
-
-  def generateFakeReq(
-    parsePath: ParsePath = ParsePath(List("testPath", "testResource"), "testSuffix", true, false),
-    contextPath: Option[String] = None,
-    requestType: RequestType = GetRequest,
-    contentType: Box[String] = Empty,
-    params: Map[String, List[String]] = Map.empty[String, List[String]],
-    uploadedFiles: List[FileParamHolder] = Nil,
-    body: Box[Array[Byte]] = Empty
-  ): Req = {
-    new Req(parsePath, contextPath.getOrElse(""), requestType, contentType, null, System.nanoTime, System.nanoTime, false, () => ParamCalcInfo(params.keys.toList, params, uploadedFiles, body.map(b => BodyOrInputStream(new ByteArrayInputStream(b)))), Map.empty[String, String])
-  }
-
-  def changeParsePathOfReq(req: Req, parsePath: ParsePath): Req = {
-    new Req(parsePath, req.contextPath, req.requestType, req.contentType, req.request, req.nanoStart, req.nanoEnd, req.stateless_?, () => ParamCalcInfo(req.paramNames, req.params, req.uploadedFiles, req.body.map(b => BodyOrInputStream(new ByteArrayInputStream(b)))), Map.empty[String, String])
-  }
-
-  def changeParamsOnReq(req: Req, params: Map[String, List[String]]): Req = {
-    new Req(req.path, req.contextPath, req.requestType, req.contentType, req.request, req.nanoStart, req.nanoEnd, req.stateless_?, () => ParamCalcInfo(params.keys.toList, params, req.uploadedFiles, req.body.map(b => BodyOrInputStream(new ByteArrayInputStream(b)))), Map.empty[String, String])
-  }
-
-  def changePostBodyOfReq(req: Req, body: Box[Array[Byte]]): Req = {
-    new Req(req.path, req.contextPath, req.requestType, req.contentType, req.request, req.nanoStart, req.nanoEnd, req.stateless_?, () => ParamCalcInfo(req.paramNames, req.params, req.uploadedFiles, body.map(b => BodyOrInputStream(new ByteArrayInputStream(b)))), Map.empty[String, String])
-  }
-
-  def changeUploadedFilesOfReq(req: Req, uploadedFiles: List[FileParamHolder]): Req = {
-    new Req(req.path, req.contextPath, req.requestType, req.contentType, req.request, req.nanoStart, req.nanoEnd, req.stateless_?, () => ParamCalcInfo(req.paramNames, req.params, uploadedFiles, req.body.map(b => BodyOrInputStream(new ByteArrayInputStream(b)))), Map.empty[String, String])
-  }
-
-  def changeMethodOfReq(req: Req, newMethod: RequestType): Req = {
-    new Req(req.path, req.contextPath, newMethod, req.contentType, req.request, req.nanoStart, req.nanoEnd, req.stateless_?, () => ParamCalcInfo(req.paramNames, req.params, req.uploadedFiles, req.body.map(b => BodyOrInputStream(new ByteArrayInputStream(b)))), Map.empty[String, String])
-  }
-
-  def inSession[A](action: => A, session: LiftSession = generateFakeSession, req: Req = generateFakeReq()): A = {
-    S.init(req, session) {
-      action
-    }
-  }
-}
-
 class MemberBackedFactSetTest
     extends org.specs2.mutable.Specification with SHelpers {
 
@@ -77,26 +29,6 @@ class MemberBackedFactSetTest
     }
   }
 
-  def createTokenQuestionFixture(tokenGenerate: () => String, onTokenGenerate: String => Unit): Tuple2[FactSet, TokenQuestion] = {
-    (new MemberBackedFactSet(
-      createFactSetFixture().getFacts("1").right.get, 1, 1
-    ), new TokenQuestion(
-      QuestionSetType.TokenEmail, NodeSeq.Empty, NodeSeq.Empty, "", "", false, 0, Left(
-      EmailAddress("", "test@test", true)
-    )
-    ) {
-      override protected val tokenGenerator = new TokenGenerator() {
-        override def generateToken: String = tokenGenerate()
-      }
-      override protected val tokenSender = new MockTokenSender() {
-        override def send(target: Either[EmailAddress, PhoneNumber], token: String, factSet: FactSet): Option[Exception] = {
-          onTokenGenerate(token)
-          super.send(target, token, factSet)
-        }
-      }
-    })
-  }
-
   "memberBackedFactSet" should {
     "accept a member" in {
       inSession({
@@ -115,7 +47,7 @@ class MemberBackedFactSetTest
           Nil
         )))
         val m = fp.getFacts("77929555")
-        val fs = new MemberBackedFactSet(m.right.get, 4, 2)
+        val fs = new MemberBackedFactSet(m.right.get)
         fs.getRemainingUnansweredQuestionCount must beEqualTo(4)
       })
     }
@@ -141,11 +73,12 @@ class MemberBackedFactSetTest
           Nil
         )))
         val m = fp.getFacts("1")
-        val fs = new MemberBackedFactSet(m.right.get, 4, 2)
+        val fs = new MemberBackedFactSet(m.right.get)
         fs.setChoice(WorkflowTypeChoice.QuestionsOnly)
-        val questions = fs.getNextQuestions.get
-        fs.answerQuestions(List(Answer("badAnswer", questions.questions.head)))
-        fs.getRemainingUnansweredQuestionCount must beEqualTo(3)
+        val qs = fs.getNextQuestions.get
+        val expectedQuestionsLeft = fs.getRemainingUnansweredQuestionCount - 1
+        fs.answerQuestions(List(Answer("badAnswer", qs.questions.head)))
+        fs.getRemainingUnansweredQuestionCount must beEqualTo(expectedQuestionsLeft)
       })
     }
     "accept a correct answer to a questionSet which requires only 1 answer, and mark as completed successfully" in {
@@ -165,13 +98,15 @@ class MemberBackedFactSetTest
           Nil
         )))
         val m = fp.getFacts("1")
-        val fs = new MemberBackedFactSet(m.right.get, 1, 1)
+        val fs = new MemberBackedFactSet(m.right.get)
         fs.setChoice(WorkflowTypeChoice.QuestionsOnly)
+        SessionState.minimumCorrectAnswers = 1
+        SessionState.questionsPerPage = 1
         val isComplete = fs.isComplete
         val questions = fs.getNextQuestions.get
         fs.answerQuestions(List(Answer("testFirstName", questions.questions.head)))
         val isComplete2 = fs.isComplete
-        isComplete == false && isComplete2 == true
+        (isComplete == false && isComplete2 == true) must beEqualTo(true)
       })
     }
     "not accept a second correct answer to a question already answered incorrectly" in {
@@ -191,14 +126,16 @@ class MemberBackedFactSetTest
           Nil
         )))
         val m = fp.getFacts("1")
-        val fs = new MemberBackedFactSet(m.right.get, 1, 1)
+        SessionState.minimumCorrectAnswers = 1
+        SessionState.questionsPerPage = 1
+        val fs = new MemberBackedFactSet(m.right.get)
         val isComplete = fs.isComplete
         val questions = fs.getNextQuestions.get
         fs.answerQuestions(List(Answer("badAnswer", questions.questions.head)))
         val isComplete2 = fs.isComplete
         fs.answerQuestions(List(Answer("testFirstName", questions.questions.head)))
         val isComplete3 = fs.isComplete
-        isComplete == false && isComplete2 == false && isComplete3 == false
+        (isComplete == false && isComplete2 == false && isComplete3 == false) must beEqualTo(true)
       })
     }
 
@@ -219,11 +156,14 @@ class MemberBackedFactSetTest
           Nil
         )))
         val m = fp.getFacts("1")
-        val fs: FactSet = new MemberBackedFactSet(m.right.get, 4, 2)
-        fs.getNextQuestions match {
-          case Some(a) if a.questions.length == 2 => true
-          case _                                  => false
+        val fs: FactSet = new MemberBackedFactSet(m.right.get)
+        fs.setChoice(WorkflowTypeChoice.QuestionsOnly)
+        SessionState.questionsPerPage = 2
+        val len: Number = fs.getNextQuestions match {
+          case Some(a) => a.questions.length
+          case _       => 0
         }
+        len must beEqualTo(2)
       })
     }
 
@@ -243,21 +183,23 @@ class MemberBackedFactSetTest
           Nil,
           Nil
         )))
-        val m = fp.getFacts("1")
-        val fs: FactSet = new MemberBackedFactSet(m.right.get, 2, 2)
+        val fs: FactSet = new MemberBackedFactSet(fp.getFacts("1").right.get)
+        fs.setChoice(WorkflowTypeChoice.QuestionsOnly)
+        SessionState.minimumCorrectAnswers = 2
+        SessionState.questionsPerPage = 2
         fs.getNextQuestions match {
           case Some(a) => a.questions.map(q => {
             q match {
               case s: StringQuestion => fs.answerQuestions(List(Answer(s.correctAnswer, q)))
               case n: NumberQuestion => fs.answerQuestions(List(Answer(n.correctAnswer, q)))
-              /*case d:DateQuestion   => fs.answerQuestions(List(Answer(d.correctAnswer,q)))
-              case e:EmailQuestion  => fs.answerQuestions(List(Answer(e.correctAnswer,q)))*/
+              case d: DateQuestion   => fs.answerQuestions(List(Answer(d.correctAnswer.toString, q)))
+              case e: EmailQuestion  => fs.answerQuestions(List(Answer(e.correctAnswer, q)))
               case _                 => Nil
             }
           })
           case _ => Nil
         }
-        fs.isComplete
+        fs.isComplete must beEqualTo(true)
       })
     }
 
@@ -278,14 +220,18 @@ class MemberBackedFactSetTest
           Nil
         )))
         val m = fp.getFacts("1")
-        val fs: FactSet = new MemberBackedFactSet(m.right.get, 2, 2)
-        val questions = fs.getNextQuestions.get
-        fs.answerQuestions(List(Answer("testFirstName", questions.questions(0))))
-        fs.answerQuestions(List(Answer("badAnswer", questions.questions(1))))
-        fs.isComplete match {
-          case false => true
-          case _     => false
-        }
+        val fs: FactSet = new MemberBackedFactSet(m.right.get)
+        fs.setChoice(WorkflowTypeChoice.QuestionsOnly)
+        SessionState.minimumCorrectAnswers = 2
+        SessionState.questionsPerPage = 2
+        val qs = fs.getNextQuestions.get
+        List.range(0, qs.questions.length).foreach(i => {
+          i match {
+            case 0 => fs.answerQuestions(List(Answer("testFirstName", qs.questions(i))))
+            case _ => fs.answerQuestions(List(Answer("basAnswer", qs.questions(i))))
+          }
+        })
+        fs.isComplete must beEqualTo(false)
       })
     }
 
@@ -310,7 +256,9 @@ class MemberBackedFactSetTest
           ))
         )))
         val m = fp.getFacts("1")
-        val fs: FactSet = new MemberBackedFactSet(m.right.get, 2, 4)
+        SessionState.minimumCorrectAnswers = 2
+        SessionState.questionsPerPage = 4
+        val fs: FactSet = new MemberBackedFactSet(m.right.get)
 
         var isNotFinished: Boolean = true
         var isFound: Boolean = false
@@ -334,7 +282,7 @@ class MemberBackedFactSetTest
             }
           }
         }
-        !isFound
+        isFound must beEqualTo(false)
       })
     }
 
@@ -359,7 +307,9 @@ class MemberBackedFactSetTest
           ))
         )))
         val m = fp.getFacts("1")
-        val fs: FactSet = new MemberBackedFactSet(m.right.get, 2, 4)
+        SessionState.minimumCorrectAnswers = 2
+        SessionState.questionsPerPage = 4
+        val fs: FactSet = new MemberBackedFactSet(m.right.get)
 
         var isNotFinished: Boolean = true
         var isFound: Boolean = false
@@ -383,7 +333,7 @@ class MemberBackedFactSetTest
             }
           }
         }
-        !isFound
+        isFound must beEqualTo(false)
       })
     }
 
@@ -408,13 +358,12 @@ class MemberBackedFactSetTest
           ))
         )))
         val m = fp.getFacts("1")
-        val fs: FactSet = new MemberBackedFactSet(m.right.get, 2, 4)
-
+        val fs: FactSet = new MemberBackedFactSet(m.right.get)
         fs.setChoice(WorkflowTypeChoice.EmailAndQuestions)
         val firstCount = fs.getRemainingUnansweredQuestionCount
         fs.setChoice(WorkflowTypeChoice.QuestionsOnly)
         val secondCount = fs.getRemainingUnansweredQuestionCount
-        firstCount == secondCount
+        firstCount must beEqualTo(secondCount)
       })
     }
 
@@ -439,7 +388,9 @@ class MemberBackedFactSetTest
           ))
         )))
         val m = fp.getFacts("1")
-        val fs: FactSet = new MemberBackedFactSet(m.right.get, 2, 4)
+        SessionState.minimumCorrectAnswers = 2
+        SessionState.questionsPerPage = 4
+        val fs: FactSet = new MemberBackedFactSet(m.right.get)
 
         var isNotFinished: Boolean = true
         var isFound: Boolean = false
@@ -463,48 +414,7 @@ class MemberBackedFactSetTest
             }
           }
         }
-        !isFound
-      })
-    }
-
-  }
-  "TokenQuestion" should {
-    "generate a token when asked" in {
-      inSession({
-        var sentToken = ""
-        val (fs, tq) = createTokenQuestionFixture(() => "testToken", (t: String) => sentToken = t)
-        val firstState = sentToken
-        tq.ask(fs)
-        firstState == "" && sentToken == "testToken"
-      })
-    }
-    "fail to check when not asked" in {
-      inSession({
-        val (fs, tq) = createTokenQuestionFixture(() => "testToken", (t: String) => {})
-        !tq.check(Answer("testToken", tq))
-      })
-    }
-    "check successfully against the generated token" in {
-      inSession({
-        var sentToken = ""
-        val (fs, tq) = createTokenQuestionFixture(() => "testToken", (t: String) => sentToken = t)
-        tq.ask(fs)
-        tq.check(Answer(sentToken, tq))
-      })
-    }
-    "fail check when a previous token is provided to answer" in {
-      inSession({
-        var sentToken = ""
-        var tokenCount = 0
-        val (fs, tq) = createTokenQuestionFixture(() => {
-          tokenCount += 1
-          "testToken_%s".format(tokenCount)
-        }, (t: String) => sentToken = t)
-        tq.ask(fs)
-        val firstState = sentToken
-        tq.ask(fs)
-        val secondState = sentToken
-        !tq.check(Answer(firstState, tq)) && tq.check(Answer(secondState, tq))
+        isFound must beEqualTo(false)
       })
     }
   }
