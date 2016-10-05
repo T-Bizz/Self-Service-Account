@@ -37,11 +37,11 @@ function addValidationMarkup($, id, isValid, err) {
   	removeErrorMarkup($, id);
 }(jQuery);
 
-function displayPasswordStrength($) {
-	var pwd = $('.question-input:first').val();
-	var progressBar = $('#strength-bar');
-	var warningText = $('#strength-warning');
-	var strength = zxcvbn(pwd, user_inputs=[]);
+function displayPasswordStrength($, $item) {
+	var formGroup = $item.parent().parent().parent();
+	var progressBar = formGroup.find('.progress-bar');
+	var warningText = formGroup.find('.strength-warning');
+	var strength = zxcvbn($item.val(), user_inputs=[]);
 	var pct = 0;
 	var colour = "danger";
 	var status = "Very Weak";
@@ -86,5 +86,5 @@ function displayPasswordStrength($) {
     if (pct >= 50)
     	isValid = 'true';
 
-    addValidationMarkup($, '.form-group:first', isValid, strength.feedback.warning);
+    addValidationMarkup($, '#' + formGroup.attr('id'), isValid, strength.feedback.warning);
 }(jQuery);

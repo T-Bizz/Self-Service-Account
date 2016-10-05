@@ -81,7 +81,8 @@ trait SinglePageAppView extends DetectScheme with Logger {
 
   protected def initQuestion(template: NodeSeq, title: String, placeholder: String, helpText: String, icon: String, onChange: JsCmd, action: Option[JsCmd] = None, actionTitle: Option[String] = None): NodeSeq = {
     trace("Displaying question (%s) for %s".format(title, serviceNumber.is))
-    (".question-title *" #> title &
+    (".form-group [id]" #> nextFuncName &
+      ".question-title *" #> title &
       ".question-input [title]" #> title &
       ".question-input [placeholder]" #> placeholder &
       ".question-help-text [data-content]" #> helpText &
