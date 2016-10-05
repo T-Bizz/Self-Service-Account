@@ -52,10 +52,6 @@ class MemberBackedFactSetTest
       })
     }
 
-    "do nothing" in {
-      1 must beEqualTo(1)
-    }
-
     "remove an answered question" in {
       inSession({
         val fp = createFactSetFixture(Map("1" -> Member(
@@ -81,6 +77,7 @@ class MemberBackedFactSetTest
         fs.getRemainingUnansweredQuestionCount must beEqualTo(expectedQuestionsLeft)
       })
     }
+
     "accept a correct answer to a questionSet which requires only 1 answer, and mark as completed successfully" in {
       inSession({
         val fp = createFactSetFixture(Map("1" -> Member(
@@ -109,6 +106,7 @@ class MemberBackedFactSetTest
         (isComplete == false && isComplete2 == true) must beEqualTo(true)
       })
     }
+
     "not accept a second correct answer to a question already answered incorrectly" in {
       inSession({
         val fp = createFactSetFixture(Map("1" -> Member(
