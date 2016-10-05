@@ -44,7 +44,7 @@ object Configuration extends Logger {
     elems
   }
 
-  def getConfiguation: Tuple5[FactProvider, TokenSender, TokenGenerator, globalConstants, Map[String, SchemeDefinition]] = {
+  def getConfiguation: Tuple5[FactProvider, TokenSender, TokenGenerator, GlobalConstants, Map[String, SchemeDefinition]] = {
     Tuple5(getUserProvider, getTokenSender, getTokenGenerator, getGlobalConstants, getSchemes)
   }
 
@@ -77,7 +77,7 @@ object Configuration extends Logger {
   }
 
   protected def getGlobalConstants = {
-    var gc = new globalConstants
+    var gc = new GlobalConstants
     getChildElems((xml \\ "globals")) match {
 
       case List(mfp: Elem) if mfp.label == "questions" => {

@@ -518,7 +518,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
   } ++ Script(setCurrentStage) ++ Script(focusFirstInputField)
 }
 
-class singlePageApp extends Logger with SinglePageAppView {
+class SinglePageApp extends Logger with SinglePageAppView {
   def comet = {
     val detectedScheme = detectScheme
     val oldScheme = getScheme

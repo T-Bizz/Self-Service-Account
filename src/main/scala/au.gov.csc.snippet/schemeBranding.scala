@@ -5,7 +5,7 @@ import net.liftweb.common._
 import net.liftweb.util.Helpers._
 import scala.xml._
 
-class schemeBranding extends Logger with DetectScheme {
+class SchemeBranding extends Logger with DetectScheme {
   def render = {
     trace("req: %s".format(S.request))
     detectScheme.map(s => {

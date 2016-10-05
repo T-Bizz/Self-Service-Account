@@ -1,15 +1,5 @@
 package au.gov.csc.model
 
-import java.util.Date
-
-import scala.xml.{ NodeSeq, Text }
-
-case class AccountDefinition(
-  memberNumber: String,
-  password: String,
-  scheme: String
-)
-
 trait AccountProvider {
 
   def getAccount(memberNumber: String): Either[Exception, AccountDefinition]
