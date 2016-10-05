@@ -44,27 +44,49 @@ object Configuration extends Logger {
     elems
   }
 
-  def getConfiguation: Tuple4[FactProvider, TokenSender, TokenGenerator, globalConstants] = {
-    Tuple4(getUserProvider, getTokenSender, getTokenGenerator, getGlobalConstants)
+  def getConfiguation: Tuple5[FactProvider, TokenSender, TokenGenerator, globalConstants, Map[String, Tuple4[String, String, String, String]]] = {
+    Tuple5(getUserProvider, getTokenSender, getTokenGenerator, getGlobalConstants, getSchemes)
+  }
+
+  protected def getSchemes = {
+    var schemeList: Map[String, Tuple4[String, String, String, String]] = Map()
+    getChildElems((xml \\ "schemeList")) match {
+
+      case List(mfp: Elem) if mfp.label == "schemes" => {
+        for {
+          scheme <- (mfp \\ "scheme").flatMap(p => {
+            for {
+              ky <- (p \\ "@key").headOption.map(_.text)
+              sc <- (p \\ "@shortCode").headOption.map(_.text)
+              pw <- (p \\ "@publicWebsite").headOption.map(_.text)
+              lg <- (p \\ "@logo").headOption.map(_.text)
+              ls <- (p \\ "@loginScreen").headOption.map(_.text)
+            } yield {
+              ky -> Tuple4(sc, pw, lg, ls)
+            }
+          })
+        } yield {
+          warn(scheme)
+          schemeList += scheme
+        }
+      }
+
+      case Nil   => throw new Exception("no schemes configured")
+      case other => throw new Exception("too many schemes configured")
+    }
+    schemeList
   }
 
   protected def getGlobalConstants = {
     var gc = new globalConstants
-    trace("get globals")
     getChildElems((xml \\ "globals")) match {
 
       case List(mfp: Elem) if mfp.label == "questions" => {
-
-        trace("get questions")
         for {
           pp <- (mfp \\ "@maximumPerPage").headOption.map(_.text)
           tf <- (mfp \\ "@minimumCorrectTwoFactor").headOption.map(_.text)
           ntf <- (mfp \\ "@minimumCorrectNonTwoFactor").headOption.map(_.text)
         } yield {
-
-          trace("pp %s".format(pp))
-          trace("tf %s".format(tf))
-          trace("ntf %s".format(ntf))
           gc.questionsPerPage = pp.toInt
           gc.minimumCorrectTwoFactorAnswers = tf.toInt
           gc.minimumCorrectNonTwoFactorAnswers = ntf.toInt
@@ -72,8 +94,8 @@ object Configuration extends Logger {
         gc
       }
 
-      case Nil   => throw new Exception("no token provider configured")
-      case other => throw new Exception("too many token providers configured")
+      case Nil   => throw new Exception("no globals configured")
+      case other => throw new Exception("too many globals configured")
     }
   }
 
