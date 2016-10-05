@@ -13,7 +13,7 @@ trait DetectScheme extends Logger {
         Some(m)
       }
       case None => {
-        warn("detectScheme returned no scheme for (%s) from list %s".format(S.param("scheme").toString.toUpperCase, Globals.schemeList))
+        trace("detectScheme returned no scheme for (%s) from list %s".format(S.param("scheme").toString.toUpperCase, Globals.schemeList))
         None
       }
     }

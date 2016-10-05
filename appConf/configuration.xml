@@ -25,7 +25,6 @@
 		<!--<compoundProvider><telstraAnyNet host="" username="" password=""/><smtpServer sendingAddress="" host="" port="" tls="true" username="" password="" /></compoundProvider>-->
 	</tokenSender>
 	<factProvider>
-		<!--<hardcodedMockFactProvider/>-->
 		<mockFactProvider>
 			<member id="77929555" password="testPassword" scheme="testScheme">
 				<person age="21" dob="1995-09-21" firstname="John" fullName="John Smith" gender="Male" surname="Smith" taxFileNumber="87654321" title="Mr"/>

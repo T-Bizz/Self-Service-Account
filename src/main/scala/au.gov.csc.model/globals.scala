@@ -7,7 +7,7 @@ import net.liftweb.util._
 import net.liftweb.util.Helpers._
 import net.liftweb.common._
 
-class globalConstants {
+class GlobalConstants {
   var minimumCorrectTwoFactorAnswers = 2
   var minimumCorrectNonTwoFactorAnswers = 3
   var questionsPerPage = 2
@@ -17,10 +17,10 @@ object Globals {
   var userProvider: FactProvider = new MockFactProvider()
   var tokenSender: TokenSender = new MockTokenSender()
   var tokenGenerator: TokenGenerator = new NextFuncNameTokenProvider()
-  var constants: globalConstants = new globalConstants()
+  var constants: GlobalConstants = new GlobalConstants()
   var schemeList: Map[String, SchemeDefinition] = Map()
 
-  def init(in: Tuple5[FactProvider, TokenSender, TokenGenerator, globalConstants, Map[String, SchemeDefinition]]) = {
+  def init(in: Tuple5[FactProvider, TokenSender, TokenGenerator, GlobalConstants, Map[String, SchemeDefinition]]) = {
     userProvider = in._1
     tokenSender = in._2
     tokenGenerator = in._3

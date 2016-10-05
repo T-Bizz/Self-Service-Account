@@ -1,9 +1,5 @@
 package au.gov.csc.model
 
-import java.util.Date
-
-import scala.xml.{ NodeSeq, Text }
-
 object WorkflowTypeChoice extends Enumeration {
 
   type WorkflowTypeChoice = Value
