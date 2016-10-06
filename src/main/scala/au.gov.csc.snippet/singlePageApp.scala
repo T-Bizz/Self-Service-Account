@@ -153,6 +153,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
     trace("Generating page askForMembershipNumber")
     currentStage(Some(Identify))
     (".header-title *" #> ?("identify-header") &
+      ".sub-header-title *" #> ?("identify-sub-header") &
       ".footer-title *" #> ?("identify-footer") &
       ".btn-submit [onclick]" #> ajaxCall(JsRaw("jQuery('#serviceNumber').val()"), (s: String) => {
         serviceNumber(Some(s))
@@ -206,7 +207,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
           }
         }
       (".header-title *" #> ?("verification-method-choice-header") &
-        ".sub-header-title *" #> "%s %s".format(?("verification-method-choice-sub-header"), memberNumber) &
+        ".sub-header-title *" #> ?("verification-method-choice-sub-header") &
         ".footer-title *" #> ?("verification-method-choice-footer") &
         "#btn-phone" #> ((n: NodeSeq) => {
           initButton(n, WorkflowTypeChoice.SmsAndQuestions, Some(obfuscatePhoneNumber(factSet.getCurrentMobileNumber)))
@@ -241,8 +242,10 @@ trait SinglePageAppView extends DetectScheme with Logger {
       case Some(questionSet) => {
         var potentialAnswers: List[Answer] = Nil
         Templates(List("ajax-templates-hidden", "askForProofOfIdentity")).map(qst => {
-          (".question-set-header *" #> questionSet.title &
+          (".question-set-header *" #> ?("question-set-heading") &
+            ".question-set-sub-header *" #> ?("question-set-sub-heading") &
             ".question-set-footer *" #> questionSet.footer &
+            ".question-set-title *" #> questionSet.title &
             ".questions *" #> questionSet.questions.toList.foldLeft(NodeSeq.Empty)((acc, question) => {
               potentialAnswers = Answer("", question) :: potentialAnswers
 
@@ -450,7 +453,8 @@ trait SinglePageAppView extends DetectScheme with Logger {
     trace("Generating page provideError for %s".format(serviceNumber.is))
     currentStage(Some(Summary))
     Templates(List("ajax-templates-hidden", "provideError")).map(t => {
-      (".error-text *" #> Text(errorMessage) &
+      (".header-title *" #> Text(?("error-title-verification-issue")) &
+        ".error-text *" #> Text(errorMessage) &
         startOver(".btn-restart [onclick]", "/")).apply(t)
     }).openOr(NodeSeq.Empty)
   }
