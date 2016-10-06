@@ -1,6 +1,11 @@
 package au.gov.csc.model
 
 import org.specs2._
+import au.gov.csc.model._
+import au.gov.csc.model.question._
+import au.gov.csc.model.member._
+import au.gov.csc.model.fact._
+import au.gov.csc.model.state._
 
 class ValidateMembershipNumberTest extends org.specs2.mutable.Specification {
 

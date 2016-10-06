@@ -5,9 +5,6 @@ import net.liftweb.util._
 import Helpers._
 import net.liftweb.actor._
 import net.liftweb.common._
-/**
- * Created by Tom on 10/6/2016.
- */
 
 class PasswordStrength {
   lazy val ctx = new JsContext(List("""src/main/webapp/js/zxcvbn.min.js"""))

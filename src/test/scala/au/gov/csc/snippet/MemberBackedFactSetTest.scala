@@ -1,5 +1,11 @@
 package au.gov.csc.model
 
+import au.gov.csc.model.fact._
+import au.gov.csc.model.member._
+import au.gov.csc.model.question._
+import au.gov.csc.model.scheme._
+import au.gov.csc.model.state._
+
 import org.specs2._
 import java.util.Date
 import scala.xml._
@@ -73,7 +79,7 @@ class MemberBackedFactSetTest
         fs.setChoice(WorkflowTypeChoice.QuestionsOnly)
         val qs = fs.getNextQuestions.get
         val expectedQuestionsLeft = fs.getRemainingUnansweredQuestionCount - 1
-        fs.answerQuestions(List(Answer("badAnswer", qs.questions.head)))
+        fs.answerQuestions(List(QuestionAnswer("badAnswer", qs.questions.head)))
         fs.getRemainingUnansweredQuestionCount must beEqualTo(expectedQuestionsLeft)
       })
     }
@@ -101,7 +107,7 @@ class MemberBackedFactSetTest
         SessionState.questionsPerPage = 1
         val isComplete = fs.isComplete
         val questions = fs.getNextQuestions.get
-        fs.answerQuestions(List(Answer("testFirstName", questions.questions.head)))
+        fs.answerQuestions(List(QuestionAnswer("testFirstName", questions.questions.head)))
         val isComplete2 = fs.isComplete
         (isComplete == false && isComplete2 == true) must beEqualTo(true)
       })
@@ -129,9 +135,9 @@ class MemberBackedFactSetTest
         val fs = new MemberBackedFactSet(m.right.get)
         val isComplete = fs.isComplete
         val questions = fs.getNextQuestions.get
-        fs.answerQuestions(List(Answer("badAnswer", questions.questions.head)))
+        fs.answerQuestions(List(QuestionAnswer("badAnswer", questions.questions.head)))
         val isComplete2 = fs.isComplete
-        fs.answerQuestions(List(Answer("testFirstName", questions.questions.head)))
+        fs.answerQuestions(List(QuestionAnswer("testFirstName", questions.questions.head)))
         val isComplete3 = fs.isComplete
         (isComplete == false && isComplete2 == false && isComplete3 == false) must beEqualTo(true)
       })
@@ -188,10 +194,10 @@ class MemberBackedFactSetTest
         fs.getNextQuestions match {
           case Some(a) => a.questions.map(q => {
             q match {
-              case s: StringQuestion => fs.answerQuestions(List(Answer(s.correctAnswer, q)))
-              case n: NumberQuestion => fs.answerQuestions(List(Answer(n.correctAnswer, q)))
-              case d: DateQuestion   => fs.answerQuestions(List(Answer(d.correctAnswer.toString, q)))
-              case e: EmailQuestion  => fs.answerQuestions(List(Answer(e.correctAnswer, q)))
+              case s: StringQuestion => fs.answerQuestions(List(QuestionAnswer(s.correctAnswer, q)))
+              case n: NumberQuestion => fs.answerQuestions(List(QuestionAnswer(n.correctAnswer, q)))
+              case d: DateQuestion   => fs.answerQuestions(List(QuestionAnswer(d.correctAnswer.toString, q)))
+              case e: EmailQuestion  => fs.answerQuestions(List(QuestionAnswer(e.correctAnswer, q)))
               case _                 => Nil
             }
           })
@@ -225,8 +231,8 @@ class MemberBackedFactSetTest
         val qs = fs.getNextQuestions.get
         List.range(0, qs.questions.length).foreach(i => {
           i match {
-            case 0 => fs.answerQuestions(List(Answer("testFirstName", qs.questions(i))))
-            case _ => fs.answerQuestions(List(Answer("basAnswer", qs.questions(i))))
+            case 0 => fs.answerQuestions(List(QuestionAnswer("testFirstName", qs.questions(i))))
+            case _ => fs.answerQuestions(List(QuestionAnswer("basAnswer", qs.questions(i))))
           }
         })
         fs.isComplete must beEqualTo(false)
@@ -269,8 +275,8 @@ class MemberBackedFactSetTest
               }
               a.questions.map(q => {
                 q match {
-                  case s: StringQuestion => fs.answerQuestions(List(Answer(s.correctAnswer, q)))
-                  case n: NumberQuestion => fs.answerQuestions(List(Answer(n.correctAnswer, q)))
+                  case s: StringQuestion => fs.answerQuestions(List(QuestionAnswer(s.correctAnswer, q)))
+                  case n: NumberQuestion => fs.answerQuestions(List(QuestionAnswer(n.correctAnswer, q)))
                   case _                 => Nil
                 }
               })
@@ -320,8 +326,8 @@ class MemberBackedFactSetTest
               }
               a.questions.map(q => {
                 q match {
-                  case s: StringQuestion => fs.answerQuestions(List(Answer(s.correctAnswer, q)))
-                  case n: NumberQuestion => fs.answerQuestions(List(Answer(n.correctAnswer, q)))
+                  case s: StringQuestion => fs.answerQuestions(List(QuestionAnswer(s.correctAnswer, q)))
+                  case n: NumberQuestion => fs.answerQuestions(List(QuestionAnswer(n.correctAnswer, q)))
                   case _                 => Nil
                 }
               })
@@ -401,8 +407,8 @@ class MemberBackedFactSetTest
               }
               a.questions.map(q => {
                 q match {
-                  case s: StringQuestion => fs.answerQuestions(List(Answer(s.correctAnswer, q)))
-                  case n: NumberQuestion => fs.answerQuestions(List(Answer(n.correctAnswer, q)))
+                  case s: StringQuestion => fs.answerQuestions(List(QuestionAnswer(s.correctAnswer, q)))
+                  case n: NumberQuestion => fs.answerQuestions(List(QuestionAnswer(n.correctAnswer, q)))
                   case _                 => Nil
                 }
               })

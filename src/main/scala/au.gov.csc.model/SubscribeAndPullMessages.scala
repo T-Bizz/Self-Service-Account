@@ -1,12 +1,12 @@
 package au.gov.csc.model
-
+/*
 import java.util.Date
 import net.liftweb.common._
 import scala.xml.{ NodeSeq, Text }
 import net.liftweb.util.Helpers._
 
 import au.gov.csc.model.SessionState._
-/*
+
 package com.google.cloud.examples.pubsub.snippets
 
 import com.google.cloud.pubsub.Message

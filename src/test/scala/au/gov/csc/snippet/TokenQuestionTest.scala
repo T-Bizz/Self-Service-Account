@@ -3,6 +3,11 @@ package au.gov.csc.model
 import org.specs2._
 import java.util.Date
 import scala.xml._
+import au.gov.csc.model._
+import au.gov.csc.model.question._
+import au.gov.csc.model.member._
+import au.gov.csc.model.fact._
+import au.gov.csc.model.state._
 
 class TokenQuestionTest extends org.specs2.mutable.Specification with SHelpers {
 
@@ -60,7 +65,7 @@ class TokenQuestionTest extends org.specs2.mutable.Specification with SHelpers {
     "fail to check when not asked" in {
       inSession({
         val (fs, tq) = createTokenQuestionFixture(() => "testToken", (t: String) => {})
-        tq.check(Answer("testToken", tq)) must beEqualTo(false)
+        tq.check(QuestionAnswer("testToken", tq)) must beEqualTo(false)
       })
     }
 
@@ -69,7 +74,7 @@ class TokenQuestionTest extends org.specs2.mutable.Specification with SHelpers {
         var sentToken = ""
         val (fs, tq) = createTokenQuestionFixture(() => "testToken", (t: String) => sentToken = t)
         tq.ask(fs)
-        tq.check(Answer(sentToken, tq)) must beEqualTo(true)
+        tq.check(QuestionAnswer(sentToken, tq)) must beEqualTo(true)
       })
     }
 
@@ -85,7 +90,7 @@ class TokenQuestionTest extends org.specs2.mutable.Specification with SHelpers {
         val firstState = sentToken
         tq.ask(fs)
         val secondState = sentToken
-        (tq.check(Answer(firstState, tq)) && tq.check(Answer(secondState, tq))) must beEqualTo(false)
+        (tq.check(QuestionAnswer(firstState, tq)) && tq.check(QuestionAnswer(secondState, tq))) must beEqualTo(false)
       })
     }
   }
