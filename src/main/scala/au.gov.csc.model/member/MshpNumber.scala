@@ -1,19 +1,4 @@
-package au.gov.csc.model
-
-trait MembershipNumber {
-  val prefix: String
-  val number: String
-  val pensionCode: String
-  val suffix: String
-
-  override def toString: String = (prefix + number + pensionCode + suffix).toUpperCase()
-
-  def validate: List[String]
-
-  def isValid: Boolean = {
-    validate.isEmpty
-  }
-}
+package au.gov.csc.model.member
 
 case class MshpNumber(number: String, prefix: String = "", pensionCode: String = "", suffix: String = "") extends MembershipNumber {
   var external_id = prefix + number + pensionCode + suffix

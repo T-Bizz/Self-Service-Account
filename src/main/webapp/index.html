@@ -39,37 +39,45 @@
           </div>
         </div>
         <div class="row">
-          <div class="panel panel-default panel-no-border panel-no-shadow panel-no-padding animated fadeIn margin-top-md">
-            <div class="panel-heading background-csc">
+          <div class="panel panel-default panel-no-border panel-border-radius panel-no-shadow animated fadeIn margin-top-md">
+            <div class="panel-heading">
               <div class="row">
-                <div class="col-xs-8">
-                  <h1 class="text-brand">Register / Reset Account</h1>
-                </div>
                 <div class="col-xs-2">
                   <div data-lift="embed?what=/ajax-templates-hidden/spinner"></div>
+                </div>
+                <div class="col-xs-8 text-center">
+                  <h1 class="text-brand">Register / Reset Account</h1>
                 </div>
               </div>
             </div>
             <div class="panel-body">
               <div data-lift="lift:singlePageApp.comet" class="app-root-elem" ><!-- singlePageApp">-->
                 <div id="step-wizzard" class="padding-bottom-md">
-                  <ul class="nav nav-pills nav-justified setup-panel">
-                    <li class="step-heading active" id="li-step-1"><a href="#">
-                      <p class="list-group-item-heading"><span class="fa fa-search fa-2x"></span></p>
-                      <p class="list-group-item-text">1. Identify <span class="sr-only">step</span></p>
-                    </a></li>
-                    <li class="step-heading disabled" id="li-step-2"><a href="#">
-                      <p class="list-group-item-heading"><span class="fa fa-user fa-2x"></span></p>
-                      <p class="list-group-item-text">2. Verify <span class="sr-only">step</span></p>
-                    </a></li>
-                    <li class="step-heading disabled" id="li-step-3"><a href="#">
-                      <p class="list-group-item-heading"><span class="fa fa-key fa-2x"></span></p>
-                      <p class="list-group-item-text">3. Set Password <span class="sr-only">step</span></p>
-                    </a></li>
-                    <li class="step-heading disabled" id="li-step-4"><a href="#">
-                      <p class="list-group-item-heading"><span class="fa fa-list-alt fa-2x"></span></p>
-                      <p class="list-group-item-text">4. Summary <span class="sr-only">step</span></p>
-                    </a></li>
+                  <ul class="nav nav-tabs nav-justified">
+                    <li role="presentation" class="step-heading text-center active" id="li-step-1">
+                      <a href="#">
+                        <p class="list-group-item-heading"><span class="fa fa-check-circle-o fa-2x"></span></p>
+                        <p class="list-group-item-text">1. Validate</p>
+                      </a>
+                    </li>
+                    <li role="presentation" class="step-heading text-center" id="li-step-2">
+                      <a href="#">
+                        <p class="list-group-item-heading"><span class="fa fa-user fa-2x"></span></p>
+                        <p class="list-group-item-text">2. Verify</p>
+                      </a>
+                    </li>
+                    <li role="presentation" class="step-heading text-center" id="li-step-3">
+                      <a href="#">
+                        <p class="list-group-item-heading"><span class="fa fa-key fa-2x"></span></p>
+                        <p class="list-group-item-text">3. Set Password</p>
+                      </a>
+                    </li>
+                    <li role="presentation" class="step-heading text-center" id="li-step-4">
+                      <a href="#">
+                        <p class="list-group-item-heading"><span class="fa fa-list-alt fa-2x"></span></p>
+                        <p class="list-group-item-text">4. Your access number</p>
+                      </a>
+                    </li>
                   </ul>
                 </div>
                 <div id="step-form" data-id=""></div>

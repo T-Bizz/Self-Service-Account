@@ -1,6 +1,9 @@
 package au.gov.csc.model
 
 import net.liftweb.common._
+import au.gov.csc.model.member._
+import au.gov.csc.model.fact._
+import au.gov.csc.model.state._
 
 trait TokenSender extends Logger {
   def send(target: Either[EmailAddress, PhoneNumber], token: String, factSet: FactSet): Option[Exception]

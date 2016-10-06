@@ -7,6 +7,7 @@ import net.liftweb.sitemap.{ Menu, SiteMap }
 import scala.collection.immutable.::
 import au.gov.csc.comet.{ PushActorManager, TokenMessage }
 import au.gov.csc.model._
+import au.gov.csc.model.state._
 
 class Boot {
 
@@ -26,7 +27,7 @@ class Boot {
         PushActorManager ! TokenMessage(sessionIdentifier, token)
         if (SessionState.currentFactSet.is.exists(_.factSetId == sessionIdentifier) && SessionState.Scheme.isDefined) {
           SessionState.Scheme.is.map(s => {
-            RedirectResponse("/scheme/%s".format(s._1))
+            RedirectResponse("/scheme/%s".format(s.shortCode.toUpperCase))
           })
         } else {
           for {

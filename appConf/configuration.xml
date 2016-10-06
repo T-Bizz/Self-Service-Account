@@ -2,6 +2,19 @@
 	<globals>
 		<questions maximumPerPage="2" minimumCorrectTwoFactor="3" minimumCorrectNonTwoFactor="4" />
 	</globals>
+	<schemeList>
+		<schemes>
+			<scheme key="CSS" shortCode="CSS" publicWebsite="https://css.gov.au/" logo="/img/site_logo_css.svg" loginScreen="https://member.comsuper.gov.au/css_memb_cmnprod/" />
+			<scheme key="PSS" shortCode="PSS" publicWebsite="https://pss.gov.au/" logo="/img/site_logo_pss.svg" loginScreen="https://member.comsuper.gov.au/pss_memb_cmnprod/" />
+			<scheme key="MSBS" shortCode="MSBS" publicWebsite="https://militarysuper.gov.au/" logo="/img/site_logo_msbs.svg" loginScreen="https://member.comsuper.gov.au/comsuper_mil/members" />
+			<scheme key="DRRB" shortCode="DFRDB" publicWebsite="https://dfrdb.gov.au/" logo="/img/site_logo_dfrdb.svg" loginScreen="https://member.comsuper.gov.au/comsuper_mil/members" />
+			<scheme key="DFRDB" shortCode="DFRDB" publicWebsite="https://dfrdb.gov.au/" logo="/img/site_logo_dfrdb.svg" loginScreen="https://member.comsuper.gov.au/comsuper_mil/members" />
+			<scheme key="ADFC" shortCode="ADFC" publicWebsite="https://adfsuper.gov.au/adf-cover/" logo="/img/site_logo_adfc.svg" loginScreen="https://member.comsuper.gov.au/comsuper_mil/members" />
+			<scheme key="PNG" shortCode="PNG" publicWebsite="https://css.gov.au/" logo="/img/site_logo_css.svg" loginScreen="https://member.comsuper.gov.au/css_memb_cmnprod/" />
+			<scheme key="1922" shortCode="CSS" publicWebsite="https://css.gov.au/" logo="/img/site_logo_css.svg" loginScreen="https://member.comsuper.gov.au/css_memb_cmnprod/" />
+			<scheme key="PENSION" shortCode="PENSION" publicWebsite="#" logo="#" loginScreen="https://member.comsuper.gov.au/comsuper_mil/members" />
+		</schemes>
+	</schemeList>
 	<tokenProvider>
 		<stableMockTokenProvider token="012345"/>
 		<!--<nextFuncNameTokenProvider/>-->
@@ -12,7 +25,6 @@
 		<!--<compoundProvider><telstraAnyNet host="" username="" password=""/><smtpServer sendingAddress="" host="" port="" tls="true" username="" password="" /></compoundProvider>-->
 	</tokenSender>
 	<factProvider>
-		<!--<hardcodedMockFactProvider/>-->
 		<mockFactProvider>
 			<member id="77929555" password="testPassword" scheme="testScheme">
 				<person age="21" dob="1995-09-21" firstname="John" fullName="John Smith" gender="Male" surname="Smith" taxFileNumber="87654321" title="Mr"/>

@@ -37,54 +37,47 @@ function addValidationMarkup($, id, isValid, err) {
   	removeErrorMarkup($, id);
 }(jQuery);
 
-function displayPasswordStrength($) {
-	var pwd = $('.question-input:first').val();
-	var progressBar = $('#strength-bar');
-	var warningText = $('#strength-warning');
-	var strength = zxcvbn(pwd, user_inputs=[]);
+function displayPasswordStrength($, $item) {
+	var formGroup = $item.parent().parent().parent();
+	var strength = zxcvbn($item.val(), user_inputs=[]);
 	var pct = 0;
 	var colour = "danger";
 	var status = "Very Weak";
+    var isValid = 'false';
 
 	switch (strength.score) {
 		case 0:
 		  pct = 10;
           colour = "danger";
-          status = "Too guessable";
+          status = "Very Weak";
           break;
         case 1:
 		  pct = 25;
           colour = "warning";
-          status = "Very guessable";
+          status = "Weak";
           break;
         case 2:
 		  pct = 50;
           colour = "info";
-          status = "Somewhat guessable";
+          status = "Fair";
           break;
         case 3:
 		  pct = 75;
           colour = "primary";
-          status = "Safely unguessable";
+          status = "Good";
           break;
         case 4:
 		  pct = 100;
           colour = "success";
-          status = "Very unguessable";
+          status = "Strong";
           break;
 	}
 
-	progressBar.removeClass();
-	progressBar.addClass('progress-bar').addClass('progress-bar-' + colour);
-    progressBar.attr('aria-valuenow', pct);
-    progressBar.attr('style', 'width: ' + pct + '%; min-width: 40px;');
-    progressBar.find('span').text(status);
-    warningText.removeClass();
-    warningText.addClass('text-center').addClass('text-' + colour)
+	formGroup.find('.progress-bar').removeClass().addClass('progress-bar').addClass('progress-bar-' + colour).attr('aria-valuenow', pct).attr('style', 'width: ' + pct + '%; min-width: 40px;').find('span').text(status);
+    formGroup.find('.strength-warning').removeClass().addClass('text-center').addClass('text-' + colour)
 
-    var isValid = 'false';
     if (pct >= 50)
     	isValid = 'true';
 
-    addValidationMarkup($, '.form-group:first', isValid, strength.feedback.warning);
+    addValidationMarkup($, '#' + formGroup.attr('id'), isValid, strength.feedback.warning);
 }(jQuery);

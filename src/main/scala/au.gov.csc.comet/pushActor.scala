@@ -11,9 +11,11 @@ import scala.xml.{ NodeSeq, Text }
 import net.liftweb.http.SHtml._
 import net.liftweb.util.Helpers._
 
+import au.gov.csc.model.question._
 import au.gov.csc.model._
 import au.gov.csc.snippet.SinglePageAppView
-import au.gov.csc.model.SessionState._
+import au.gov.csc.model.state._
+import au.gov.csc.model.fact._
 
 case class TokenMessage(sessionId: String, token: String)
 
@@ -41,19 +43,19 @@ class PushActor extends CometActor with CometListener with SinglePageAppView wit
   }
 
   override protected def localSetup = {
-    trace("cometActor starting up: %s (%s) %s".format(this, currentFactSet.is.map(_.factSetId), pageId))
+    trace("cometActor starting up: %s (%s) %s".format(this, SessionState.currentFactSet.is.map(_.factSetId), pageId))
     sId = Some(SessionState.sessionId.is)
     super.localSetup
   }
 
   override protected def localShutdown = {
-    trace("cometActor shutting down: %s (%s) %s".format(this, currentFactSet.is.map(_.factSetId), pageId))
+    trace("cometActor shutting down: %s (%s) %s".format(this, SessionState.currentFactSet.is.map(_.factSetId), pageId))
     partialUpdate(RedirectTo("/sessionTerminated"))
     super.localShutdown
   }
 
   protected def isTokenForMe(tm: TokenMessage): Boolean = {
-    currentFactSet.is.map(fs => {
+    SessionState.currentFactSet.is.map(fs => {
       fs.factSetId == tm.sessionId
     }).getOrElse(false)
   }
@@ -65,12 +67,12 @@ class PushActor extends CometActor with CometListener with SinglePageAppView wit
   override def lowPriority = {
     case tm @ TokenMessage(sid, t) if isTokenForMe(tm) => {
       for {
-        fs <- currentFactSet.is
+        fs <- SessionState.currentFactSet.is
         qs <- fs.getNextQuestions
         q <- qs.questions.headOption
         if q.isInstanceOf[TokenQuestion]
       } yield {
-        fs.answerQuestions(List(Answer(t, q)))
+        fs.answerQuestions(List(QuestionAnswer(t, q)))
         val jsCmd: JsCmd = fs.canComplete match {
           case true  => showModal(?("token-received-title"), ?("token-received-successfully")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
           case false => showModalError(?("token-received-title"), ?("token-received-error")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)

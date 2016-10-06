@@ -1,6 +1,10 @@
 package au.gov.csc.snippet
 
 import au.gov.csc.model._
+import au.gov.csc.model.question._
+import au.gov.csc.model.member._
+import au.gov.csc.model.fact._
+import au.gov.csc.model.state._
 import au.gov.csc.comet._
 import net.liftweb.http.{ SessionVar, Templates }
 import net.liftweb.http._
@@ -13,8 +17,6 @@ import net.liftweb.http.js.JE.{ JsRaw }
 import net.liftweb.util.CssSel
 import scala.xml._
 import StageTypeChoice._
-
-import au.gov.csc.model.SessionState.{ serviceNumber, Scheme, currentFactSet, currentAccountDetails, currentStage }
 
 trait SinglePageAppView extends DetectScheme with Logger {
 
@@ -42,7 +44,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
     JsRaw("setStage($, '%s');".format(s))
   }
 
-  protected def setCurrentStage: JsCmd = currentStage.is match {
+  protected def setCurrentStage: JsCmd = SessionState.currentStage.is match {
     case Some(StageTypeChoice.Verify)                    => setCurrentStage("2")
     case Some(StageTypeChoice.SetPassword)               => setCurrentStage("3")
     case Some(StageTypeChoice.Summary)                   => setCurrentStage("4")
@@ -50,8 +52,8 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def ?(key: String): String =
-    S.?("%s%s".format(key.toLowerCase, Scheme.is.map(s => "-%s".format(s._1)).getOrElse("").toLowerCase)) match {
-      case out if out == "%s%s".format(key.toLowerCase, Scheme.is.map(s => "-%s".format(s._1)).getOrElse("").toLowerCase) => {
+    S.?("%s%s".format(key.toLowerCase, SessionState.Scheme.is.map(s => "-%s".format(s.shortCode)).getOrElse("").toLowerCase)) match {
+      case out if out == "%s%s".format(key.toLowerCase, SessionState.Scheme.is.map(s => "-%s".format(s.shortCode)).getOrElse("").toLowerCase) => {
         trace("Could not find text snippet with key %s. Replacing it with the key %s.".format(out, key))
         S.?(key)
       }
@@ -66,12 +68,12 @@ trait SinglePageAppView extends DetectScheme with Logger {
     if (id != pageId) {
       redirectPath match {
         case Some(p) =>
-          trace("Redirecting to (%s) for %s".format(p, serviceNumber.is))
+          trace("Redirecting to (%s) for %s".format(p, SessionState.serviceNumber.is))
           ajaxCall(JsRaw("this"), (_s: String) => {
             RedirectTo(p)
           })
         case None =>
-          trace("Redirecting to current page for %s".format(serviceNumber.is))
+          trace("Redirecting to current page for %s".format(SessionState.serviceNumber.is))
           ajaxCall(JsRaw("this"), (s: String) => {
             SetHtml(contentAreaId, generateCurrentPageNodeSeq)
           })
@@ -80,8 +82,9 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def initQuestion(template: NodeSeq, title: String, placeholder: String, helpText: String, icon: String, onChange: JsCmd, action: Option[JsCmd] = None, actionTitle: Option[String] = None): NodeSeq = {
-    trace("Displaying question (%s) for %s".format(title, serviceNumber.is))
-    (".question-title *" #> title &
+    trace("Displaying question (%s) for %s".format(title, SessionState.serviceNumber.is))
+    (".form-group [id]" #> nextFuncName &
+      ".question-title *" #> title &
       ".question-input [title]" #> title &
       ".question-input [placeholder]" #> placeholder &
       ".question-help-text [data-content]" #> helpText &
@@ -96,9 +99,9 @@ trait SinglePageAppView extends DetectScheme with Logger {
 
   protected def startOver(
     csssel: String = ".btn-reset [onclick]",
-    redirect: String = "/scheme/%s".format(getScheme.map(p => p._1).getOrElse(""))
+    redirect: String = "/scheme/%s".format(getScheme.map(p => p.shortCode).getOrElse("").toUpperCase)
   ): CssSel = {
-    trace("Destroying session at users request for %s".format(serviceNumber.is))
+    trace("Destroying session at users request for %s".format(SessionState.serviceNumber.is))
     csssel #> ajaxCall(JsRaw("this"), (_s: String) => {
       S.session.foreach(s => {
         //s.destroySession()
@@ -150,22 +153,23 @@ trait SinglePageAppView extends DetectScheme with Logger {
 
   protected def askForMembershipNumber: NodeSeq = Templates(List("ajax-templates-hidden", "askForMembershipNumber")).map(t => {
     trace("Generating page askForMembershipNumber")
-    currentStage(Some(Identify))
+    SessionState.currentStage(Some(Identify))
     (".header-title *" #> ?("identify-header") &
+      ".sub-header-title *" #> ?("identify-sub-header") &
       ".footer-title *" #> ?("identify-footer") &
       ".btn-submit [onclick]" #> ajaxCall(JsRaw("jQuery('#serviceNumber').val()"), (s: String) => {
-        serviceNumber(Some(s))
-        if (currentFactSet.is.isDefined) {
+        SessionState.serviceNumber(Some(s))
+        if (SessionState.currentFactSet.is.isDefined) {
           showModalError(?("error-title-invalid-data"), ?("membership-number-already-provided")) &
             SetHtml(contentAreaId, generateCurrentPageNodeSeq)
         } else {
           val mn: MembershipNumber = new MshpNumber(s)
-          serviceNumber.is.map(s => {
-            new MshpNumber(serviceNumber.is.getOrElse("")).isValid match {
+          SessionState.serviceNumber.is.map(s => {
+            new MshpNumber(SessionState.serviceNumber.is.getOrElse("")).isValid match {
               case true => factProvider.getFacts(s) match {
                 case Right(member) => {
                   try {
-                    currentFactSet(Some(new MemberBackedFactSet(member)))
+                    SessionState.currentFactSet(Some(new MemberBackedFactSet(member)))
                   } catch {
                     case t: Throwable =>
                       error("exception: %s\r\n%s".format(t.getMessage, t.getStackTrace))
@@ -187,11 +191,11 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }).openOr(NodeSeq.Empty)
 
   protected def askForVerificationMethod(factSet: FactSet): NodeSeq = {
-    trace("Generating page askForVerificationMethod for %s".format(serviceNumber.is))
-    currentStage(Some(Verify))
+    trace("Generating page askForVerificationMethod for %s".format(SessionState.serviceNumber.is))
+    SessionState.currentStage(Some(Verify))
     (for {
       template <- Templates(List("ajax-templates-hidden", "askForVerificationMethod"))
-      memberNumber <- serviceNumber.is
+      memberNumber <- SessionState.serviceNumber.is
     } yield {
       var currentChoice: Option[WorkflowTypeChoice.Value] = None
         def initButton(template: NodeSeq, option: WorkflowTypeChoice.Value, value: Option[String]): NodeSeq = {
@@ -205,7 +209,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
           }
         }
       (".header-title *" #> ?("verification-method-choice-header") &
-        ".sub-header-title *" #> "%s %s".format(?("verification-method-choice-sub-header"), memberNumber) &
+        ".sub-header-title *" #> ?("verification-method-choice-sub-header") &
         ".footer-title *" #> ?("verification-method-choice-footer") &
         "#btn-phone" #> ((n: NodeSeq) => {
           initButton(n, WorkflowTypeChoice.SmsAndQuestions, Some(obfuscatePhoneNumber(factSet.getCurrentMobileNumber)))
@@ -234,22 +238,24 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def askForProofOfIdentity(factSet: FactSet): NodeSeq = {
-    trace("Generating page askForProofOfIdentity for %s".format(serviceNumber.is))
-    currentStage(Some(Verify))
+    trace("Generating page askForProofOfIdentity for %s".format(SessionState.serviceNumber.is))
+    SessionState.currentStage(Some(Verify))
     factSet.getNextQuestions match {
       case Some(questionSet) => {
-        var potentialAnswers: List[Answer] = Nil
+        var potentialAnswers: List[QuestionAnswer] = Nil
         Templates(List("ajax-templates-hidden", "askForProofOfIdentity")).map(qst => {
-          (".question-set-header *" #> questionSet.title &
+          (".question-set-header *" #> ?("question-set-heading") &
+            ".question-set-sub-header *" #> ?("question-set-sub-heading") &
             ".question-set-footer *" #> questionSet.footer &
+            ".question-set-title *" #> questionSet.title &
             ".questions *" #> questionSet.questions.toList.foldLeft(NodeSeq.Empty)((acc, question) => {
-              potentialAnswers = Answer("", question) :: potentialAnswers
+              potentialAnswers = QuestionAnswer("", question) :: potentialAnswers
 
               val answerQuestionFunc = (answerString: String) => {
                 potentialAnswers = potentialAnswers.filterNot(pa => {
                   pa.question == question
                 })
-                potentialAnswers = Answer(answerString, question) :: potentialAnswers
+                potentialAnswers = QuestionAnswer(answerString, question) :: potentialAnswers
                 question.getValidationErrors(answerString) match {
                   case Nil => Noop
                   case o   => showModalError(?("error-title"), o.mkString)
@@ -312,11 +318,11 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def askForAccounts: NodeSeq = {
-    trace("Generating page askForAccounts for %s".format(serviceNumber.is))
-    currentStage(Some(SetPassword))
+    trace("Generating page askForAccounts for %s".format(SessionState.serviceNumber.is))
+    SessionState.currentStage(Some(SetPassword))
     (for {
       template <- Templates(List("ajax-templates-hidden", "askForAccounts"))
-      fs <- currentFactSet.is
+      fs <- SessionState.currentFactSet.is
     } yield {
       var currentChoice: Seq[Membership] = Seq()
 
@@ -358,11 +364,11 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def askForPassword: NodeSeq = {
-    trace("Generating page askForPassword for %s".format(serviceNumber.is))
-    currentStage(Some(SetPassword))
+    trace("Generating page askForPassword for %s".format(SessionState.serviceNumber.is))
+    SessionState.currentStage(Some(SetPassword))
     (for {
       template <- Templates(List("ajax-templates-hidden", "askForPassword"))
-      fs <- currentFactSet.is
+      fs <- SessionState.currentFactSet.is
     } yield {
       var password: String = ""
       var score: String = ""
@@ -417,12 +423,12 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def providePasswords: NodeSeq = {
-    trace("Generating page providePasswords for %s".format(serviceNumber.is))
-    currentStage(Some(Summary))
+    trace("Generating page providePasswords for %s".format(SessionState.serviceNumber.is))
+    SessionState.currentStage(Some(Summary))
     (for {
       template <- Templates(List("ajax-templates-hidden", "providePasswords"))
-      memberNumber <- serviceNumber.is
-      fs <- currentFactSet.is
+      memberNumber <- SessionState.serviceNumber.is
+      fs <- SessionState.currentFactSet.is
       pw <- SessionState.userPassword.is
     } yield {
       (".header-title *" #> ?("result-header") &
@@ -430,7 +436,8 @@ trait SinglePageAppView extends DetectScheme with Logger {
         ".footer-title *" #> ?("result-footer") &
         ".account-list *" #> fs.getEligibleAccountChoice.toList.foldLeft(NodeSeq.Empty)((acc, mshp) => {
           acc ++ (Templates(List("ajax-templates-hidden", "passwordResult")).map(t => {
-            (".account-id *" #> mshp.external_id &
+            (".list-group-item [href]" #> SessionState.Scheme.is.map(s => s.loginScreen).getOrElse("") &
+              ".account-id *" #> mshp.external_id &
               ".account-scheme *" #> (mshp.scheme match {
                 case "PENSION" => "%s %s".format(?("login-to"), ?("pso-login"))
                 case s         => "%s %s %s".format(?("login-to"), ?(s.toLowerCase), ?("mso-login"))
@@ -445,19 +452,20 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def provideError(errorMessage: String): NodeSeq = {
-    trace("Generating page provideError for %s".format(serviceNumber.is))
-    currentStage(Some(Summary))
+    trace("Generating page provideError for %s".format(SessionState.serviceNumber.is))
+    SessionState.currentStage(Some(Summary))
     Templates(List("ajax-templates-hidden", "provideError")).map(t => {
-      (".error-text *" #> Text(errorMessage) &
+      (".header-title *" #> Text(?("error-title-verification-issue")) &
+        ".error-text *" #> Text(errorMessage) &
         startOver(".btn-restart [onclick]", "/")).apply(t)
     }).openOr(NodeSeq.Empty)
   }
 
   protected def generateCurrentPageNodeSeq: NodeSeq = {
-    val node = currentFactSet.is match {
+    val node = SessionState.currentFactSet.is match {
       case None => askForMembershipNumber
       case Some(factSet) if !factSet.getHasChosen && factSet.getChoices.size == 1 => {
-        trace("%s has only one verification method, skipping the associated choice screen.".format(serviceNumber.is.getOrElse("")))
+        trace("%s has only one verification method, skipping the associated choice screen.".format(SessionState.serviceNumber.is.getOrElse("")))
         factSet.getChoices.map(choice => {
           factSet.setChoice(choice)
         })
@@ -465,27 +473,27 @@ trait SinglePageAppView extends DetectScheme with Logger {
         generateCurrentPageNodeSeq
       }
       case Some(factSet) if !factSet.getHasChosen && factSet.getChoices.size == 0 => {
-        warn("%s has no verification methods available.".format(serviceNumber.is.getOrElse("")))
+        warn("%s has no verification methods available.".format(SessionState.serviceNumber.is.getOrElse("")))
         provideError(?("call-cic"))
       }
       case Some(factSet) if !factSet.canComplete => {
-        trace("%s does not have enough facts avialable to complete the process.".format(serviceNumber.is.getOrElse("")))
+        trace("%s does not have enough facts avialable to complete the process.".format(SessionState.serviceNumber.is.getOrElse("")))
         provideError(?("call-cic"))
       }
       case Some(factSet) if !factSet.getHasChosen => {
-        trace("%s has only one verification method, skipping the associated choice screen.".format(serviceNumber.is.getOrElse("")))
+        trace("%s has only one verification method, skipping the associated choice screen.".format(SessionState.serviceNumber.is.getOrElse("")))
         askForVerificationMethod(factSet)
       }
       case Some(factSet) if factSet.isComplete && !factSet.getHasChosenEligibleAccount &&
         factSet.getEligibleMemberships.size > 1 => {
 
-        trace("%s has more than one eligible account for registration / reset.".format(serviceNumber.is.getOrElse("")))
+        trace("%s has more than one eligible account for registration / reset.".format(SessionState.serviceNumber.is.getOrElse("")))
         askForAccounts
       }
       case Some(factSet) if factSet.isComplete && !factSet.getHasChosenEligibleAccount &&
         factSet.getEligibleMemberships.size == 1 => {
 
-        trace("%s has only one eligible account for registration / reset. Skipping choice.".format(serviceNumber.is.getOrElse("")))
+        trace("%s has only one eligible account for registration / reset. Skipping choice.".format(SessionState.serviceNumber.is.getOrElse("")))
         factSet.setEligibleAccountChoice(factSet.getEligibleMemberships)
         pushUserAction()
         askForPassword
@@ -493,17 +501,17 @@ trait SinglePageAppView extends DetectScheme with Logger {
       case Some(factSet) if factSet.isComplete &&
         factSet.getHasChosenEligibleAccount && (SessionState.userPassword.is.getOrElse("") != "") => {
 
-        trace("%s has had eligible accounts registered / reset.".format(serviceNumber.is.getOrElse("")))
+        trace("%s has had eligible accounts registered / reset.".format(SessionState.serviceNumber.is.getOrElse("")))
         providePasswords
       }
       case Some(factSet) if factSet.isComplete && factSet.getHasChosenEligibleAccount => {
 
-        trace("%s is being prompted to setup a password.".format(serviceNumber.is.getOrElse("")))
+        trace("%s is being prompted to setup a password.".format(SessionState.serviceNumber.is.getOrElse("")))
         askForPassword
       }
       case Some(factSet) => {
 
-        trace("%s is being challenged to prove their identity.".format(serviceNumber.is.getOrElse("")))
+        trace("%s is being challenged to prove their identity.".format(SessionState.serviceNumber.is.getOrElse("")))
         askForProofOfIdentity(factSet)
       }
     }
@@ -516,14 +524,14 @@ trait SinglePageAppView extends DetectScheme with Logger {
   } ++ Script(setCurrentStage) ++ Script(focusFirstInputField)
 }
 
-class singlePageApp extends Logger with SinglePageAppView {
+class SinglePageApp extends Logger with SinglePageAppView {
   def comet = {
     val detectedScheme = detectScheme
     val oldScheme = getScheme
     detectedScheme.filterNot(s => oldScheme.exists(_ == s)).foreach(s => {
       trace("detected scheme change: %s => %s".format(oldScheme, s))
-      Scheme(detectedScheme)
-      pushUserAction(Some("/scheme/%s".format(s._1)))
+      SessionState.Scheme(detectedScheme)
+      pushUserAction(Some("/scheme/%s".format(s.shortCode.toUpperCase)))
     })
 
     val cometActorName = "lift:comet?type=PushActor&name=%s".format(nextFuncName)

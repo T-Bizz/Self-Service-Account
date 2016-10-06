@@ -1,5 +1,7 @@
 package au.gov.csc.model
 
+import au.gov.csc.model.state._
+
 trait TokenGenerator {
   def generateToken: String
 }
