@@ -1,13 +1,4 @@
-package au.gov.csc.model
-
-import java.util.Date
-
-import scala.xml.{ NodeSeq, Text }
-
-trait MemberProvider {
-
-  def getMember(memberNumber: String): Either[Exception, Member]
-}
+package au.gov.csc.model.member
 
 class MockMemberProvider extends MemberProvider {
 

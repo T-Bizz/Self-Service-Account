@@ -1,4 +1,4 @@
-package au.gov.csc.model
+package au.gov.csc.model.account
 
 case class AccountDefinition(
   memberNumber: String,

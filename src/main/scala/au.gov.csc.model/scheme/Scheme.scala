@@ -1,12 +1,4 @@
-package au.gov.csc.model
-
-trait SchemeDefinition {
-  val key: String
-  val shortCode: String
-  val publicWebsite: String
-  val logo: String
-  val loginScreen: String
-}
+package au.gov.csc.model.scheme
 
 class Scheme(
   override val key: String,

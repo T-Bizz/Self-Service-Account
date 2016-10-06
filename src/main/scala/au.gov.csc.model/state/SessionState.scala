@@ -1,33 +1,14 @@
-package au.gov.csc.model
+package au.gov.csc.model.state
 
 import net.liftweb.http.SessionVar
-
 import net.liftweb.http._
 import net.liftweb.util._
 import net.liftweb.util.Helpers._
 import net.liftweb.common._
-
-class GlobalConstants {
-  var minimumCorrectTwoFactorAnswers = 2
-  var minimumCorrectNonTwoFactorAnswers = 3
-  var questionsPerPage = 2
-}
-
-object Globals {
-  var userProvider: FactProvider = new MockFactProvider()
-  var tokenSender: TokenSender = new MockTokenSender()
-  var tokenGenerator: TokenGenerator = new NextFuncNameTokenProvider()
-  var constants: GlobalConstants = new GlobalConstants()
-  var schemeList: Map[String, SchemeDefinition] = Map()
-
-  def init(in: Tuple5[FactProvider, TokenSender, TokenGenerator, GlobalConstants, Map[String, SchemeDefinition]]) = {
-    userProvider = in._1
-    tokenSender = in._2
-    tokenGenerator = in._3
-    constants = in._4
-    schemeList = in._5
-  }
-}
+import au.gov.csc.model._
+import au.gov.csc.model.account._
+import au.gov.csc.model.fact._
+import au.gov.csc.model.scheme._
 
 object SessionState {
 

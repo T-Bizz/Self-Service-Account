@@ -1,9 +1,4 @@
-package au.gov.csc.model
-
-trait AccountProvider {
-
-  def getAccount(memberNumber: String): Either[Exception, AccountDefinition]
-}
+package au.gov.csc.model.account
 
 class MockAccountProvider extends AccountProvider {
 

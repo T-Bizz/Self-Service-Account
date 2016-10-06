@@ -7,6 +7,7 @@ import net.liftweb.sitemap.{ Menu, SiteMap }
 import scala.collection.immutable.::
 import au.gov.csc.comet.{ PushActorManager, TokenMessage }
 import au.gov.csc.model._
+import au.gov.csc.model.state._
 
 class Boot {
 

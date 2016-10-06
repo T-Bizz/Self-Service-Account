@@ -1,29 +1,13 @@
-package au.gov.csc.model
+package au.gov.csc.model.fact
 
 import java.util.Date
 import net.liftweb.common._
 import scala.xml.{ NodeSeq, Text }
 import net.liftweb.util.Helpers._
-
-import au.gov.csc.model.SessionState._
-
-trait FactSet {
-  val factSetId: String = nextFuncName
-  def getHasChosen: Boolean
-  def getChoices: Seq[WorkflowTypeChoice.Value]
-  def setChoice(choice: WorkflowTypeChoice.Value)
-  def getNextQuestions: Option[QuestionSet]
-  def answerQuestions(answers: Seq[Answer])
-  def isComplete: Boolean
-  def canComplete: Boolean
-  def getCurrentEmail: String
-  def getCurrentMobileNumber: String
-  def getRemainingUnansweredQuestionCount: Int
-  def getEligibleMemberships: Seq[Membership]
-  def setEligibleAccountChoice(mshps: Seq[Membership])
-  def getHasChosenEligibleAccount: Boolean
-  def getEligibleAccountChoice: Seq[Membership]
-}
+import au.gov.csc.model._
+import au.gov.csc.model.question._
+import au.gov.csc.model.member._
+import au.gov.csc.model.state._
 
 class MemberBackedFactSet(
   member: Member
@@ -35,8 +19,8 @@ class MemberBackedFactSet(
 
   protected def ?(key: String): String = {
     // get configured string for scheme or use the default configured string
-    var out = S ? "%s%s".format(key, Scheme.is.map(s => "-%s".format(s.shortCode)).getOrElse(""))
-    if (out == "%s%s".format(key, Scheme.is.map(s => "-%s".format(s.shortCode)).getOrElse("")))
+    var out = S ? "%s%s".format(key, SessionState.Scheme.is.map(s => "-%s".format(s.shortCode)).getOrElse(""))
+    if (out == "%s%s".format(key, SessionState.Scheme.is.map(s => "-%s".format(s.shortCode)).getOrElse("")))
       out = S ? key
     out
   }
@@ -310,7 +294,7 @@ class MemberBackedFactSet(
     options
   }
 
-  def answerQuestions(answers: Seq[Answer]) = unansweredQuestions = unansweredQuestions.filterNot {
+  def answerQuestions(answers: Seq[QuestionAnswer]) = unansweredQuestions = unansweredQuestions.filterNot {
     case q: QuestionBase if answers.exists(a => a.question == q) => {
       if (answers.exists(a => a.question == q && q.check(a))) {
         correctAnswers += 1

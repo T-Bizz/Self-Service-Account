@@ -1,6 +1,11 @@
-package au.gov.csc.model
+package au.gov.csc.model.state
 
 import au.gov.csc._
+import au.gov.csc.model._
+import au.gov.csc.model.member._
+import au.gov.csc.model.account._
+import au.gov.csc.model.fact._
+import au.gov.csc.model.scheme._
 import scala.xml._
 import java.util.Date
 import net.liftweb.common.Logger

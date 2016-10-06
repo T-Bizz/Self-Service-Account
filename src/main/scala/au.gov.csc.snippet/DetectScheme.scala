@@ -1,7 +1,8 @@
 package au.gov.csc.snippet
 import au.gov.csc.model._
+import au.gov.csc.model.scheme._
+import au.gov.csc.model.state._
 import net.liftweb.http.{ RequestVar, S }
-import au.gov.csc.model.SessionState.Scheme
 import net.liftweb.common.Logger
 
 trait DetectScheme extends Logger {
@@ -20,9 +21,9 @@ trait DetectScheme extends Logger {
   }
 
   def getScheme: Option[SchemeDefinition] = {
-    val scheme = Scheme.is.map(a => Some(a)).getOrElse({
-      Scheme(detectScheme)
-      Scheme.is
+    val scheme = SessionState.Scheme.is.map(a => Some(a)).getOrElse({
+      SessionState.Scheme(detectScheme)
+      SessionState.Scheme.is
     })
     trace("getScheme returned: %s".format(scheme))
     scheme
