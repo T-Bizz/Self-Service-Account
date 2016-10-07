@@ -17,6 +17,8 @@ import net.liftweb.http.js.JE.{ JsRaw }
 import net.liftweb.util.CssSel
 import scala.xml._
 import StageTypeChoice._
+import scala.pickling.Defaults._
+import scala.pickling.json._
 
 trait SinglePageAppView extends DetectScheme with Logger {
 
@@ -61,7 +63,11 @@ trait SinglePageAppView extends DetectScheme with Logger {
     }
 
   def pushUserAction(redirectPath: Option[String] = None) = {
-    PushActorManager ! NavigationMessage(SessionState.sessionId.is, pageId, redirectPath)
+    val nm: NavigationMessage = NavigationMessage(SessionState.sessionId.is, pageId, redirectPath)
+    val pkl: String = nm.pickle.value
+    info("pushing user action %s".format(pkl))
+    //PushActorManager ! nm
+    SubscribeAndPullMessages.pushMessage(SubscribeAndPullMessages.getTopic("serverSync"), pkl)
   }
 
   def subscribeToUserAction(id: String, redirectPath: Option[String] = None): JsCmd = {
