@@ -1,6 +1,6 @@
 package au.gov.csc.snippet
 
-import au.gov.csc.model._
+import au.gov.csc.model.{ SubscribeAndPullMessages, _ }
 import au.gov.csc.model.question._
 import au.gov.csc.model.member._
 import au.gov.csc.model.fact._
@@ -13,10 +13,12 @@ import net.liftweb.util.Helpers._
 import net.liftweb.http.SHtml._
 import net.liftweb.http.js.{ JsCmd, JsCmds }
 import net.liftweb.http.js.JsCmds._
-import net.liftweb.http.js.JE.{ JsRaw }
+import net.liftweb.http.js.JE.JsRaw
 import net.liftweb.util.CssSel
+
 import scala.xml._
 import StageTypeChoice._
+
 import scala.pickling.Defaults._
 import scala.pickling.json._
 
@@ -47,9 +49,9 @@ trait SinglePageAppView extends DetectScheme with Logger {
   }
 
   protected def setCurrentStage: JsCmd = SessionState.currentStage.is match {
-    case Some(StageTypeChoice.Verify)                    => setCurrentStage("2")
-    case Some(StageTypeChoice.SetPassword)               => setCurrentStage("3")
-    case Some(StageTypeChoice.Summary)                   => setCurrentStage("4")
+    case Some(StageTypeChoice.Verify) => setCurrentStage("2")
+    case Some(StageTypeChoice.SetPassword) => setCurrentStage("3")
+    case Some(StageTypeChoice.Summary) => setCurrentStage("4")
     case None | Some(_) | Some(StageTypeChoice.Identify) => setCurrentStage("1")
   }
 
@@ -64,10 +66,8 @@ trait SinglePageAppView extends DetectScheme with Logger {
 
   def pushUserAction(redirectPath: Option[String] = None) = {
     val nm: NavigationMessage = NavigationMessage(SessionState.sessionId.is, pageId, redirectPath)
-    val pkl: String = nm.pickle.value
-    info("pushing user action %s".format(pkl))
-    //PushActorManager ! nm
-    SubscribeAndPullMessages.pushMessage(SubscribeAndPullMessages.getTopic("serverSync"), pkl)
+    //PushActorManager.!(nm)
+    SubscribeAndPullMessages.pushNavigationMessage(nm)
   }
 
   def subscribeToUserAction(id: String, redirectPath: Option[String] = None): JsCmd = {
@@ -127,9 +127,9 @@ trait SinglePageAppView extends DetectScheme with Logger {
   protected def obscure(text: String) = "*" * text.length
 
   protected def obfuscatePhoneNumber(in: String): String = in match {
-    case "unknown"         => in
+    case "unknown" => in
     case i if i.length > 2 => obscure(i.substring(0, i.length - 2)) + i.substring(i.length - 2)
-    case i                 => i
+    case i => i
   }
 
   protected def obfuscateEmailAddress(in: String): String = {
@@ -204,16 +204,16 @@ trait SinglePageAppView extends DetectScheme with Logger {
       memberNumber <- SessionState.serviceNumber.is
     } yield {
       var currentChoice: Option[WorkflowTypeChoice.Value] = None
-        def initButton(template: NodeSeq, option: WorkflowTypeChoice.Value, value: Option[String]): NodeSeq = {
-          factSet.getChoices.contains(option) match {
-            case true => (".btn-value *" #> value.getOrElse("") &
-              ".list-group-item [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
-                currentChoice = Some(option)
-                Noop
-              })).apply(template)
-            case false => NodeSeq.Empty
-          }
+      def initButton(template: NodeSeq, option: WorkflowTypeChoice.Value, value: Option[String]): NodeSeq = {
+        factSet.getChoices.contains(option) match {
+          case true => (".btn-value *" #> value.getOrElse("") &
+            ".list-group-item [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
+              currentChoice = Some(option)
+              Noop
+            })).apply(template)
+          case false => NodeSeq.Empty
         }
+      }
       (".header-title *" #> ?("verification-method-choice-header") &
         ".sub-header-title *" #> ?("verification-method-choice-sub-header") &
         ".footer-title *" #> ?("verification-method-choice-footer") &
@@ -264,7 +264,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
                 potentialAnswers = QuestionAnswer(answerString, question) :: potentialAnswers
                 question.getValidationErrors(answerString) match {
                   case Nil => Noop
-                  case o   => showModalError(?("error-title"), o.mkString)
+                  case o => showModalError(?("error-title"), o.mkString)
                 }
               }
 
@@ -274,12 +274,12 @@ trait SinglePageAppView extends DetectScheme with Logger {
               }
 
               val questionTemplate = question match {
-                case d: DateQuestion   => Templates(List("ajax-templates-hidden", "questionDate"))
+                case d: DateQuestion => Templates(List("ajax-templates-hidden", "questionDate"))
                 case s: StringQuestion => Templates(List("ajax-templates-hidden", "questionString"))
                 case n: NumberQuestion => Templates(List("ajax-templates-hidden", "questionNumber"))
-                case e: EmailQuestion  => Templates(List("ajax-templates-hidden", "questionEmail"))
-                case t: TokenQuestion  => Templates(List("ajax-templates-hidden", "questionToken"))
-                case _                 => Empty
+                case e: EmailQuestion => Templates(List("ajax-templates-hidden", "questionEmail"))
+                case t: TokenQuestion => Templates(List("ajax-templates-hidden", "questionToken"))
+                case _ => Empty
               }
 
               askQuestionFunc("")
@@ -294,8 +294,8 @@ trait SinglePageAppView extends DetectScheme with Logger {
                   Some(ajaxCall(JsRaw("this.value"), askQuestionFunc)),
                   question match {
                     case t: TokenQuestion if t.target.isLeft => Some(?("resend-token-to-email"))
-                    case t: TokenQuestion                    => Some(?("resend-token-to-mobile"))
-                    case _                                   => None
+                    case t: TokenQuestion => Some(?("resend-token-to-mobile"))
+                    case _ => None
                   }
                 )
               }).openOr(NodeSeq.Empty)
@@ -332,15 +332,15 @@ trait SinglePageAppView extends DetectScheme with Logger {
     } yield {
       var currentChoice: Seq[Membership] = Seq()
 
-        def toggleChoice(in: Membership) = {
-          if (currentChoice.contains(in)) {
-            currentChoice = currentChoice.filterNot(c => {
-              c == in
-            })
-          } else {
-            currentChoice = (currentChoice :+ in)
-          }
+      def toggleChoice(in: Membership) = {
+        if (currentChoice.contains(in)) {
+          currentChoice = currentChoice.filterNot(c => {
+            c == in
+          })
+        } else {
+          currentChoice = (currentChoice :+ in)
         }
+      }
 
       (".header-title *" #> ?("account-choice-header") &
         ".sub-header-title *" #> ?("account-choice-sub-header") &
@@ -446,11 +446,11 @@ trait SinglePageAppView extends DetectScheme with Logger {
               ".account-id *" #> mshp.external_id &
               ".account-scheme *" #> (mshp.scheme match {
                 case "PENSION" => "%s %s".format(?("login-to"), ?("pso-login"))
-                case s         => "%s %s %s".format(?("login-to"), ?(s.toLowerCase), ?("mso-login"))
+                case s => "%s %s %s".format(?("login-to"), ?(s.toLowerCase), ?("mso-login"))
               }) &
               ".account-result *" #> (factProvider.getAccount(mshp.external_id) match {
                 case Right(accountDefinition) => Text(?("account-reset"))
-                case Left(e)                  => Text(?("account-not-reset"))
+                case Left(e) => Text(?("account-not-reset"))
               })).apply(t)
           })).openOr(NodeSeq.Empty)
         })).apply(template)

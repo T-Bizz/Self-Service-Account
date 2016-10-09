@@ -19,7 +19,7 @@ class MockTokenSender extends TokenSender {
 class ConcreteTokenSender(emailTokenSender: Option[EmailTokenSender] = None, smsTokenSender: Option[SmsTokenSender] = None) extends TokenSender {
   override def send(target: Either[EmailAddress, PhoneNumber], token: String, factSet: FactSet): Option[Exception] = {
     target match {
-      case Left(email)  => emailTokenSender.flatMap(_.send(target, token, factSet))
+      case Left(email) => emailTokenSender.flatMap(_.send(target, token, factSet))
       case Right(phone) => emailTokenSender.flatMap(_.send(target, token, factSet))
     }
   }

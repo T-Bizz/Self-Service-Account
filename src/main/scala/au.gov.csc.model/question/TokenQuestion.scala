@@ -38,7 +38,7 @@ class TokenQuestion(
 
   override def getValidationErrors(answer: String): Seq[String] = answer match {
     case s if s.length < 1 => List("answer cannot be empty")
-    case other             => Nil
+    case other => Nil
   }
 
   override def check(answer: QuestionAnswer): Boolean = {

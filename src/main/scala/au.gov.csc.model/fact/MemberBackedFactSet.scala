@@ -238,19 +238,19 @@ class MemberBackedFactSet(
           SessionState.minimumCorrectAnswers = Globals.constants.minimumCorrectTwoFactorAnswers
           unansweredQuestions.filterNot {
             case p: TokenQuestion if p.target.isRight => true
-            case _                                    => false
+            case _ => false
           }
         case WorkflowTypeChoice.SmsAndQuestions =>
           SessionState.minimumCorrectAnswers = Globals.constants.minimumCorrectTwoFactorAnswers
           unansweredQuestions.filterNot {
             case p: TokenQuestion if p.target.isLeft => true
-            case _                                   => false
+            case _ => false
           }
         case WorkflowTypeChoice.QuestionsOnly =>
           SessionState.minimumCorrectAnswers = Globals.constants.minimumCorrectNonTwoFactorAnswers
           unansweredQuestions.filterNot {
             case p: TokenQuestion => true
-            case _                => false
+            case _ => false
           }
       }
       chosenWorkflowType = Some(choice)
@@ -315,11 +315,11 @@ class MemberBackedFactSet(
           qs => qs.category match {
             case QuestionSetType.TokenEmail => chosenWorkflowType match {
               case Some(EmailAndQuestions) => true
-              case _                       => false
+              case _ => false
             }
             case QuestionSetType.TokenSMS => chosenWorkflowType match {
               case Some(SmsAndQuestions) => true
-              case _                     => false
+              case _ => false
             }
             case _ => true
           }
@@ -355,14 +355,14 @@ class MemberBackedFactSet(
 
   def getEligibleMemberships: Seq[Membership] = member.memberships.filter(mshp => {
     mshp.status.toLowerCase match {
-      case "pensioner"               => true
+      case "pensioner" => true
       case "contributory membership" => true
-      case "preserved membership"    => true
-      case "contributor"             => true
-      case "preserver"               => true
-      case "ancillary member"        => true
-      case "re-entered member"       => true
-      case _                         => false
+      case "preserved membership" => true
+      case "contributor" => true
+      case "preserver" => true
+      case "ancillary member" => true
+      case "re-entered member" => true
+      case _ => false
     }
   }).groupBy(_.external_id).map(_._2.head).toList
 }

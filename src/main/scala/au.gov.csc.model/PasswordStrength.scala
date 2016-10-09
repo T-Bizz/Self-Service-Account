@@ -27,6 +27,7 @@ class JsContext(envFiles: Seq[String]) { // this is slow, because the context ta
     })
     (cx, sc)
   }
+
   def run[T](jsString: String, withResult: Scriptable => T): T = {
     val start = System.nanoTime()
     val (context, scope) = constructContext

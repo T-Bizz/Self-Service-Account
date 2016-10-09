@@ -7,6 +7,6 @@ class MockMemberProvider extends MemberProvider {
 
   override def getMember(memberNumber: String): Either[Exception, Member] = memberFacts.get(memberNumber) match {
     case Some(m) => Right(m)
-    case None    => Left(MemberNotFoundException)
+    case None => Left(MemberNotFoundException)
   }
 }

@@ -38,11 +38,6 @@ class Boot extends Logger {
           } yield response
         }
       }
-      case req @ Req("push" :: message :: Nil, _, _) => () => {
-        warn("push message received %s".format(message))
-        SubscribeAndPullMessages.processMessage(message)
-        Full(PlainTextResponse("OK"))
-      }
       case Req("serverStatus" :: Nil, _, _) => () => {
         // perform a sanity check against mandatory upstream dependencies, and return something other than a 200 in that case.
         Full(PlainTextResponse("OK"))
@@ -58,7 +53,7 @@ class Boot extends Logger {
 
     LiftRules.responseTransformers.append {
       case Customised(resp) => resp
-      case resp             => resp
+      case resp => resp
     }
 
     LiftRules.noCometSessionCmd.default.set(net.liftweb.http.js.JsCmds.RedirectTo("/sessionTerminated"))
@@ -81,7 +76,6 @@ class Boot extends Logger {
     // Load configuration from external file
     Globals.init(Configuration.getConfiguation)
 
-    SubscribeAndPullMessages.getMessages(SubscribeAndPullMessages.getSubscription("serverSync"))
-    //SubscribeAndPullMessages.setupPushMessages("serverSync")
+    SubscribeAndPullMessages.pullNavigationMessages
   }
 }

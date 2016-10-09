@@ -13,8 +13,10 @@ import scala.pickling.json._
 object SubscribeAndPullMessages extends Logger {
 
   var ps: Option[PubSub] = None
+  var sub: Option[Subscription] = None
+  var navigationTopic: Option[Topic] = None
 
-  def getPubSub: PubSub = {
+  private def getPubSub: PubSub = {
     ps match {
       case Some(p) => p
       case None => {
@@ -28,44 +30,53 @@ object SubscribeAndPullMessages extends Logger {
     }
   }
 
-  def getSubscription(subscription: String): Subscription = {
-    getPubSub.getSubscription(subscription)
-  }
+  private def getSubscription(subscription: String): Subscription = {
+    sub match {
+      case Some(p) => p
+      case None => {
 
-  def getTopic(topic: String): Topic = {
-    getPubSub.getTopic(topic)
-  }
-
-  def getMessages(subscription: Subscription) {
-
-    val callback: MessageProcessor = new MessageProcessor {
-      override def process(message: Message) = {
-        info("Received gcloud pubsub message %s".format(message.payloadAsString()))
-        processMessage(message.payloadAsString())
+        sub = Some(getPubSub.getSubscription(subscription))
+        sub.get
       }
     }
-
-    // Create a message consumer and pull messages
-    val consumer: MessageConsumer = subscription.pullAsync(callback)
-    consumer.close()
   }
 
-  def processMessage(message: String) = {
-    val pkl = JSONPickle(message)
-    val nm: NavigationMessage = pkl.unpickle[NavigationMessage]
-    info("Unpickled gcloud pubsub message %s".format(nm))
-    PushActorManager ! nm
+  private def getNavigationTopic(topic: String): Topic = {
+    navigationTopic match {
+      case Some(p) => p
+      case None => {
+
+        navigationTopic = Some(getPubSub.getTopic(topic))
+        navigationTopic.get
+      }
+    }
   }
 
-  def setupPushMessages(subscription: String) {
-    val pushConfig: PushConfig = PushConfig.of("https://104.199.206.248/push");
-    getPubSub.replacePushConfig(subscription, pushConfig);
-  }
-
-  def pushMessage(topic: Topic, message: String) {
+  private def pushMessage(topic: Topic, message: String) {
     info("Sending pubsub message (%s) to topic (%s)".format(message, topic))
+    topic.publish(Message.of(message))
+  }
 
-    val msg: Message = Message.of(message)
-    topic.publish(msg)
+  private def processNavigationMessage: MessageProcessor = {
+    new MessageProcessor {
+      override def process(message: Message) = {
+        val msg = message.payloadAsString()
+        info("Received gcloud pubsub message %s".format(msg))
+        val pkl = JSONPickle(msg)
+        val nm: NavigationMessage = pkl.unpickle[NavigationMessage]
+        PushActorManager.!(nm)
+        info("Sent navigation message to commet: %s".format(nm))
+      }
+    }
+  }
+
+  def pushNavigationMessage(message: NavigationMessage) {
+    val pkl: String = message.pickle.value
+    pushMessage(getNavigationTopic("serverSync1"), pkl)
+  }
+
+  def pullNavigationMessages {
+    // Create a message consumer and continuously pull messages
+    val consumer: MessageConsumer = getPubSub.pullAsync("serverSync1", processNavigationMessage)
   }
 }

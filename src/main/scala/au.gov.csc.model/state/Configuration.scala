@@ -42,7 +42,7 @@ object Configuration extends Logger {
     val elems = in.toList match {
       case List(e: Elem) => e.child.toList.flatMap {
         case elem: Elem => Some(elem)
-        case _          => None
+        case _ => None
       }
       case _ => Nil
     }
@@ -75,7 +75,7 @@ object Configuration extends Logger {
         }
       }
 
-      case Nil   => throw new Exception("no schemes configured")
+      case Nil => throw new Exception("no schemes configured")
       case other => throw new Exception("too many schemes configured")
     }
     schemeList
@@ -98,7 +98,7 @@ object Configuration extends Logger {
         gc
       }
 
-      case Nil   => throw new Exception("no globals configured")
+      case Nil => throw new Exception("no globals configured")
       case other => throw new Exception("too many globals configured")
     }
   }
@@ -126,7 +126,7 @@ object Configuration extends Logger {
       })
     }
 
-    case Nil   => throw new Exception("no token provider configured")
+    case Nil => throw new Exception("no token provider configured")
     case other => throw new Exception("too many token providers configured")
   }
 
@@ -218,7 +218,7 @@ object Configuration extends Logger {
       new DataDrivenMockFactProvider(members)
     }
     case List(unknown) => throw new Exception("unknown fact provider configured")
-    case Nil           => throw new Exception("no fact provider configured")
-    case other         => throw new Exception("too many fact providers configured")
+    case Nil => throw new Exception("no fact provider configured")
+    case other => throw new Exception("too many fact providers configured")
   }
 }
