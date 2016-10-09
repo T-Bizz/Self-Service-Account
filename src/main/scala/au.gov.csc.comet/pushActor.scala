@@ -21,7 +21,7 @@ case class TokenMessage(sessionId: String, token: String)
 
 case class NavigationMessage(sessionId: String, dataId: String, redirectPath: Option[String] = None)
 
-object PushActorManager extends LiftActor with ListenerManager {
+object PushActorManager extends LiftActor with ListenerManager with Logger {
   override def createUpdate = Nil
   override def lowPriority = {
     case tm @ TokenMessage(sid, t)       => sendListenersMessage(tm)
@@ -66,6 +66,7 @@ class PushActor extends CometActor with CometListener with SinglePageAppView wit
 
   override def lowPriority = {
     case tm @ TokenMessage(sid, t) if isTokenForMe(tm) => {
+      trace("Pushing comet TokenMessage %s".format(tm))
       for {
         fs <- SessionState.currentFactSet.is
         qs <- fs.getNextQuestions
@@ -81,9 +82,11 @@ class PushActor extends CometActor with CometListener with SinglePageAppView wit
       }
     }
     case nm @ NavigationMessage(factSetId, dataId, redirectPath) if isNavigationForMe(nm) => {
-      warn("receiving push: %s %s".format(pageId, nm))
+      trace("Pushing comet NavigationMessage %s".format(nm))
       partialUpdate(subscribeToUserAction(dataId, redirectPath))
     }
-    case _ => {}
+    case _ => {
+      trace("Received unknown comet message")
+    }
   }
 }

@@ -24,7 +24,8 @@ libraryDependencies ++= {
     "commons-codec" % "commons-codec" % "1.10",
     "ch.qos.logback" % "logback-classic" % "1.1.+",
     "rhino" % "js" % "1.7R2",
-    "com.google.cloud" % "google-cloud-pubsub" % "0.4.0"
+    "com.google.cloud" % "google-cloud-pubsub" % "0.4.0",
+    "org.scala-lang.modules" %% "scala-pickling" % "0.10.1"
   )
 }
 

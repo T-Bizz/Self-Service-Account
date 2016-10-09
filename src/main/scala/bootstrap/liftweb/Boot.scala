@@ -1,15 +1,16 @@
 package bootstrap.liftweb
 
-import net.liftweb.common.Full
+import net.liftweb.common.{ Full, Logger }
 import net.liftweb.http._
 import net.liftweb.http.js.JE
 import net.liftweb.sitemap.{ Menu, SiteMap }
+
 import scala.collection.immutable.::
 import au.gov.csc.comet.{ PushActorManager, TokenMessage }
-import au.gov.csc.model._
+import au.gov.csc.model.{ SubscribeAndPullMessages, _ }
 import au.gov.csc.model.state._
 
-class Boot {
+class Boot extends Logger {
 
   def boot {
     LiftRules.addToPackages("au.gov.csc")
@@ -36,6 +37,11 @@ class Boot {
             response <- session.processTemplate(template, req, req.path, 200)
           } yield response
         }
+      }
+      case req @ Req("push" :: message :: Nil, _, _) => () => {
+        warn("push message received %s".format(message))
+        SubscribeAndPullMessages.processMessage(message)
+        Full(PlainTextResponse("OK"))
       }
       case Req("serverStatus" :: Nil, _, _) => () => {
         // perform a sanity check against mandatory upstream dependencies, and return something other than a 200 in that case.
@@ -74,5 +80,8 @@ class Boot {
 
     // Load configuration from external file
     Globals.init(Configuration.getConfiguation)
+
+    SubscribeAndPullMessages.getMessages(SubscribeAndPullMessages.getSubscription("serverSync"))
+    //SubscribeAndPullMessages.setupPushMessages("serverSync")
   }
 }
