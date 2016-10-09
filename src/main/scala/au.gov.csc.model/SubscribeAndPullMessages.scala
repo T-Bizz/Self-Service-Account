@@ -72,11 +72,11 @@ object SubscribeAndPullMessages extends Logger {
 
   def pushNavigationMessage(message: NavigationMessage) {
     val pkl: String = message.pickle.value
-    pushMessage(getNavigationTopic("serverSync1"), pkl)
+    pushMessage(getNavigationTopic("serverSync"), pkl)
   }
 
   def pullNavigationMessages {
     // Create a message consumer and continuously pull messages
-    val consumer: MessageConsumer = getPubSub.pullAsync("serverSync1", processNavigationMessage)
+    val consumer: MessageConsumer = getPubSub.pullAsync("serverSync", processNavigationMessage)
   }
 }
