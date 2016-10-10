@@ -165,7 +165,7 @@ class MemberBackedFactSetTest
         SessionState.questionsPerPage = 2
         val len: Number = fs.getNextQuestions match {
           case Some(a) => a.questions.length
-          case _       => 0
+          case _ => 0
         }
         len must beEqualTo(2)
       })
@@ -196,9 +196,9 @@ class MemberBackedFactSetTest
             q match {
               case s: StringQuestion => fs.answerQuestions(List(QuestionAnswer(s.correctAnswer, q)))
               case n: NumberQuestion => fs.answerQuestions(List(QuestionAnswer(n.correctAnswer, q)))
-              case d: DateQuestion   => fs.answerQuestions(List(QuestionAnswer(d.correctAnswer.toString, q)))
-              case e: EmailQuestion  => fs.answerQuestions(List(QuestionAnswer(e.correctAnswer, q)))
-              case _                 => Nil
+              case d: DateQuestion => fs.answerQuestions(List(QuestionAnswer(d.correctAnswer.toString, q)))
+              case e: EmailQuestion => fs.answerQuestions(List(QuestionAnswer(e.correctAnswer, q)))
+              case _ => Nil
             }
           })
           case _ => Nil
@@ -271,13 +271,13 @@ class MemberBackedFactSetTest
             case Some(a) => {
               a.category match {
                 case QuestionSetType.TokenSMS => isFound = true
-                case _                        => Nil
+                case _ => Nil
               }
               a.questions.map(q => {
                 q match {
                   case s: StringQuestion => fs.answerQuestions(List(QuestionAnswer(s.correctAnswer, q)))
                   case n: NumberQuestion => fs.answerQuestions(List(QuestionAnswer(n.correctAnswer, q)))
-                  case _                 => Nil
+                  case _ => Nil
                 }
               })
             }
@@ -322,13 +322,13 @@ class MemberBackedFactSetTest
             case Some(a) => {
               a.category match {
                 case QuestionSetType.TokenSMS => isFound = true
-                case _                        => Nil
+                case _ => Nil
               }
               a.questions.map(q => {
                 q match {
                   case s: StringQuestion => fs.answerQuestions(List(QuestionAnswer(s.correctAnswer, q)))
                   case n: NumberQuestion => fs.answerQuestions(List(QuestionAnswer(n.correctAnswer, q)))
-                  case _                 => Nil
+                  case _ => Nil
                 }
               })
             }
@@ -403,13 +403,13 @@ class MemberBackedFactSetTest
             case Some(a) => {
               a.category match {
                 case QuestionSetType.TokenEmail => isFound = true
-                case _                          => Nil
+                case _ => Nil
               }
               a.questions.map(q => {
                 q match {
                   case s: StringQuestion => fs.answerQuestions(List(QuestionAnswer(s.correctAnswer, q)))
                   case n: NumberQuestion => fs.answerQuestions(List(QuestionAnswer(n.correctAnswer, q)))
-                  case _                 => Nil
+                  case _ => Nil
                 }
               })
             }

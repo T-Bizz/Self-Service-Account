@@ -27,7 +27,7 @@ object SessionState {
   object skipTwoFactorStep extends SessionVar[Boolean](true)
   object title extends SessionVar[String]("")
 
-  object Scheme extends SessionVar[Option[SchemeDefinition]](None)
+  object scheme extends SessionVar[Option[SchemeDefinition]](None)
 
   object serviceNumber extends SessionVar[Option[String]](None)
   object currentFactSet extends SessionVar[Option[FactSet]](None)

@@ -17,13 +17,12 @@
     <script src="/js/vendor/jquery-1.12.0.min.js"></script>
     <script src="/js/main.js"></script>
   </head>
-  <body>
+  <body data-lift="lift:singlePageApp.comet">
     <!--[if lt IE 8]>
     <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
     <div class="container" style="margin-top:60px;">
       <div class="container">
-				<!--<div class="lift:comet?type=PushActor"></div>-->
         <div class="row">
             <div class="col-xs-7 col-sm-6 col-md-6 margin-bottom-lg">
             <a href="#">
@@ -51,7 +50,7 @@
               </div>
             </div>
             <div class="panel-body">
-              <div data-lift="lift:singlePageApp.comet" class="app-root-elem">
+              <div class="app-root-elem">
                 <div id="step-wizzard">
                   <ul class="nav nav-tabs nav-justified animated fadeIn">
                     <li role="presentation" class="step-heading text-center active" id="li-step-1">
@@ -86,6 +85,7 @@
           </div>
         </div>
       </div>
+      <div id="switchedDevices"></div>
     </div>
     <div class="modal fade modal-general" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">

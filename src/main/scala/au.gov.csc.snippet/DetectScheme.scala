@@ -21,9 +21,9 @@ trait DetectScheme extends Logger {
   }
 
   def getScheme: Option[SchemeDefinition] = {
-    val scheme = SessionState.Scheme.is.map(a => Some(a)).getOrElse({
-      SessionState.Scheme(detectScheme)
-      SessionState.Scheme.is
+    val scheme = SessionState.scheme.is.map(a => Some(a)).getOrElse({
+      SessionState.scheme(detectScheme)
+      SessionState.scheme.is
     })
     trace("getScheme returned: %s".format(scheme))
     scheme

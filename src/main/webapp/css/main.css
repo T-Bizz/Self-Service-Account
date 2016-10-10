@@ -424,6 +424,10 @@ body {
     margin-bottom: 0px !important;
 }
 
+.no-padding-left {
+    padding-left: 0px !important;
+}
+
 /* Scheme spesific branding */
 .scheme-site-logo-item {
   max-width: 100%;
@@ -542,8 +546,8 @@ body {
 .schemePSS .btn-primary:active,
 .schemePSS .btn-primary.active,
 .schemePSS .open > .dropdown-toggle.btn-primary {
-    background-color: #EC6020;
-    border-color: #EC6020;
+    background-color: #f26527;
+    border-color: #f26527;
 }
 
 .schemePSS .btn-primary:active:hover,
@@ -566,7 +570,7 @@ body {
     border-color: #EC6020;
 }
 
-.schemePSS .panel-default > .panel-heading {
+.schemePSS .panel-default > .panel-heading, .schemePSS .panel-default > .panel-body {
     background-color: #e9741a;
     border-color: #e9741a;
 }
@@ -614,9 +618,9 @@ body {
     border-color: #B5521D;
 }
 
-.schemeMSBS .panel-default > .panel-heading {
-    background-color: #ba5915;
-    border-color: #ba5915;
+.schemeMSBS .panel-default > .panel-heading, .schemeMSBS .panel-default > .panel-body {
+    background-color: #aa4724;
+    border-color: #aa4724;
 }
 
 .schemeDFRDB .btn-primary {
@@ -662,9 +666,9 @@ body {
     border-color: #577C2E;
 }
 
-.schemeDFRDB .panel-default > .panel-heading {
-    background-color: #578222;
-    border-color: #578222;
+.schemeDFRDB .panel-default > .panel-heading, .schemeDFRDB .panel-default > .panel-body {
+    background-color: #426731;
+    border-color: #426731;
 }
 
 .schemeADFC .btn-primary {
@@ -710,9 +714,9 @@ body {
     border-color: #4F346B;
 }
 
-.schemeADFC .panel-default > .panel-heading {
-    background-color: #86136A;
-    border-color: #86136A;
+.schemeADFC .panel-default > .panel-heading, .schemeADFC .panel-default > .panel-body {
+    background-color: #44165f;
+    border-color: #44165f;
 }
 
 /* Navigation pill style
@@ -777,6 +781,16 @@ body {
 
 .nav-tabs.nav-justified>li>a {
     border-bottom: 0px;
+}
+
+.btn-link, .btn-link:focus, .btn-link:hover {
+  color: #145b98;
+}
+
+.input-group-btn:last-child > .btn, 
+  .input-group-btn:last-child > .btn-group {
+    background-color: #595959;
+    color: #fff;
 }
 
 .lead {

@@ -1,7 +1,9 @@
 package au.gov.csc.model.fact
 
 import java.util.Date
+
 import net.liftweb.common._
+
 import scala.xml.{ NodeSeq, Text }
 import net.liftweb.util.Helpers._
 import au.gov.csc.model._
@@ -9,22 +11,15 @@ import au.gov.csc.model.question._
 import au.gov.csc.model.member._
 import au.gov.csc.model.fact._
 import au.gov.csc.model.state._
+import au.gov.csc.snippet.StringHelpers
 
 class MemberBackedFactSet(
   member: Member
 )
-    extends FactSet with Logger {
+    extends FactSet with StringHelpers with Logger {
 
   import net.liftweb.http._
   import WorkflowTypeChoice._
-
-  protected def ?(key: String): String = {
-    // get configured string for scheme or use the default configured string
-    var out = S ? "%s%s".format(key, SessionState.Scheme.is.map(s => "-%s".format(s.shortCode)).getOrElse(""))
-    if (out == "%s%s".format(key, SessionState.Scheme.is.map(s => "-%s".format(s.shortCode)).getOrElse("")))
-      out = S ? key
-    out
-  }
 
   protected val questionSets: List[QuestionSet] = {
     List(

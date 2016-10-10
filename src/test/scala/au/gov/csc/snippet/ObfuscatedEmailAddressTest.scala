@@ -1,8 +1,6 @@
 package au.gov.csc.snippet
 
-import org.specs2._
-
-class ObfuscatedEmailAddressTest extends org.specs2.mutable.Specification with SinglePageAppView {
+class ObfuscatedEmailAddressTest extends org.specs2.mutable.Specification with StringHelpers {
 
   "Obfuscating an email address" should {
     "work for a long mailbox" in {

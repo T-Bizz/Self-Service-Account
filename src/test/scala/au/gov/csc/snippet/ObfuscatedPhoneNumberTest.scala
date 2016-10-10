@@ -1,8 +1,6 @@
 package au.gov.csc.snippet
 
-import org.specs2._
-
-class ObfuscatedPhoneNumberTest extends org.specs2.mutable.Specification with SinglePageAppView {
+class ObfuscatedPhoneNumberTest extends org.specs2.mutable.Specification with StringHelpers {
 
   "Obfuscating a phone number" should {
     "work for a long number" in {
