@@ -81,26 +81,42 @@ object Configuration extends Logger {
     schemeList
   }
 
-  protected def getGlobalConstants = {
+  protected def getGlobalConstants: GlobalConstants = {
     var gc = new GlobalConstants
     getChildElems((xml \\ "globals")) match {
 
-      case List(mfp: Elem) if mfp.label == "questions" => {
+      case List(mfp: Elem) if mfp.label == "constants" => {
+
         for {
-          pp <- (mfp \\ "@maximumPerPage").headOption.map(_.text)
-          tf <- (mfp \\ "@minimumCorrectTwoFactor").headOption.map(_.text)
-          ntf <- (mfp \\ "@minimumCorrectNonTwoFactor").headOption.map(_.text)
+          questions <- (mfp \\ "questions")
+          googlePubSub <- (mfp \\ "googlePubSub")
         } yield {
-          gc.questionsPerPage = pp.toInt
-          gc.minimumCorrectTwoFactorAnswers = tf.toInt
-          gc.minimumCorrectNonTwoFactorAnswers = ntf.toInt
+          for {
+            pp <- (questions \\ "@maximumPerPage").headOption.map(_.text)
+            tf <- (questions \\ "@minimumCorrectTwoFactor").headOption.map(_.text)
+            ntf <- (questions \\ "@minimumCorrectNonTwoFactor").headOption.map(_.text)
+          } yield {
+            gc.questionsPerPage = pp.toInt
+            gc.minimumCorrectTwoFactorAnswers = tf.toInt
+            gc.minimumCorrectNonTwoFactorAnswers = ntf.toInt
+          }
+
+          for {
+            nt <- (googlePubSub \\ "@navigationTopic").headOption.map(_.text)
+            tt <- (googlePubSub \\ "@tokenTopic").headOption.map(_.text)
+            aat <- (googlePubSub \\ "@accessAttemptTopic").headOption.map(_.text)
+          } yield {
+            gc.navigationTopic = nt.toString
+            gc.tokenTopic = tt.toString
+            gc.accessAttemptTopic = aat.toString
+          }
         }
-        gc
       }
 
       case Nil => throw new Exception("no globals configured")
       case other => throw new Exception("too many globals configured")
     }
+    gc
   }
 
   protected def getTokenGenerator = getChildElems((xml \\ "tokenProvider")) match {

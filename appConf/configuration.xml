@@ -1,6 +1,9 @@
 <configuration>
 	<globals>
-		<questions maximumPerPage="2" minimumCorrectTwoFactor="3" minimumCorrectNonTwoFactor="4" />
+		<constants>
+			<questions maximumPerPage="2" minimumCorrectTwoFactor="3" minimumCorrectNonTwoFactor="4" />
+			<googlePubSub navigationTopic="navigationTopic" tokenTopic="tokenTopic" accessAttemptTopic="accessAttemptTopic" />
+		</constants>
 	</globals>
 	<schemeList>
 		<schemes>
