@@ -6,6 +6,10 @@ import net.liftweb.common._
 import com.google.cloud.pubsub.{ Message, PubSub, PubSubOptions, PushConfig, Subscription, Topic }
 import com.google.cloud.pubsub.PubSub.MessageConsumer
 import com.google.cloud.pubsub.PubSub.MessageProcessor
+import com.google.cloud.pubsub.Topic;
+import com.google.cloud.pubsub.TopicInfo;
+import com.google.cloud.pubsub.PubSub;
+import com.google.cloud.pubsub.PubSubOptions;
 
 import scala.pickling.Defaults._
 import scala.pickling.json._
@@ -15,6 +19,9 @@ object SubscribeAndPullMessages extends Logger {
   var ps: Option[PubSub] = None
   var sub: Option[Subscription] = None
   var navigationTopic: Option[Topic] = None
+  var tokenTopic: Option[Topic] = None
+  var accessAttemptTopic: Option[Topic] = None
+  var myTopic: Option[Topic] = None
 
   private def getPubSub: PubSub = {
     ps match {
@@ -51,6 +58,24 @@ object SubscribeAndPullMessages extends Logger {
       }
     }
   }
+
+  private def getOrCreateTopic(topic: String): Topic = {
+    myTopic match {
+      case Some(p) => p
+      case None => {
+
+        try {
+          myTopic = Some(getPubSub.getTopic(topic))
+        } catch {
+          case t: Topic => {
+            myTopic = Some(getPubSub.create(TopicInfo.of(topic)))
+          }
+        }
+        myTopic.get
+      }
+    }
+  }
+
 
   private def pushMessage(topic: Topic, message: String) {
     info("Sending pubsub message (%s) to topic (%s)".format(message, topic))

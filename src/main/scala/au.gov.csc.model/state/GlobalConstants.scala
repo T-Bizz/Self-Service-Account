@@ -7,4 +7,7 @@ class GlobalConstants {
   var minimumCorrectTwoFactorAnswers = 2
   var minimumCorrectNonTwoFactorAnswers = 3
   var questionsPerPage = 2
+  var navigationTopic: String = "serverSync"
+  var tokenTopic: String = "serverSync"
+  var accessAttemptTopic: String = "serverSync"
 }
