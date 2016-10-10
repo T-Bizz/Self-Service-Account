@@ -24,9 +24,9 @@ case class NavigationMessage(sessionId: String, dataId: String, redirectPath: Op
 object PushActorManager extends LiftActor with ListenerManager with Logger {
   override def createUpdate = Nil
   override def lowPriority = {
-    case tm @ TokenMessage(sid, t)       => sendListenersMessage(tm)
+    case tm @ TokenMessage(sid, t) => sendListenersMessage(tm)
     case nm @ NavigationMessage(i, t, s) => sendListenersMessage(nm)
-    case _                               => {}
+    case _ => {}
   }
 }
 
@@ -75,7 +75,7 @@ class PushActor extends CometActor with CometListener with SinglePageAppView wit
       } yield {
         fs.answerQuestions(List(QuestionAnswer(t, q)))
         val jsCmd: JsCmd = fs.canComplete match {
-          case true  => showModal(?("token-received-title"), ?("token-received-successfully")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+          case true => showModal(?("token-received-title"), ?("token-received-successfully")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
           case false => showModalError(?("token-received-title"), ?("token-received-error")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
         }
         partialUpdate(jsCmd)

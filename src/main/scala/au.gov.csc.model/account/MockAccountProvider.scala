@@ -8,6 +8,6 @@ class MockAccountProvider extends AccountProvider {
   override def getAccount(memberNumber: String): Either[Exception, AccountDefinition] =
     accounts.get(memberNumber) match {
       case Some(a) => Right(a)
-      case None    => Left(AccountNotFoundException)
+      case None => Left(AccountNotFoundException)
     }
 }
