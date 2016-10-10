@@ -9,6 +9,8 @@ import org.joda.time.DateTime
 import scala.collection.mutable.ListBuffer
 
 object Globals {
+  val contentAreaId = "step-form"
+  val switchedDevicesId = "switchedDevices"
   var userProvider: FactProvider = new MockFactProvider()
   var tokenSender: TokenSender = new MockTokenSender()
   var tokenGenerator: TokenGenerator = new NextFuncNameTokenProvider()

@@ -40,7 +40,7 @@ class PushActor extends CometActor with CometListener with SinglePageAppView wit
   protected var sId: Option[String] = None
 
   override def render = {
-    "#%s *".format(contentAreaId) #> {
+    "#%s *".format(Globals.contentAreaId) #> {
       generateCurrentPageNodeSeq
     }
   }
@@ -82,8 +82,8 @@ class PushActor extends CometActor with CometListener with SinglePageAppView wit
       } yield {
         fs.answerQuestions(List(QuestionAnswer(t, q)))
         val jsCmd: JsCmd = fs.canComplete match {
-          case true => showModal(?("token-received-title"), ?("token-received-successfully")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
-          case false => showModalError(?("token-received-title"), ?("token-received-error")) & SetHtml(contentAreaId, generateCurrentPageNodeSeq)
+          case true => showModal(?("token-received-title"), ?("token-received-successfully")) & SetHtml(Globals.contentAreaId, generateCurrentPageNodeSeq)
+          case false => showModalError(?("token-received-title"), ?("token-received-error")) & SetHtml(Globals.contentAreaId, generateCurrentPageNodeSeq)
         }
         partialUpdate(jsCmd)
       }

@@ -26,8 +26,8 @@ class Boot extends Logger {
     LiftRules.statelessDispatch.append {
       case req @ Req("token" :: sessionIdentifier :: token :: Nil, _, _) => () => {
         PushActorManager ! TokenMessage(sessionIdentifier, token)
-        if (SessionState.currentFactSet.is.exists(_.factSetId == sessionIdentifier) && SessionState.Scheme.isDefined) {
-          SessionState.Scheme.is.map(s => {
+        if (SessionState.currentFactSet.is.exists(_.factSetId == sessionIdentifier) && SessionState.scheme.isDefined) {
+          SessionState.scheme.is.map(s => {
             RedirectResponse("/scheme/%s".format(s.shortCode.toUpperCase))
           })
         } else {
