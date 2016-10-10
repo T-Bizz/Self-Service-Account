@@ -18,13 +18,14 @@ import net.liftweb.util.CssSel
 
 import scala.xml._
 import StageTypeChoice._
+import org.joda.time.DateTime
 
-import scala.pickling.Defaults._
-import scala.pickling.json._
+import scala.collection.mutable.ListBuffer
 
 trait SinglePageAppView extends DetectScheme with Logger {
 
   protected val contentAreaId = "step-form"
+  protected val switchedDevicesId = "switchedDevices"
   protected val factProvider = Globals.userProvider
   protected val pageId = nextFuncName
 
@@ -64,13 +65,27 @@ trait SinglePageAppView extends DetectScheme with Logger {
       case out => out
     }
 
-  def pushUserAction(redirectPath: Option[String] = None) = {
+  def pushNavigationMessage(redirectPath: Option[String] = None) = {
     val nm: NavigationMessage = NavigationMessage(SessionState.sessionId.is, pageId, redirectPath)
     //PushActorManager.!(nm)
     SubscribeAndPullMessages.pushNavigationMessage(nm)
   }
 
-  def subscribeToUserAction(id: String, redirectPath: Option[String] = None): JsCmd = {
+  def pushDeviceMessage = {
+    if (!isUserThrottled) {
+      val dm: DeviceMessage = DeviceMessage(SessionState.sessionId.is, SessionState.serviceNumber.getOrElse(""))
+      PushActorManager.!(dm)
+    }
+  }
+
+  def addAttempt(membershipNumber: String) = {
+    // Only allow an attempt to be registered if a user is not already throttled
+    if (!isUserThrottled) {
+      Globals.attempts.append(Tuple3(SessionState.sessionId.is, membershipNumber, DateTime.now))
+    }
+  }
+
+  def subscribeToNavigationMessage(id: String, redirectPath: Option[String] = None): JsCmd = {
     if (id != pageId) {
       redirectPath match {
         case Some(p) =>
@@ -84,7 +99,22 @@ trait SinglePageAppView extends DetectScheme with Logger {
             SetHtml(contentAreaId, generateCurrentPageNodeSeq)
           })
       }
+    } else {
+      trace("Navigation event was skipped because this was the originating event location")
     }
+  }
+
+  def subscribeToDeviceMessage: JsCmd = {
+    SetHtml(switchedDevicesId, askIfSwitchedDevices)
+  }
+
+  def isUserThrottled: Boolean = {
+    val oneMinuteAgo: DateTime = (DateTime.now).minusMinutes(1)
+    Globals.attempts = Globals.attempts.filter(_._3.isAfter(oneMinuteAgo))
+    val numberOfAttempts = Globals.attempts.count(_._2 == SessionState.serviceNumber.is.getOrElse(""))
+    val currentAttemptIndex = Globals.attempts.filter(_._2 == SessionState.serviceNumber.is.getOrElse(""))
+      .indexWhere(_._1 == SessionState.sessionId.is)
+    numberOfAttempts > 1 && currentAttemptIndex >= 1
   }
 
   protected def initQuestion(template: NodeSeq, title: String, placeholder: String, helpText: String, icon: String, onChange: JsCmd, action: Option[JsCmd] = None, actionTitle: Option[String] = None): NodeSeq = {
@@ -112,7 +142,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
       S.session.foreach(s => {
         //s.destroySession()
         s.httpSession.foreach(httpsession => {
-          pushUserAction(Some("/sessionTerminated"))
+          pushNavigationMessage(Some("/sessionTerminated"))
           httpsession.terminate
         })
       })
@@ -157,6 +187,13 @@ trait SinglePageAppView extends DetectScheme with Logger {
     }
   }
 
+  protected def askIfSwitchedDevices: NodeSeq = Templates(List("ajax-templates-hidden", "askIfSwitchedDevices")).map(t => {
+    (".btn [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
+      warn("Suspicious activity identified by user for membership number %s".format(SessionState.serviceNumber.is))
+      SetHtml(switchedDevicesId, Templates(List("ajax-templates-hidden", "provideSwitchedDevicesResponse")).getOrElse(NodeSeq.Empty))
+    })).apply(t)
+  }).openOr(NodeSeq.Empty)
+
   protected def askForMembershipNumber: NodeSeq = Templates(List("ajax-templates-hidden", "askForMembershipNumber")).map(t => {
     trace("Generating page askForMembershipNumber")
     SessionState.currentStage(Some(Identify))
@@ -180,7 +217,9 @@ trait SinglePageAppView extends DetectScheme with Logger {
                     case t: Throwable =>
                       error("exception: %s\r\n%s".format(t.getMessage, t.getStackTrace))
                   }
-                  pushUserAction()
+                  addAttempt(s)
+                  pushDeviceMessage
+                  pushNavigationMessage()
                   SetHtml(contentAreaId, generateCurrentPageNodeSeq)
                 }
                 case Left(e) => {
@@ -233,7 +272,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
           } else {
             currentChoice.map(choice => {
               factSet.setChoice(choice)
-              pushUserAction()
+              pushNavigationMessage()
               SetHtml(contentAreaId, generateCurrentPageNodeSeq)
             }).getOrElse({
               showModalError(?("error-title"), ?("no-verification-method-chosen"))
@@ -312,7 +351,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
             }) &
             ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
               factSet.answerQuestions(potentialAnswers)
-              pushUserAction()
+              pushNavigationMessage()
               SetHtml(contentAreaId, generateCurrentPageNodeSeq)
             })).apply(qst)
         }).openOr(NodeSeq.Empty)
@@ -360,7 +399,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
         ".btn-submit [onclick]" #> ajaxCall(JsRaw("this"), (s: String) => {
           if (currentChoice.size >= 1) {
             fs.setEligibleAccountChoice(currentChoice)
-            pushUserAction()
+            pushNavigationMessage()
             SetHtml(contentAreaId, generateCurrentPageNodeSeq)
           } else {
             showModalError(?("error-title-missing-data"), ?("no-account-chosen"))
@@ -416,7 +455,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
             if (List("2", "3", "4").contains(score)) {
               if (password == passwordConfirmation) {
                 SessionState.userPassword(Some(password))
-                pushUserAction()
+                pushNavigationMessage()
                 SetHtml(contentAreaId, generateCurrentPageNodeSeq)
               } else {
                 showModalError(?("error-title-invalid-data"), ?("passwords-do-not-match"))
@@ -470,12 +509,15 @@ trait SinglePageAppView extends DetectScheme with Logger {
   protected def generateCurrentPageNodeSeq: NodeSeq = {
     val node = SessionState.currentFactSet.is match {
       case None => askForMembershipNumber
+      case Some(factSet) if isUserThrottled => {
+        provideError(?("too-many-attempts"))
+      }
       case Some(factSet) if !factSet.getHasChosen && factSet.getChoices.size == 1 => {
         trace("%s has only one verification method, skipping the associated choice screen.".format(SessionState.serviceNumber.is.getOrElse("")))
         factSet.getChoices.map(choice => {
           factSet.setChoice(choice)
         })
-        pushUserAction()
+        pushNavigationMessage()
         generateCurrentPageNodeSeq
       }
       case Some(factSet) if !factSet.getHasChosen && factSet.getChoices.size == 0 => {
@@ -501,7 +543,7 @@ trait SinglePageAppView extends DetectScheme with Logger {
 
         trace("%s has only one eligible account for registration / reset. Skipping choice.".format(SessionState.serviceNumber.is.getOrElse("")))
         factSet.setEligibleAccountChoice(factSet.getEligibleMemberships)
-        pushUserAction()
+        pushNavigationMessage()
         askForPassword
       }
       case Some(factSet) if factSet.isComplete &&
@@ -537,7 +579,7 @@ class SinglePageApp extends Logger with SinglePageAppView {
     detectedScheme.filterNot(s => oldScheme.exists(_ == s)).foreach(s => {
       trace("detected scheme change: %s => %s".format(oldScheme, s))
       SessionState.Scheme(detectedScheme)
-      pushUserAction(Some("/scheme/%s".format(s.shortCode.toUpperCase)))
+      pushNavigationMessage(Some("/scheme/%s".format(s.shortCode.toUpperCase)))
     })
 
     val cometActorName = "lift:comet?type=PushActor&name=%s".format(nextFuncName)

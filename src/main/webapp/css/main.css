@@ -424,6 +424,10 @@ body {
     margin-bottom: 0px !important;
 }
 
+.no-padding-left {
+    padding-left: 0px !important;
+}
+
 /* Scheme spesific branding */
 .scheme-site-logo-item {
   max-width: 100%;
@@ -777,6 +781,10 @@ body {
 
 .nav-tabs.nav-justified>li>a {
     border-bottom: 0px;
+}
+
+.btn-link, .btn-link:focus, .btn-link:hover {
+  color: #145b98;
 }
 
 .input-group-btn:last-child > .btn, 
