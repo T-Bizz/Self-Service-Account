@@ -366,6 +366,124 @@ body {
   content: ">";
 }
 
+/* Form Process Steps
+-------------------------------------------------- */
+.nav-wizard > li {
+  float: left;
+}
+.nav-wizard > li > a {
+  position: relative;
+  background-color: #ccc;
+  color: #222;
+}
+.nav-wizard > li > a .badge {
+  margin-left: 3px;
+  color: #ccc;
+  background-color: #428bca;
+}
+.nav-wizard > li:not(:first-child) > a {
+  padding-left: 34px;
+}
+.nav-wizard > li:not(:first-child) > a:before {
+  width: 0px;
+  height: 0px;
+  border-top: 20px inset transparent;
+  border-bottom: 20px inset transparent;
+  border-left: 20px solid #ffffff;
+  position: absolute;
+  content: "";
+  top: 0;
+  left: 0;
+}
+.nav-wizard > li:not(:last-child) > a {
+  margin-right: 6px;
+}
+.nav-wizard > li:not(:last-child) > a:after {
+  width: 0px;
+  height: 0px;
+  border-top: 20px inset transparent;
+  border-bottom: 20px inset transparent;
+  border-left: 20px solid #ccc;
+  position: absolute;
+  content: "";
+  top: 0;
+  right: -20px;
+  z-index: 2;
+}
+.nav-wizard > li:first-child > a {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+.nav-wizard > li:last-child > a {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+.nav-wizard > li.done:hover > a,
+.nav-wizard > li:hover > a {
+  background-color: #ccc;
+}
+.nav-wizard > li.done:hover > a:before,
+.nav-wizard > li:hover > a:before {
+  border-right-color: #ccc;
+}
+.nav-wizard > li.done:hover > a:after,
+.nav-wizard > li:hover > a:after {
+  border-left-color: #ccc;
+}
+.nav-wizard > li.done > a {
+  background-color: #ccc;
+}
+.nav-wizard > li.done > a:before {
+  border-right-color: #ccc;
+}
+.nav-wizard > li.done > a:after {
+  border-left-color: #ccc;
+}
+.nav-wizard > li.active > a,
+.nav-wizard > li.active > a:hover,
+.nav-wizard > li.active > a:focus {
+  color: #000;
+  background-color: #fff;
+}
+.nav-wizard > li.active > a:after {
+  border-left-color: #fff;
+}
+.nav-wizard > li.active > a .badge {
+  color: #428bca;
+  background-color: #ffffff;
+}
+.nav-wizard > li.disabled > a {
+  color: #222;
+}
+.nav-wizard > li.disabled > a:hover,
+.nav-wizard > li.disabled > a:focus {
+  color: #222;
+  text-decoration: none;
+  background-color: #ccc;
+  cursor: default;
+}
+.nav-wizard > li.disabled > a:before {
+  border-right-color: #ccc;
+}
+.nav-wizard > li.disabled > a:after {
+  border-left-color: #ccc;
+}
+.nav-wizard.nav-justified > li {
+  float: none;
+}
+.nav-wizard.nav-justified > li > a {
+  padding: 9px 14px;
+}
+@media (max-width: 768px) {
+  .nav-wizard.nav-justified > li > a {
+    border-radius: 4px;
+    margin-right: 0;
+  }
+  .nav-wizard.nav-justified > li > a:before,
+  .nav-wizard.nav-justified > li > a:after {
+    border: none !important;
+  }
+}
 /* Helper
 -------------------------------------------------- */
 .padding-left-sm {
@@ -527,6 +645,10 @@ body {
     border-color: #0b5a9d;
 }
 
+.schemeCSS .nav-wizard > li:not(:first-child) > a:before {
+    border-left-color: #0b5a9d;
+}
+
 .schemePSS .btn-primary {
     background-color: #d24606;
     border-color: #d24606;
@@ -573,6 +695,10 @@ body {
 .schemePSS .panel-default > .panel-heading, .schemePSS .panel-default > .panel-body {
     background-color: #e9741a;
     border-color: #e9741a;
+}
+
+.schemePSS .nav-wizard > li:not(:first-child) > a:before {
+    border-left-color: #e9741a;
 }
 
 .schemeMSBS .btn-primary {
@@ -623,6 +749,10 @@ body {
     border-color: #aa4724;
 }
 
+.schemeMSBS .nav-wizard > li:not(:first-child) > a:before {
+    border-left-color: #aa4724;
+}
+
 .schemeDFRDB .btn-primary {
     background-color: #3d6214;
     border-color: #3d6214;
@@ -671,6 +801,10 @@ body {
     border-color: #426731;
 }
 
+.schemeDFRDB .nav-wizard > li:not(:first-child) > a:before {
+    border-left-color: #426731;
+}
+
 .schemeADFC .btn-primary {
     background-color: #351a51;
     border-color: #351a51;
@@ -717,6 +851,10 @@ body {
 .schemeADFC .panel-default > .panel-heading, .schemeADFC .panel-default > .panel-body {
     background-color: #44165f;
     border-color: #44165f;
+}
+
+.schemeADFC .nav-wizard > li:not(:first-child) > a:before {
+    border-left-color: #44165f;
 }
 
 /* Navigation pill style

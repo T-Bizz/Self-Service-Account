@@ -76,7 +76,6 @@ object SubscribeAndPullMessages extends Logger {
     }
   }
 
-
   private def pushMessage(topic: Topic, message: String) {
     info("Sending pubsub message (%s) to topic (%s)".format(message, topic))
     topic.publish(Message.of(message))
