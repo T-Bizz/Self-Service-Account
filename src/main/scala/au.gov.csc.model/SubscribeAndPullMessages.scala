@@ -69,6 +69,7 @@ object SubscribeAndPullMessages extends Logger {
     }
   }
 
+<<<<<<< HEAD
   private def getOrCreateSubscription(subscription: String, topic: String): Subscription = {
     mySubscription match {
       case Some(p) => p
@@ -86,6 +87,8 @@ object SubscribeAndPullMessages extends Logger {
     }
   }
 
+=======
+>>>>>>> refs/remotes/Mike-Gough/development
   private def pushMessage(topic: Topic, message: String) {
     info("Sending pubsub message (%s) to topic (%s)".format(message, topic))
     topic.publish(Message.of(message))
