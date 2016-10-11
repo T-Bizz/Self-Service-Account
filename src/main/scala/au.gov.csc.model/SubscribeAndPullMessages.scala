@@ -6,10 +6,12 @@ import net.liftweb.common._
 import com.google.cloud.pubsub.{ Message, PubSub, PubSubOptions, PushConfig, Subscription, Topic }
 import com.google.cloud.pubsub.PubSub.MessageConsumer
 import com.google.cloud.pubsub.PubSub.MessageProcessor
-import com.google.cloud.pubsub.Topic;
-import com.google.cloud.pubsub.TopicInfo;
-import com.google.cloud.pubsub.PubSub;
-import com.google.cloud.pubsub.PubSubOptions;
+import com.google.cloud.pubsub.Topic
+import com.google.cloud.pubsub.TopicInfo
+import com.google.cloud.pubsub.PubSub
+import com.google.cloud.pubsub.PubSubOptions
+import com.google.cloud.pubsub.Subscription
+import com.google.cloud.pubsub.SubscriptionInfo
 
 import scala.pickling.Defaults._
 import scala.pickling.json._
@@ -22,6 +24,7 @@ object SubscribeAndPullMessages extends Logger {
   var tokenTopic: Option[Topic] = None
   var accessAttemptTopic: Option[Topic] = None
   var myTopic: Option[Topic] = None
+  var mySubscription: Option[Subscription] = None
 
   private def getPubSub: PubSub = {
     ps match {
@@ -37,16 +40,6 @@ object SubscribeAndPullMessages extends Logger {
     }
   }
 
-  private def getSubscription(subscription: String): Subscription = {
-    sub match {
-      case Some(p) => p
-      case None => {
-
-        sub = Some(getPubSub.getSubscription(subscription))
-        sub.get
-      }
-    }
-  }
 
   private def getNavigationTopic(topic: String): Topic = {
     navigationTopic match {
@@ -76,6 +69,22 @@ object SubscribeAndPullMessages extends Logger {
     }
   }
 
+  private def getOrCreateSubscription(subscription: String, topic: String): Subscription = {
+    mySubscription match {
+      case Some(p) => p
+      case None => {
+
+        try {
+          mySubscription = Some(getPubSub.getSubscription(subscription))
+        } catch {
+          case t: Subscription => {
+            mySubscription = Some(getPubSub.create(SubscriptionInfo.of(topic, subscription)))
+          }
+        }
+        mySubscription.get
+      }
+    }
+  }
 
   private def pushMessage(topic: Topic, message: String) {
     info("Sending pubsub message (%s) to topic (%s)".format(message, topic))

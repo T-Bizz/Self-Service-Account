@@ -10,4 +10,7 @@ class GlobalConstants {
   var navigationTopic: String = "serverSync"
   var tokenTopic: String = "serverSync"
   var accessAttemptTopic: String = "serverSync"
+  var navigationSubscription: String = "serverSync"
+  var tokenSubscription: String = "serverSync"
+  var accessAttemptSubscription: String = "serverSync"
 }

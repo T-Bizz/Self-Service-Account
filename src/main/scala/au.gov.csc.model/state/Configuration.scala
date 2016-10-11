@@ -6,9 +6,12 @@ import au.gov.csc.model.member._
 import au.gov.csc.model.account._
 import au.gov.csc.model.fact._
 import au.gov.csc.model.scheme._
+
 import scala.xml._
 import java.util.Date
+
 import net.liftweb.common.Logger
+import net.liftweb.util.Helpers._
 
 object Configuration extends Logger {
 
@@ -105,10 +108,16 @@ object Configuration extends Logger {
             nt <- (googlePubSub \\ "@navigationTopic").headOption.map(_.text)
             tt <- (googlePubSub \\ "@tokenTopic").headOption.map(_.text)
             aat <- (googlePubSub \\ "@accessAttemptTopic").headOption.map(_.text)
+            ns <- (googlePubSub \\ "@navigationSubscription").headOption.map(_.text)
+            ts <- (googlePubSub \\ "@tokenSubscription").headOption.map(_.text)
+            aas <- (googlePubSub \\ "@accessAttemptSubscription").headOption.map(_.text)
           } yield {
             gc.navigationTopic = nt.toString
             gc.tokenTopic = tt.toString
             gc.accessAttemptTopic = aat.toString
+            gc.navigationSubscription = ns.toString + nextFuncName
+            gc.tokenSubscription = ts.toString + nextFuncName
+            gc.accessAttemptSubscription = aas.toString + nextFuncName
           }
         }
       }

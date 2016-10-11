@@ -2,7 +2,7 @@
 	<globals>
 		<constants>
 			<questions maximumPerPage="2" minimumCorrectTwoFactor="3" minimumCorrectNonTwoFactor="4" />
-			<googlePubSub navigationTopic="navigationTopic" tokenTopic="tokenTopic" accessAttemptTopic="accessAttemptTopic" />
+			<googlePubSub navigationTopic="navigationTopic" tokenTopic="tokenTopic" accessAttemptTopic="accessAttemptTopic" navigationSubscription="navigationSubscription" tokenSubscription="tokenSubscription" accessAttemptSubscription="accessAttemptSubscription"/>
 		</constants>
 	</globals>
 	<schemeList>
