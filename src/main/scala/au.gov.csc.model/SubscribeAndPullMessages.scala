@@ -40,7 +40,6 @@ object SubscribeAndPullMessages extends Logger {
     }
   }
 
-
   private def getNavigationTopic(topic: String): Topic = {
     navigationTopic match {
       case Some(p) => p
@@ -69,7 +68,6 @@ object SubscribeAndPullMessages extends Logger {
     }
   }
 
-<<<<<<< HEAD
   private def getOrCreateSubscription(subscription: String, topic: String): Subscription = {
     mySubscription match {
       case Some(p) => p
@@ -87,8 +85,6 @@ object SubscribeAndPullMessages extends Logger {
     }
   }
 
-=======
->>>>>>> refs/remotes/Mike-Gough/development
   private def pushMessage(topic: Topic, message: String) {
     info("Sending pubsub message (%s) to topic (%s)".format(message, topic))
     topic.publish(Message.of(message))
@@ -102,7 +98,7 @@ object SubscribeAndPullMessages extends Logger {
         val pkl = JSONPickle(msg)
         val nm: NavigationMessage = pkl.unpickle[NavigationMessage]
         PushActorManager.!(nm)
-        info("Sent navigation message to commet: %s".format(nm))
+        info("Sent navigation message to comet: %s".format(nm))
       }
     }
   }
@@ -115,5 +111,9 @@ object SubscribeAndPullMessages extends Logger {
   def pullNavigationMessages {
     // Create a message consumer and continuously pull messages
     val consumer: MessageConsumer = getPubSub.pullAsync("serverSync", processNavigationMessage)
+  }
+
+  def pullMessages(subscription: String) = {
+    val consumer: MessageConsumer = getPubSub.pullAsync(subscription, processNavigationMessage)
   }
 }

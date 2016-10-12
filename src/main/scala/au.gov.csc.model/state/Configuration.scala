@@ -115,9 +115,9 @@ object Configuration extends Logger {
             gc.navigationTopic = nt.toString
             gc.tokenTopic = tt.toString
             gc.accessAttemptTopic = aat.toString
-            gc.navigationSubscription = ns.toString + nextFuncName
-            gc.tokenSubscription = ts.toString + nextFuncName
-            gc.accessAttemptSubscription = aas.toString + nextFuncName
+            gc.navigationSubscription = "%s-%s".format(ns.toString, nextFuncName)
+            gc.tokenSubscription = "%s-%s".format(ts.toString, nextFuncName)
+            gc.accessAttemptSubscription = "%s-%s".format(aas.toString, nextFuncName)
           }
         }
       }
